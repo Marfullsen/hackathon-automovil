@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo Presentacion 16:9 - Licencia Quest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Poppins:wght@400;600&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --amarillo-pixel: #f2e205;
+            --blanco-pixel: #ffffff;
+            --negro-fondo: #000000;
+            --gris-oscuro: #1a1a1a;
+            --gris-medio: #2b2b2b;
+            --borde-pixel: 4px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 85% 12%, rgba(242, 226, 5, 0.18), transparent 30%),
+                radial-gradient(circle at 18% 80%, rgba(255, 255, 255, 0.08), transparent 32%),
+                linear-gradient(180deg, #000 0%, #1a1a1a 100%);
+            color: var(--blanco-pixel);
+            font-family: 'Poppins', sans-serif;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+        }
+
+        .deck {
+            width: min(100vw - 32px, 1280px);
+            aspect-ratio: 16 / 9;
+            min-height: 720px;
+            border: var(--borde-pixel) solid var(--blanco-pixel);
+            box-shadow: 10px 10px 0 var(--gris-oscuro);
+            background: var(--negro-fondo);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deck::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(90deg, transparent 0%, rgba(242, 226, 5, 0.08) 100%);
+            z-index: 0;
+        }
+
+        .slides {
+            height: 100%;
+            display: flex;
+            transition: transform 0.35s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            padding: 56px;
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            gap: 22px;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .slide-main {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .tag {
+            display: inline-block;
+            width: fit-content;
+            padding: 8px 12px;
+            border: 3px solid var(--blanco-pixel);
+            background: var(--gris-oscuro);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.58rem;
+            color: var(--amarillo-pixel);
+        }
+
+        .slide h1,
+        .slide h2 {
+            font-family: 'Press Start 2P', cursive;
+            line-height: 1.4;
+            color: var(--amarillo-pixel);
+            font-size: clamp(0.85rem, 1.4vw, 1.15rem);
+            text-transform: uppercase;
+            text-align: right;
+            justify-self: end;
+        }
+
+        .slide p,
+        .slide li {
+            font-size: clamp(1rem, 1.15vw, 1.25rem);
+            line-height: 1.55;
+            color: var(--blanco-pixel);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .slide ul {
+            list-style: square;
+            padding-left: 26px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .panel {
+            border: 3px solid var(--blanco-pixel);
+            padding: 16px;
+            background: linear-gradient(180deg, rgba(43, 43, 43, 0.72) 0%, rgba(26, 26, 26, 0.78) 100%);
+        }
+
+        .panel.highlight {
+            border-color: var(--amarillo-pixel);
+            box-shadow: 0 0 0 2px rgba(242, 226, 5, 0.15) inset;
+        }
+
+        .image-placeholder {
+            border: 3px solid var(--amarillo-pixel);
+            background: var(--gris-oscuro);
+            display: grid;
+            overflow: hidden;
+            min-height: 200px;
+        }
+
+        .image-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: contrast(1.05) saturate(0.95);
+        }
+
+        .mini-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-chip {
+            border: 2px solid var(--blanco-pixel);
+            background: var(--gris-medio);
+            padding: 10px;
+            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            color: var(--amarillo-pixel);
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 3px solid var(--gris-oscuro);
+            padding-top: 10px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.52rem;
+            color: var(--amarillo-pixel);
+        }
+
+        .controls {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+        }
+
+        .btn {
+            border: 3px solid var(--blanco-pixel);
+            background: var(--amarillo-pixel);
+            color: var(--negro-fondo);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            padding: 10px 14px;
+            cursor: pointer;
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+        }
+
+        .dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--blanco-pixel);
+            background: var(--gris-oscuro);
+        }
+
+        .dot.active {
+            background: var(--amarillo-pixel);
+            border-color: var(--amarillo-pixel);
+        }
+
+        @media (max-width: 1320px) {
+            .deck {
+                min-height: 0;
+            }
+
+            .slide {
+                padding: 36px;
+            }
+
+            .slide-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 10px;
+            }
+
+            .deck {
+                width: calc(100vw - 20px);
+            }
+
+            .slide {
+                padding: 24px;
+            }
+
+            .mini-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-row {
+                font-size: 0.46rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="deck" aria-label="Presentacion Licencia Quest">
+        <div class="slides" id="slides">
+            <article class="slide">
+                <span class="tag">SLIDE 01</span>
+                <h1>Presentacion del Proyecto</h1>
+                <div class="slide-main">
+                    <div class="panel highlight">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non risus a sem viverra tristique. Cras gravida posuere lorem, eu tincidunt quam luctus id.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img src="https://placehold.co/640x360/1a1a1a/f2e205?text=Placeholder+Gameplay+2D" alt="Placeholder de gameplay 2D">
+                    </div>
+                </div>
+                <div class="footer-row">
+                    <span>Licencia Quest Clase B</span>
+                    <span>INTRO</span>
+                </div>
+            </article>
+
+            <article class="slide">
+                <span class="tag">SLIDE 02</span>
+                <h2>Problema y Contexto</h2>
+                <div class="slide-main">
+                    <div class="panel">
+                        <ul>
+                            <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+                            <li>Vestibulum commodo lectus ut turpis gravida, sed tempor arcu tempus.</li>
+                            <li>Fusce luctus neque id eros vehicula, eu lobortis sem sagittis.</li>
+                        </ul>
+                    </div>
+                    <div class="image-placeholder">
+                        <img src="https://placehold.co/640x360/000000/ffffff?text=Placeholder+Contexto+Usuario" alt="Placeholder de contexto de usuario">
+                    </div>
+                </div>
+                <div class="footer-row">
+                    <span>Diagnostico</span>
+                    <span>CONTEXTO</span>
+                </div>
+            </article>
+
+            <article class="slide">
+                <span class="tag">SLIDE 03</span>
+                <h2>Solucion Propuesta</h2>
+                <div class="slide-main">
+                    <div class="panel highlight">
+                        <p>Curabitur bibendum, augue at ultrices faucibus, dui lectus malesuada libero, non consequat erat lectus vitae velit.</p>
+                        <p>Donec posuere ex eget sapien porta, a feugiat ligula molestie. Suspendisse potenti in hac habitasse platea dictumst.</p>
+                    </div>
+                    <div class="mini-grid">
+                        <div class="stat-chip">MODO TEORIA</div>
+                        <div class="stat-chip">MODO PRACTICO</div>
+                        <div class="stat-chip">XP SISTEMA</div>
+                        <div class="stat-chip">FEEDBACK RAPIDO</div>
+                    </div>
+                </div>
+                <div class="footer-row">
+                    <span>MVP de Juego</span>
+                    <span>SOLUCION</span>
+                </div>
+            </article>
+
+            <article class="slide">
+                <span class="tag">SLIDE 04</span>
+                <h2>Arquitectura Atomica</h2>
+                <div class="slide-main">
+                    <div class="panel">
+                        <ul>
+                            <li>Atomos: botones, tipografias, chips, indicadores.</li>
+                            <li>Moleculas: tarjeta de mision y barra de progreso.</li>
+                            <li>Organismos: tablero de aprendizaje y roadmap.</li>
+                        </ul>
+                    </div>
+                    <div class="image-placeholder">
+                        <img src="https://placehold.co/640x360/1a1a1a/f2e205?text=Placeholder+Atomic+Map" alt="Placeholder de mapa de componentes atomicos">
+                    </div>
+                </div>
+                <div class="footer-row">
+                    <span>Diseno UI</span>
+                    <span>ATOMIC DESIGN</span>
+                </div>
+            </article>
+
+            <article class="slide">
+                <span class="tag">SLIDE 05</span>
+                <h2>Validacion y Metricas</h2>
+                <div class="slide-main">
+                    <div class="panel">
+                        <p>Aliquam erat volutpat. Nam laoreet, justo non feugiat hendrerit, nisl orci congue velit, ut efficitur augue neque quis sem.</p>
+                        <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas quisque in orci.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img src="https://placehold.co/640x360/000000/f2e205?text=Placeholder+Dashboard+Metricas" alt="Placeholder de dashboard de metricas">
+                    </div>
+                </div>
+                <div class="footer-row">
+                    <span>Resultados Esperados</span>
+                    <span>METRICAS</span>
+                </div>
+            </article>
+
+            <article class="slide">
+                <span class="tag">SLIDE 06</span>
+                <h2>Cierre y Proximos Pasos</h2>
+                <div class="slide-main">
+                    <div class="panel highlight">
+                        <ul>
+                            <li>Lorem ipsum dolor sit amet, adipiscing elit sed do.</li>
+                            <li>Ut enim ad minim veniam, quis nostrud exercitation.</li>
+                            <li>Duis aute irure dolor in reprehenderit in voluptate velit.</li>
+                        </ul>
+                    </div>
+                    <div class="image-placeholder">
+                        <img src="https://placehold.co/640x360/1a1a1a/ffffff?text=Placeholder+Roadmap+Final" alt="Placeholder de roadmap final">
+                    </div>
+                </div>
+                <div class="footer-row">
+                    <span>Gracias</span>
+                    <span>FIN</span>
+                </div>
+            </article>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="prevBtn" type="button">ANTERIOR</button>
+            <div class="dots" id="dots"></div>
+            <button class="btn" id="nextBtn" type="button">SIGUIENTE</button>
+        </div>
+    </section>
+
+    <script>
+        const slides = document.getElementById('slides');
+        const slideCount = slides.children.length;
+        const dotsContainer = document.getElementById('dots');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let current = 0;
+
+        for (let i = 0; i < slideCount; i += 1) {
+            const dot = document.createElement('button');
+            dot.className = 'dot';
+            dot.type = 'button';
+            dot.setAttribute('aria-label', 'Ir a slide ' + (i + 1));
+            dot.addEventListener('click', () => {
+                current = i;
+                render();
+            });
+            dotsContainer.appendChild(dot);
+        }
+
+        function render() {
+            slides.style.transform = 'translateX(-' + (current * 100) + '%)';
+            [...dotsContainer.children].forEach((dot, index) => {
+                dot.classList.toggle('active', index === current);
+            });
+        }
+
+        function next() {
+            current = (current + 1) % slideCount;
+            render();
+        }
+
+        function prev() {
+            current = (current - 1 + slideCount) % slideCount;
+            render();
+        }
+
+        prevBtn.addEventListener('click', prev);
+        nextBtn.addEventListener('click', next);
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight') {
+                next();
+            }
+            if (event.key === 'ArrowLeft') {
+                prev();
+            }
+        });
+
+        render();
+    </script>
+</body>
+</html>

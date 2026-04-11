@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Conducción Vial - Prototipo</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        #webgl-canvas { width: 100vw; height: 100vh; display: block; }
+        
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            pointer-events: none; /* No interfiere con el canvas */
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="webgl-canvas"></canvas>
+
+    <div id="ui">
+        <h2>Simulador Vial v0.1</h2>
+        <p>Logros: <span id="achievements-count">0</span> / 5</p>
+    </div>
+
+    <div id="instructions">
+        Usa <b>W, A, S, D</b> para conducir | <b>R</b> para reiniciar
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        let scene, camera, renderer, vehicle, ground, controls;
+        let keys = {};
+
+        // Configuración de movimiento (físicas simplificadas)
+        let speed = 0;
+        let acceleration = 0.005;
+        let turnSpeed = 0.03;
+        let friction = 0.98;
+        let maxSpeed = 0.5;
+
+        init();
+        animate();
+
+        function init() {
+            // 1. Escena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xa0a0a0); // Fondo gris (asfalto)
+            scene.fog = new THREE.Fog(0xa0a0a0, 10, 50); // Niebla para profundidad
+
+            // 2. Cámara
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 10); // Posición inicial (arriba y atrás)
+
+            // 3. Renderer
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // 4. Luces
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(10, 10, 5);
+            scene.add(directionalLight);
+
+            // 5. Suelo (Grid y líneas de tráfico simplificadas)
+            ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(100, 100),
+                new THREE.MeshStandardMaterial({ color: 0x555555, depthWrite: false })
+            );
+            ground.rotation.x = -Math.PI / 2;
+            scene.add(ground);
+
+            const gridHelper = new THREE.GridHelper(100, 40, 0x000000, 0x000000);
+            gridHelper.material.opacity = 0.2;
+            gridHelper.material.transparent = true;
+            scene.add(gridHelper);
+
+            // 6. CREACIÓN DEL "AUTITO" 3D (Formas básicas)
+            vehicle = new THREE.Group();
+
+            // Cuerpo del auto (Cubo rojo)
+            const carBody = new THREE.Mesh(
+                new THREE.BoxGeometry(1, 0.5, 2),
+                new THREE.MeshStandardMaterial({ color: 0xff0000 })
+            );
+            carBody.position.y = 0.35; // Un poco elevado para las ruedas
+            vehicle.add(carBody);
+
+            // Cabina (Cubo más pequeño)
+            const carCabin = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.4, 1),
+                new THREE.MeshStandardMaterial({ color: 0x333333 })
+            );
+            carCabin.position.y = 0.75;
+            carCabin.position.z = -0.2;
+            vehicle.add(carCabin);
+
+            // Ruedas (Cilindros)
+            const wheelGeometry = new THREE.CylinderGeometry(0.25, 0.25, 0.2, 20);
+            const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x111111 });
+
+            const wheelPositions = [
+                [-0.6, 0.25, 0.6], [0.6, 0.25, 0.6],   // Delanteras
+                [-0.6, 0.25, -0.6], [0.6, 0.25, -0.6]  // Traseras
+            ];
+
+            wheelPositions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel.position.set(pos[0], pos[1], pos[2]);
+                wheel.rotation.z = Math.PI / 2; // Girar el cilindro
+                vehicle.add(wheel);
+            });
+
+            scene.add(vehicle);
+            vehicle.position.y = 0.1; // Ajuste fino sobre el suelo
+
+            // 7. Controles de Cámara (Para depuración, después lo haremos automático)
+            // controls = new OrbitControls(camera, renderer.domElement);
+            // controls.enablePan = false;
+
+            // Eventos
+            window.addEventListener('resize', onWindowResize, false);
+            window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+            window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+        }
+
+        function updateVehicle() {
+            // Control de dirección
+            if (keys['a'] || keys['ArrowLeft']) vehicle.rotation.y += turnSpeed;
+            if (keys['d'] || keys['ArrowRight']) vehicle.rotation.y -= turnSpeed;
+
+            // Control de velocidad
+            if (keys['w'] || keys['ArrowUp']) speed += acceleration;
+            if (keys['s'] || keys['ArrowDown']) speed -= acceleration;
+            
+            // Tecla Reiniciar
+            if (keys['r']) {
+                vehicle.position.set(0, 0.1, 0);
+                vehicle.rotation.set(0, 0, 0);
+                speed = 0;
+            }
+
+            // Aplicar fricción (desaceleración natural)
+            speed *= friction;
+
+            // Limitar velocidad máxima
+            speed = Math.max(-maxSpeed / 2, Math.min(maxSpeed, speed));
+
+            // Mover el vehículo en la dirección a la que mira
+            vehicle.translateZ(-speed); 
+
+            // Actualizar la posición de la cámara para que siga al auto (Chase Cam)
+            // Crear un offset suave detrás y arriba
+            const relativeCameraOffset = new THREE.Vector3(0, 3, 7);
+            const cameraOffset = relativeCameraOffset.applyMatrix4(vehicle.matrixWorld);
+
+            camera.position.x = cameraOffset.x;
+            camera.position.y = cameraOffset.y;
+            camera.position.z = cameraOffset.z;
+
+            // Mirar al auto
+            camera.lookAt(vehicle.position);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updateVehicle();
+            // if (controls) controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+</html>

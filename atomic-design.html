@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Licencia Quest Clase B - Atomic Design</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #000000;
+            --bg-panel: #000000;
+            --ink: #ffffff;
+            --ink-soft: #f2e205;
+            --accent-cyan: #f2e205;
+            --accent-orange: #f2e205;
+            --accent-red: #1a1a1a;
+            --accent-green: #f2e205;
+            --pixel-shadow: #1a1a1a;
+            --pixel-border: 4px;
+            --radius-small: 8px;
+            --space-1: 8px;
+            --space-2: 12px;
+            --space-3: 18px;
+            --space-4: 24px;
+            --space-5: 36px;
+            --space-6: 48px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: 'VT323', monospace;
+            background:
+                radial-gradient(circle at 20% 10%, rgba(242, 226, 5, 0.14) 0, transparent 28%),
+                radial-gradient(circle at 75% 20%, rgba(255, 255, 255, 0.08) 0, transparent 35%),
+                linear-gradient(180deg, #000000 0%, #1a1a1a 100%);
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* ATOMOS */
+        .pixel-border {
+            border: var(--pixel-border) solid var(--ink);
+            box-shadow: 6px 6px 0 var(--pixel-shadow);
+            border-radius: var(--radius-small);
+            background: var(--bg-panel);
+        }
+
+        .title-pixel {
+            font-family: 'Press Start 2P', cursive;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1.35;
+        }
+
+        .text-muted {
+            color: var(--ink-soft);
+            font-size: 1.65rem;
+            line-height: 1.2;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border: 3px solid var(--ink);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.56rem;
+            background: #1a1a1a;
+        }
+
+        .chip-danger { background: #1a1a1a; }
+        .chip-info { background: #1a1a1a; }
+        .chip-success { background: #1a1a1a; }
+
+        .btn-pixel {
+            font-family: 'Press Start 2P', cursive;
+            border: 3px solid var(--ink);
+            padding: 11px 15px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.15s ease;
+        }
+
+        .btn-main {
+            background: var(--accent-orange);
+            color: #000000;
+        }
+
+        .btn-secondary {
+            background: var(--accent-cyan);
+            color: #000000;
+        }
+
+        .btn-pixel:hover {
+            transform: translate(-2px, -2px);
+        }
+
+        .btn-pixel:active {
+            transform: translate(2px, 2px);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--ink);
+            display: inline-block;
+        }
+
+        .dot-red { background: var(--accent-red); }
+        .dot-green { background: var(--accent-green); }
+
+        /* MOLECULAS */
+        .hud {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+        }
+
+        .meter {
+            width: 100%;
+            max-width: 420px;
+            height: 24px;
+            border: 3px solid var(--ink);
+            background: #1a1a1a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f2e205, #ffffff);
+            transition: width 0.35s ease;
+        }
+
+        .mission-card {
+            padding: var(--space-3);
+            display: grid;
+            gap: var(--space-2);
+        }
+
+        .mission-top {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-2);
+            align-items: center;
+        }
+
+        .checkpoint {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+        }
+
+        .checkpoint input {
+            width: 18px;
+            height: 18px;
+            accent-color: #f2e205;
+        }
+
+        .tip {
+            padding: var(--space-2);
+            border: 3px dashed var(--ink);
+            font-size: 1.4rem;
+            line-height: 1.05;
+            background: #1a1a1a;
+        }
+
+        /* ORGANISMOS */
+        .hero {
+            padding: var(--space-6) var(--space-4) var(--space-4);
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            gap: var(--space-3);
+            animation: rise-in 0.5s ease;
+        }
+
+        .hero h1 {
+            font-size: clamp(1rem, 2.6vw, 1.5rem);
+        }
+
+        .hero-copy {
+            max-width: 700px;
+            font-size: 1.8rem;
+            line-height: 1.08;
+        }
+
+        .panel-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 var(--space-4) var(--space-5);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+        }
+
+        .atomic-stage {
+            padding: var(--space-3);
+            display: grid;
+            gap: var(--space-3);
+        }
+
+        .stage-title {
+            font-size: 0.64rem;
+            color: #f2e205;
+        }
+
+        .atoms-shelf,
+        .molecule-shelf {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+        }
+
+        .organism-stack {
+            display: grid;
+            gap: var(--space-2);
+        }
+
+        .license-roadmap {
+            display: grid;
+            gap: var(--space-2);
+        }
+
+        .road-step {
+            border-left: 4px solid var(--ink);
+            padding-left: 12px;
+            font-size: 1.45rem;
+            line-height: 1.05;
+        }
+
+        .footer-terminal {
+            background: #1a1a1a;
+            color: #f2e205;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            padding: var(--space-2) var(--space-3);
+            border-top: 4px solid var(--accent-cyan);
+        }
+
+        .blink {
+            animation: blink 1s steps(1) infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        @keyframes rise-in {
+            from { transform: translateY(14px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .mission-list {
+            display: grid;
+            gap: var(--space-2);
+        }
+
+        .final-card {
+            padding: var(--space-3);
+            background: #000000;
+        }
+
+        .small-note {
+            font-size: 1.2rem;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+
+        /* TEMPLATE + RESPONSIVE */
+        @media (max-width: 960px) {
+            .panel-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hud {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .meter {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .hero,
+            .panel-grid {
+                padding-left: var(--space-2);
+                padding-right: var(--space-2);
+            }
+
+            .mission-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <span class="chip chip-info">MODO: APRENDER MANEJO CHILE</span>
+        <h1 class="title-pixel">Licencia Quest: Clase B</h1>
+        <p class="hero-copy">
+            Juego educativo para practicar teoria vial, preparacion para examen practico y pasos administrativos
+            para obtener la licencia Clase B en Chile.
+        </p>
+        <div class="hud pixel-border">
+            <strong class="title-pixel" style="font-size:0.54rem;">PROGRESO GENERAL</strong>
+            <div class="meter" aria-label="barra de progreso">
+                <div id="meterFill" class="meter-fill"></div>
+            </div>
+            <span id="progressValue" class="chip chip-success">0% COMPLETADO</span>
+        </div>
+    </header>
+
+    <main class="panel-grid">
+        <section class="atomic-stage pixel-border">
+            <h2 class="title-pixel stage-title">1) Atomos</h2>
+            <div class="atoms-shelf">
+                <span class="chip chip-info"><span class="status-dot dot-green"></span>LISTO</span>
+                <span class="chip chip-danger"><span class="status-dot dot-red"></span>RIESGO</span>
+                <a href="#misiones" class="btn-pixel btn-main">INICIAR RUN</a>
+                <a href="#tramite" class="btn-pixel btn-secondary">VER REQUISITOS</a>
+            </div>
+            <p class="text-muted">Tipografia pixel + chips + botones + indicadores de estado.</p>
+
+            <h2 class="title-pixel stage-title">2) Moleculas</h2>
+            <div class="molecule-shelf">
+                <article class="mission-card pixel-border" style="max-width: 360px;">
+                    <div class="mission-top">
+                        <strong class="title-pixel" style="font-size:0.58rem;">Mision: Senaletica</strong>
+                        <span class="chip chip-info">XP +120</span>
+                    </div>
+                    <p class="small-note">Identifica 10 senales criticas antes de 60 segundos.</p>
+                </article>
+            </div>
+
+            <h2 class="title-pixel stage-title">3) Organismos</h2>
+            <div class="organism-stack">
+                <div class="tip">
+                    Organismo de aprendizaje: tablero de misiones + feedback instantaneo + avance de licencia.
+                </div>
+                <div class="license-roadmap pixel-border" id="tramite" style="padding:12px;">
+                    <div class="road-step"><strong>STEP 01:</strong> Reune documentos solicitados por tu municipalidad.</div>
+                    <div class="road-step"><strong>STEP 02:</strong> Rinde examenes medico, psicotecnico y de vista.</div>
+                    <div class="road-step"><strong>STEP 03:</strong> Aprueba examen teorico y examen practico.</div>
+                    <div class="road-step"><strong>STEP 04:</strong> Emision y retiro de licencia Clase B.</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="atomic-stage pixel-border" id="misiones">
+            <h2 class="title-pixel stage-title">4) Template + Pagina</h2>
+            <p class="text-muted">Pantalla final del juego: cumple las misiones para desbloquear la licencia.</p>
+
+            <div class="mission-list">
+                <label class="checkpoint">
+                    <input type="checkbox" class="mission-check" value="25">
+                    Completar modulo de teoria vial chilena.
+                </label>
+                <label class="checkpoint">
+                    <input type="checkbox" class="mission-check" value="25">
+                    Practicar estacionamiento, virajes y prioridad de paso.
+                </label>
+                <label class="checkpoint">
+                    <input type="checkbox" class="mission-check" value="25">
+                    Superar simulacion de examen practico con 0 faltas graves.
+                </label>
+                <label class="checkpoint">
+                    <input type="checkbox" class="mission-check" value="25">
+                    Agendar y completar tramite municipal para Clase B.
+                </label>
+            </div>
+
+            <article class="final-card pixel-border" style="margin-top:12px;">
+                <h3 class="title-pixel" style="font-size:0.58rem; margin-bottom:8px;">Recompensa Final</h3>
+                <p class="small-note" id="rewardText">Aun no desbloqueada. Completa todas las misiones.</p>
+            </article>
+
+            <p class="small-note" style="margin-top:10px;">
+                Nota: Los requisitos exactos pueden variar segun comuna. Verifica siempre la informacion oficial de tu municipalidad.
+            </p>
+        </section>
+    </main>
+
+    <footer class="footer-terminal">
+        <span class="blink">&gt;</span> STATUS_LICENSE_B.EXE :: READY :: PLAYER_CHILE@SIMULADOR:~$
+    </footer>
+
+    <script>
+        const checks = document.querySelectorAll('.mission-check');
+        const meterFill = document.getElementById('meterFill');
+        const progressValue = document.getElementById('progressValue');
+        const rewardText = document.getElementById('rewardText');
+
+        function updateProgress() {
+            let progress = 0;
+            checks.forEach((check) => {
+                if (check.checked) {
+                    progress += Number(check.value);
+                }
+            });
+
+            meterFill.style.width = progress + '%';
+            progressValue.textContent = progress + '% COMPLETADO';
+
+            if (progress === 100) {
+                rewardText.textContent = 'Licencia Clase B desbloqueada en el simulador. Listo para rendir en la vida real.';
+            } else {
+                rewardText.textContent = 'Aun no desbloqueada. Completa todas las misiones.';
+            }
+        }
+
+        checks.forEach((check) => {
+            check.addEventListener('change', updateProgress);
+        });
+    </script>
+</body>
+</html>
