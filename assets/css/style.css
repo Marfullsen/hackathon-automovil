@@ -1,0 +1,502 @@
+        :root {
+            --bg: #07090d;
+            --panel: rgba(10, 16, 24, 0.86);
+            --line: rgba(255, 255, 255, 0.18);
+            --text: #f4f7fb;
+            --muted: #afbac8;
+            --accent: #3db5ff;
+            --ok: #2add79;
+            --bad: #ff6666;
+            --warn: #ffc94a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        #gameCanvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        .hud {
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .metric {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 7px;
+            backdrop-filter: blur(4px);
+            min-height: 48px;
+        }
+
+        .metric .label {
+            font-size: 0.6rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric .value {
+            margin-top: 3px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .mission-panel {
+            position: fixed;
+            left: 8px;
+            right: 8px;
+            top: 78px;
+            z-index: 19;
+            background: rgba(10, 16, 24, 0.9);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 10px 12px;
+            backdrop-filter: blur(6px);
+            display: grid;
+            gap: 6px;
+            visibility: hidden;
+        }
+
+        .mission-kicker {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .mission-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .mission-text {
+            font-size: 0.82rem;
+            line-height: 1.45;
+            color: var(--muted);
+        }
+
+        .mission-meta {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mission-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 0.7rem;
+        }
+
+        .progress-wrap {
+            margin-top: 4px;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), #75ceff);
+        }
+
+        .loop-tip {
+            display: none;
+        }
+
+        .loop-tip strong { color: var(--text); }
+
+        .mode-label {
+            margin-top: 8px;
+            margin-bottom: 6px;
+            font-size: 0.74rem;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .mode-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            border-radius: 8px;
+            font-size: 0.72rem;
+            padding: 6px 8px;
+            cursor: pointer;
+        }
+
+        .mode-btn.active {
+            background: var(--accent);
+            color: #03121e;
+            border-color: transparent;
+            font-weight: 700;
+        }
+
+        .controls {
+            position: fixed;
+            right: 8px;
+            bottom: 8px;
+            display: grid;
+            gap: 6px;
+            z-index: 20;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .touch-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 700;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .legend {
+            display: none;
+        }
+
+        .legend strong {
+            color: var(--text);
+        }
+
+        .mobile-mode {
+            position: fixed;
+            left: 8px;
+            bottom: 8px;
+            z-index: 21;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 6px;
+            display: grid;
+            gap: 6px;
+            max-width: calc(100vw - 190px);
+        }
+
+        .mobile-mode .mode-label {
+            margin: 0;
+            font-size: 0.62rem;
+            color: var(--muted);
+        }
+
+        .mobile-mode .mode-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mobile-mode .mode-btn {
+            font-size: 0.66rem;
+            padding: 5px 7px;
+        }
+
+        .question-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            place-items: center;
+            background: rgba(0, 0, 0, 0.52);
+            z-index: 50;
+            padding: 14px;
+        }
+
+        .question-card {
+            width: min(720px, 96vw);
+            background: #0f1621;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+            display: grid;
+            gap: 10px;
+        }
+
+        .question-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .question-head h2 {
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .badge {
+            font-size: 0.74rem;
+            color: var(--muted);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 4px 8px;
+        }
+
+        .question-text {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .option-btn:hover { border-color: var(--accent); }
+
+        .feedback {
+            display: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .feedback.ok {
+            display: block;
+            background: rgba(42, 221, 121, 0.15);
+            border: 1px solid rgba(42, 221, 121, 0.5);
+        }
+
+        .feedback.bad {
+            display: block;
+            background: rgba(255, 102, 102, 0.15);
+            border: 1px solid rgba(255, 102, 102, 0.5);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .btn {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 9px 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #03121e;
+            border: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+        }
+
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 60;
+            background: rgba(10, 16, 24, 0.92);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            color: var(--text);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            max-width: min(90vw, 340px);
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .map-container {
+            position: fixed;
+            right: 8px;
+            bottom: 118px;
+            width: 148px;
+            height: 148px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+            z-index: 24;
+            background: rgba(8, 12, 20, 0.86);
+            backdrop-filter: blur(3px);
+            transition: transform 0.25s ease;
+        }
+
+        .map-container:hover {
+            transform: scale(1.06);
+        }
+
+        #miniMapCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .map-label {
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.54rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(244, 247, 251, 0.9);
+            background: rgba(7, 10, 16, 0.56);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            padding: 2px 7px;
+            pointer-events: none;
+        }
+
+        @media (min-width: 901px) {
+            .hud {
+                top: 12px;
+                left: 12px;
+                right: 12px;
+                grid-template-columns: repeat(5, minmax(120px, 1fr));
+                gap: 8px;
+            }
+
+            .metric {
+                border-radius: 12px;
+                padding: 10px;
+                backdrop-filter: blur(6px);
+                min-height: 58px;
+            }
+
+            .metric .label { font-size: 0.72rem; }
+            .metric .value { font-size: 1.05rem; margin-top: 4px; }
+            .progress-wrap { margin-top: 6px; height: 8px; }
+
+            .mission-panel {
+                top: 82px;
+                left: 12px;
+                right: auto;
+                width: min(420px, calc(100vw - 24px));
+                padding: 12px 14px;
+            }
+
+            .mission-title {
+                font-size: 1.08rem;
+            }
+
+            .mission-text {
+                font-size: 0.86rem;
+            }
+
+            .loop-tip {
+                display: block;
+                position: fixed;
+                top: 86px;
+                right: 12px;
+                max-width: 300px;
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 10px;
+                z-index: 20;
+                font-size: 0.82rem;
+                line-height: 1.4;
+                color: var(--muted);
+                pointer-events: auto;
+            }
+
+            .controls {
+                left: 12px;
+                right: auto;
+                bottom: 12px;
+                gap: 8px;
+            }
+
+            .controls-row { gap: 8px; }
+
+            .touch-btn {
+                width: 58px;
+                height: 58px;
+                border-radius: 12px;
+                font-size: 1.1rem;
+            }
+
+            .legend {
+                display: block;
+                position: fixed;
+                bottom: 12px;
+                right: 12px;
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 10px;
+                font-size: 0.82rem;
+                color: var(--muted);
+                z-index: 20;
+                max-width: 360px;
+                line-height: 1.35;
+            }
+
+            .map-container {
+                bottom: 190px;
+                right: 12px;
+                width: 168px;
+                height: 168px;
+            }
+
+            .mobile-mode {
+                left: 12px;
+                bottom: 170px;
+                max-width: 300px;
+            }
+        }

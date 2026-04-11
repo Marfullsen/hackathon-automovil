@@ -2,463 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="assets/css/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safe Drive Learning - Minijuego 3D Clase B</title>
-    <style>
-        :root {
-            --bg: #07090d;
-            --panel: rgba(10, 16, 24, 0.86);
-            --line: rgba(255, 255, 255, 0.18);
-            --text: #f4f7fb;
-            --muted: #afbac8;
-            --accent: #3db5ff;
-            --ok: #2add79;
-            --bad: #ff6666;
-            --warn: #ffc94a;
-        }
 
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Helvetica, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        #gameCanvas {
-            width: 100vw;
-            height: 100vh;
-            display: block;
-        }
-
-        .hud {
-            position: fixed;
-            top: 8px;
-            left: 8px;
-            right: 8px;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 6px;
-            pointer-events: none;
-            z-index: 20;
-        }
-
-        .metric {
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 7px;
-            backdrop-filter: blur(4px);
-            min-height: 48px;
-        }
-
-        .metric .label {
-            font-size: 0.6rem;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .metric .value {
-            margin-top: 3px;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-
-        .mission-panel {
-            position: fixed;
-            left: 8px;
-            right: 8px;
-            top: 78px;
-            z-index: 19;
-            background: rgba(10, 16, 24, 0.9);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 10px 12px;
-            backdrop-filter: blur(6px);
-            display: grid;
-            gap: 6px;
-            visibility: hidden;
-        }
-
-        .mission-kicker {
-            font-size: 0.62rem;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .mission-title {
-            font-size: 0.98rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .mission-text {
-            font-size: 0.82rem;
-            line-height: 1.45;
-            color: var(--muted);
-        }
-
-        .mission-meta {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .mission-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 8px;
-            border-radius: 999px;
-            border: 1px solid var(--line);
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text);
-            font-size: 0.7rem;
-        }
-
-        .progress-wrap {
-            margin-top: 4px;
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.14);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .progress {
-            height: 100%;
-            width: 0;
-            background: linear-gradient(90deg, var(--accent), #75ceff);
-        }
-
-        .loop-tip {
-            display: none;
-        }
-
-        .loop-tip strong { color: var(--text); }
-
-        .mode-label {
-            margin-top: 8px;
-            margin-bottom: 6px;
-            font-size: 0.74rem;
-            color: var(--text);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .mode-row {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .mode-btn {
-            border: 1px solid var(--line);
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text);
-            border-radius: 8px;
-            font-size: 0.72rem;
-            padding: 6px 8px;
-            cursor: pointer;
-        }
-
-        .mode-btn.active {
-            background: var(--accent);
-            color: #03121e;
-            border-color: transparent;
-            font-weight: 700;
-        }
-
-        .controls {
-            position: fixed;
-            right: 8px;
-            bottom: 8px;
-            display: grid;
-            gap: 6px;
-            z-index: 20;
-        }
-
-        .controls-row {
-            display: flex;
-            gap: 6px;
-        }
-
-        .touch-btn {
-            width: 46px;
-            height: 46px;
-            border-radius: 10px;
-            border: 1px solid var(--line);
-            background: var(--panel);
-            color: var(--text);
-            font-size: 0.95rem;
-            font-weight: 700;
-            user-select: none;
-            touch-action: none;
-        }
-
-        .legend {
-            display: none;
-        }
-
-        .legend strong {
-            color: var(--text);
-        }
-
-        .mobile-mode {
-            position: fixed;
-            left: 8px;
-            bottom: 8px;
-            z-index: 21;
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 6px;
-            display: grid;
-            gap: 6px;
-            max-width: calc(100vw - 190px);
-        }
-
-        .mobile-mode .mode-label {
-            margin: 0;
-            font-size: 0.62rem;
-            color: var(--muted);
-        }
-
-        .mobile-mode .mode-row {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .mobile-mode .mode-btn {
-            font-size: 0.66rem;
-            padding: 5px 7px;
-        }
-
-        .question-modal {
-            position: fixed;
-            inset: 0;
-            display: none;
-            place-items: center;
-            background: rgba(0, 0, 0, 0.52);
-            z-index: 50;
-            padding: 14px;
-        }
-
-        .question-card {
-            width: min(720px, 96vw);
-            background: #0f1621;
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            padding: 14px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.45);
-            display: grid;
-            gap: 10px;
-        }
-
-        .question-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .question-head h2 {
-            margin: 0;
-            font-size: 1.05rem;
-        }
-
-        .badge {
-            font-size: 0.74rem;
-            color: var(--muted);
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            padding: 4px 8px;
-        }
-
-        .question-text {
-            margin: 0;
-            color: var(--muted);
-            line-height: 1.45;
-        }
-
-        .option-btn {
-            width: 100%;
-            text-align: left;
-            border: 1px solid var(--line);
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text);
-            border-radius: 10px;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .option-btn:hover { border-color: var(--accent); }
-
-        .feedback {
-            display: none;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .feedback.ok {
-            display: block;
-            background: rgba(42, 221, 121, 0.15);
-            border: 1px solid rgba(42, 221, 121, 0.5);
-        }
-
-        .feedback.bad {
-            display: block;
-            background: rgba(255, 102, 102, 0.15);
-            border: 1px solid rgba(255, 102, 102, 0.5);
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-        }
-
-        .btn {
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 9px 12px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #03121e;
-            border: none;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--text);
-        }
-
-        .toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 60;
-            background: rgba(10, 16, 24, 0.92);
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 0.85rem;
-            color: var(--text);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-            max-width: min(90vw, 340px);
-            text-align: center;
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-
-        @media (min-width: 901px) {
-            .hud {
-                top: 12px;
-                left: 12px;
-                right: 12px;
-                grid-template-columns: repeat(5, minmax(120px, 1fr));
-                gap: 8px;
-            }
-
-            .metric {
-                border-radius: 12px;
-                padding: 10px;
-                backdrop-filter: blur(6px);
-                min-height: 58px;
-            }
-
-            .metric .label { font-size: 0.72rem; }
-            .metric .value { font-size: 1.05rem; margin-top: 4px; }
-            .progress-wrap { margin-top: 6px; height: 8px; }
-
-            .mission-panel {
-                top: 82px;
-                left: 12px;
-                right: auto;
-                width: min(420px, calc(100vw - 24px));
-                padding: 12px 14px;
-            }
-
-            .mission-title {
-                font-size: 1.08rem;
-            }
-
-            .mission-text {
-                font-size: 0.86rem;
-            }
-
-            .loop-tip {
-                display: block;
-                position: fixed;
-                top: 86px;
-                right: 12px;
-                max-width: 300px;
-                background: var(--panel);
-                border: 1px solid var(--line);
-                border-radius: 12px;
-                padding: 10px;
-                z-index: 20;
-                font-size: 0.82rem;
-                line-height: 1.4;
-                color: var(--muted);
-                pointer-events: auto;
-            }
-
-            .controls {
-                left: 12px;
-                right: auto;
-                bottom: 12px;
-                gap: 8px;
-            }
-
-            .controls-row { gap: 8px; }
-
-            .touch-btn {
-                width: 58px;
-                height: 58px;
-                border-radius: 12px;
-                font-size: 1.1rem;
-            }
-
-            .legend {
-                display: block;
-                position: fixed;
-                bottom: 12px;
-                right: 12px;
-                background: var(--panel);
-                border: 1px solid var(--line);
-                border-radius: 12px;
-                padding: 10px;
-                font-size: 0.82rem;
-                color: var(--muted);
-                z-index: 20;
-                max-width: 360px;
-                line-height: 1.35;
-            }
-
-            .mobile-mode {
-                left: 12px;
-                bottom: 170px;
-                max-width: 300px;
-            }
-        }
-    </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
@@ -501,8 +48,8 @@
 
     <section class="mission-panel" aria-live="polite">
         <div class="mission-kicker">Mision activa</div>
-        <div class="mission-title" id="missionTitle">Operacion Traslado Seguro</div>
-        <div class="mission-text" id="missionText">Traslada a tu pasajero cruzando la ciudad sin generar riesgo vial.</div>
+        <div class="mission-title" id="missionTitle">Operacion Ruta a Clinica</div>
+        <div class="mission-text" id="missionText">Lleva al pasajero a la clinica respetando pasos peatonales y flujo vial.</div>
         <div class="mission-meta">
             <span class="mission-pill" id="missionChapter">Paso 1 / 6</span>
             <span class="mission-pill" id="missionDifficulty">Guiado</span>
@@ -535,12 +82,17 @@
     </div>
 
     <aside class="legend">
-        Usa WASD o los botones para conducir. Cruza etapas urbanas respetando convivencia vial.
+        Usa WASD o los botones para conducir. Completa la ruta a la clinica cuidando a peatones.
         <br><br>
-        <strong>Entorno:</strong> calles, intersecciones, trafico, conos, resaltos y zonas de riesgo.
+        <strong>Entorno:</strong> distritos urbanos, pasos peatonales dinamicos, trafico y zonas de riesgo.
     </aside>
 
     <div class="toast" id="toast"></div>
+
+    <div class="map-container" aria-label="Minimapa de ruta">
+        <canvas id="miniMapCanvas" width="220" height="220"></canvas>
+        <div class="map-label">Minimapa</div>
+    </div>
 
     <script type="importmap">
         {
@@ -554,12 +106,21 @@
         import * as THREE from 'three';
 
         const stages = [
-            { chapter: 'Tramo 1 / Salida del barrio', learning: 'Conduce sin invadir vereda y mantén velocidad moderada en calle local.', zGate: 85, zone: 'residencial' },
-            { chapter: 'Tramo 2 / Interseccion principal', learning: 'Llega a la intersección con control y respeta la prioridad de cruce.', zGate: 52, zone: 'interseccion' },
-            { chapter: 'Tramo 3 / Zona con conos', learning: 'Reduce velocidad y evita conos del tramo en reparación vial.', zGate: 20, zone: 'obras' },
-            { chapter: 'Tramo 4 / Resaltos urbanos', learning: 'Pasa resaltos sin exceso de velocidad ni maniobras bruscas.', zGate: -18, zone: 'resalto' },
-            { chapter: 'Tramo 5 / Trafico compartido', learning: 'Convive con otros vehículos manteniendo distancia segura.', zGate: -56, zone: 'trafico' },
-            { chapter: 'Tramo 6 / Llegada segura', learning: 'Completa el traslado sin incidentes y con buena convivencia vial.', zGate: -95, zone: 'final' }
+            { chapter: 'Tramo 1 / Barrio residencial', learning: 'Inicia la ruta a la clinica manteniendo velocidad urbana y control de carril.', zGate: 170, zone: 'residencial' },
+            { chapter: 'Tramo 2 / Cruce escolar', learning: 'Reduce en pasos peatonales y cede preferencia cuando hay peatones cruzando.', zGate: 112, zone: 'escolar' },
+            { chapter: 'Tramo 3 / Centro comercial', learning: 'Anticipa cruces frecuentes y evita maniobras bruscas en zona concurrida.', zGate: 46, zone: 'comercial' },
+            { chapter: 'Tramo 4 / Corredor asistencial', learning: 'Conduce fluido entre trafico mixto manteniendo distancia de seguridad.', zGate: -24, zone: 'asistencial' },
+            { chapter: 'Tramo 5 / Acceso hospitalario', learning: 'Disminuye velocidad antes del acceso a clinica y prioriza peatones.', zGate: -102, zone: 'hospital' },
+            { chapter: 'Tramo 6 / Llegada a clinica', learning: 'Completa la llegada sin incidentes y con convivencia vial ejemplar.', zGate: -186, zone: 'final' }
+        ];
+
+        const districtZones = [
+            { id: 'residencial', name: 'Residencial', zMin: 130, zMax: 230 },
+            { id: 'escolar', name: 'Escolar', zMin: 70, zMax: 130 },
+            { id: 'comercial', name: 'Comercial', zMin: 10, zMax: 70 },
+            { id: 'asistencial', name: 'Asistencial', zMin: -70, zMax: 10 },
+            { id: 'hospital', name: 'Hospitalario', zMin: -170, zMax: -70 },
+            { id: 'final', name: 'Clinica', zMin: -250, zMax: -170 }
         ];
 
         const scoreValue = document.getElementById('scoreValue');
@@ -582,6 +143,8 @@
         const modeStudent = document.getElementById('modeStudent');
         const modePost = document.getElementById('modePost');
         const toast = document.getElementById('toast');
+        const miniMapCanvas = document.getElementById('miniMapCanvas');
+        const miniMapCtx = miniMapCanvas.getContext('2d');
 
         scenarioTotal.textContent = stages.length;
 
@@ -612,14 +175,14 @@
         scene.add(sunLight);
 
         const ground = new THREE.Mesh(
-            new THREE.PlaneGeometry(800, 800),
+            new THREE.PlaneGeometry(1200, 1200),
             new THREE.MeshStandardMaterial({ color: 0x35613c })
         );
         ground.rotation.x = -Math.PI / 2;
         scene.add(ground);
 
         const road = new THREE.Mesh(
-            new THREE.PlaneGeometry(26, 260),
+            new THREE.PlaneGeometry(30, 520),
             new THREE.MeshStandardMaterial({ color: 0x2f2f32 })
         );
         road.rotation.x = -Math.PI / 2;
@@ -627,14 +190,14 @@
         scene.add(road);
 
         const laneMaterial = new THREE.MeshStandardMaterial({ color: 0xffe16a });
-        for (let z = -120; z <= 120; z += 12) {
+        for (let z = -250; z <= 250; z += 12) {
             const lane = new THREE.Mesh(new THREE.PlaneGeometry(0.45, 6), laneMaterial);
             lane.rotation.x = -Math.PI / 2;
             lane.position.set(0, 0.03, z);
             scene.add(lane);
         }
 
-        const intersectionsZ = [52, -18, -56];
+        const intersectionsZ = [120, 60, 0, -60, -130];
         intersectionsZ.forEach((z) => {
             const crossRoad = new THREE.Mesh(
                 new THREE.PlaneGeometry(58, 12),
@@ -656,11 +219,11 @@
         });
 
         const sidewalkMaterial = new THREE.MeshStandardMaterial({ color: 0x8b8f93 });
-        const leftSidewalk = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.2, 260), sidewalkMaterial);
-        leftSidewalk.position.set(-14, 0.1, 0);
+        const leftSidewalk = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 520), sidewalkMaterial);
+        leftSidewalk.position.set(-16, 0.1, 0);
         scene.add(leftSidewalk);
         const rightSidewalk = leftSidewalk.clone();
-        rightSidewalk.position.x = 14;
+        rightSidewalk.position.x = 16;
         scene.add(rightSidewalk);
 
         function addBuilding(x, z, w, h, d, color) {
@@ -672,9 +235,9 @@
             scene.add(b);
         }
 
-        for (let i = -5; i <= 5; i += 1) {
-            addBuilding(-24, i * 20, 11, 5 + (i + 5) * 0.6, 10, 0x9eb4ca);
-            addBuilding(24, i * 20 + 10, 11, 6 + (5 - i) * 0.55, 10, 0xa4b0bd);
+        for (let i = -12; i <= 12; i += 1) {
+            addBuilding(-27, i * 20, 11, 5 + (Math.abs(i) % 6) * 0.6, 10, 0x9eb4ca);
+            addBuilding(27, i * 20 + 10, 11, 6 + (Math.abs(i) % 5) * 0.55, 10, 0xa4b0bd);
         }
 
         function addLampPost(x, z) {
@@ -752,14 +315,14 @@
             scene.add(red);
         }
 
-        for (let z = -100; z <= 100; z += 25) {
-            addLampPost(-11.8, z);
-            addLampPost(11.8, z + 12);
+        for (let z = -220; z <= 220; z += 25) {
+            addLampPost(-13.8, z);
+            addLampPost(13.8, z + 12);
         }
 
-        for (let z = -105; z <= 105; z += 20) {
-            addTree(-18, z, 0x3d7f4a);
-            addTree(18, z + 10, 0x4c8d56);
+        for (let z = -225; z <= 225; z += 20) {
+            addTree(-21, z, 0x3d7f4a);
+            addTree(21, z + 10, 0x4c8d56);
         }
 
         addRoadSign(-10.9, 50);
@@ -767,6 +330,26 @@
         addRoadSign(-10.9, -60);
         addTrafficLight(10.9, 58);
         addTrafficLight(-10.9, 2);
+
+        function addClinicLandmark(x, z) {
+            const base = new THREE.Mesh(
+                new THREE.BoxGeometry(12, 8.5, 11),
+                new THREE.MeshStandardMaterial({ color: 0xd7e3f1 })
+            );
+            base.position.set(x, 4.25, z);
+            scene.add(base);
+
+            const crossMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x1f4a7c, emissiveIntensity: 0.2 });
+            const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.8, 2.8, 0.3), crossMat);
+            crossV.position.set(x, 6.8, z + 5.7);
+            scene.add(crossV);
+
+            const crossH = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.8, 0.3), crossMat);
+            crossH.position.set(x, 6.8, z + 5.7);
+            scene.add(crossH);
+        }
+
+        addClinicLandmark(23, -198);
 
         function addCone(x, z) {
             const cone = new THREE.Mesh(
@@ -787,15 +370,20 @@
         }
 
         const cones = [];
+        for (let i = 0; i < 12; i += 1) {
+            const x = i % 2 === 0 ? -6 : 6;
+            const z = 58 - i * 7;
+            cones.push(addCone(x, z));
+        }
         for (let i = 0; i < 8; i += 1) {
-            const x = i % 2 === 0 ? -5.4 : 5.4;
-            const z = 22 - i * 4.5;
+            const x = i % 2 === 0 ? -6.2 : 6.2;
+            const z = -72 - i * 7;
             cones.push(addCone(x, z));
         }
 
         const speedBumps = [];
         const bumpMaterial = new THREE.MeshStandardMaterial({ color: 0xe5bf3f });
-        [-4, -8, -12].forEach((z) => {
+        [-12, -18, -24, -30].forEach((z) => {
             const bump = new THREE.Mesh(new THREE.BoxGeometry(9.4, 0.14, 0.65), bumpMaterial);
             bump.position.set(0, 0.08, z);
             scene.add(bump);
@@ -809,6 +397,42 @@
             stripe.position.set(x, 0.035, 58);
             scene.add(stripe);
         }
+
+        const pedestrianCrossings = [58, 118, 34, -84, -150];
+        pedestrianCrossings.forEach((zBase) => {
+            for (let x = -4; x <= 4; x += 1.2) {
+                const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 3.2), zebraMaterial);
+                stripe.rotation.x = -Math.PI / 2;
+                stripe.position.set(x, 0.035, zBase);
+                scene.add(stripe);
+            }
+        });
+
+        function createPedestrian(color = 0x2f6da4) {
+            const p = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.18, 0.55, 4, 8), new THREE.MeshStandardMaterial({ color }));
+            body.position.y = 0.62;
+            p.add(body);
+
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 12), new THREE.MeshStandardMaterial({ color: 0xf2d6be }));
+            head.position.y = 1.15;
+            p.add(head);
+            return p;
+        }
+
+        const pedestrians = [
+            { mesh: createPedestrian(0x2d77b6), z: 118, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.045, radius: 1.25, activeRange: 105 },
+            { mesh: createPedestrian(0xb6632d), z: 58, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.05, radius: 1.25, activeRange: 95 },
+            { mesh: createPedestrian(0x43a061), z: 34, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.042, radius: 1.2, activeRange: 92 },
+            { mesh: createPedestrian(0x8b5fb9), z: -84, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.048, radius: 1.25, activeRange: 100 },
+            { mesh: createPedestrian(0x4f7d8b), z: -150, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.04, radius: 1.2, activeRange: 110 }
+        ];
+
+        pedestrians.forEach((ped) => {
+            ped.mesh.position.set(ped.xMin, 0.02, ped.z);
+            ped.mesh.visible = false;
+            scene.add(ped.mesh);
+        });
 
         const vehicle = new THREE.Group();
 
@@ -923,7 +547,19 @@
         sideSkirtRight.position.x = 1.01;
         vehicle.add(sideSkirtRight);
 
-        vehicle.position.set(0, 0.05, 110);
+        const getVehicleScale = () => {
+            if (window.innerWidth < 640) return 1.24;
+            if (window.innerWidth < 980) return 1.12;
+            return 1.0;
+        };
+
+        const applyVehicleScale = () => {
+            const scale = getVehicleScale();
+            vehicle.scale.set(scale, scale, scale);
+        };
+
+        vehicle.position.set(0, 0.05, 212);
+        applyVehicleScale();
         scene.add(vehicle);
 
         const checkpointGeometry = new THREE.CylinderGeometry(1.8, 1.8, 0.25, 28);
@@ -937,34 +573,95 @@
             return cp;
         });
 
-        function createNpcVehicle(color = 0x3e78d8) {
-            const group = new THREE.Group();
-            const body = new THREE.Mesh(
-                new THREE.BoxGeometry(1.6, 0.45, 3.2),
-                new THREE.MeshStandardMaterial({ color, metalness: 0.3, roughness: 0.55 })
-            );
-            body.position.y = 0.45;
-            group.add(body);
+        function addTrafficWheels(group, positions, radius = 0.28, width = 0.22) {
+            const tireMat = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.95 });
+            const rimMatLocal = new THREE.MeshStandardMaterial({ color: 0xb8c1cb, metalness: 0.6, roughness: 0.35 });
+            positions.forEach((p) => {
+                const tire = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, width, 20), tireMat);
+                tire.rotation.z = Math.PI / 2;
+                tire.position.set(p[0], p[1], p[2]);
+                group.add(tire);
 
-            const cabin = new THREE.Mesh(
-                new THREE.BoxGeometry(1.2, 0.45, 1.5),
-                new THREE.MeshStandardMaterial({ color: 0x203247, roughness: 0.3 })
-            );
-            cabin.position.set(0, 0.82, -0.2);
-            group.add(cabin);
+                const rim = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.52, radius * 0.52, width + 0.01, 14), rimMatLocal);
+                rim.rotation.z = Math.PI / 2;
+                rim.position.set(p[0], p[1], p[2]);
+                group.add(rim);
+            });
+        }
+
+        function createNpcVehicle(type = 'car', color = 0x3e78d8) {
+            const group = new THREE.Group();
+            const paint = new THREE.MeshStandardMaterial({ color, metalness: 0.28, roughness: 0.55 });
+            const dark = new THREE.MeshStandardMaterial({ color: 0x1f232a, roughness: 0.5 });
+
+            if (type === 'bus') {
+                const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.9, 6.2), paint);
+                body.position.y = 0.78;
+                group.add(body);
+
+                const top = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.55, 5.8), new THREE.MeshStandardMaterial({ color: 0x2a3f58, roughness: 0.32 }));
+                top.position.set(0, 1.28, -0.1);
+                group.add(top);
+
+                const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.22, 0.12, 5.8), new THREE.MeshStandardMaterial({ color: 0xe8edf5 }));
+                stripe.position.set(0, 0.95, -0.1);
+                group.add(stripe);
+
+                addTrafficWheels(group, [
+                    [-1.08, 0.36, 2.1], [1.08, 0.36, 2.1],
+                    [-1.08, 0.36, -0.1], [1.08, 0.36, -0.1],
+                    [-1.08, 0.36, -2.2], [1.08, 0.36, -2.2]
+                ], 0.34, 0.25);
+            } else if (type === 'truck') {
+                const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.72, 2.1), paint);
+                cabin.position.set(0, 0.8, 1.2);
+                group.add(cabin);
+
+                const cargo = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.95, 3.4), new THREE.MeshStandardMaterial({ color: 0xd9dde2, roughness: 0.6 }));
+                cargo.position.set(0, 0.85, -1.05);
+                group.add(cargo);
+
+                const bumper = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.16, 0.2), dark);
+                bumper.position.set(0, 0.34, 2.2);
+                group.add(bumper);
+
+                addTrafficWheels(group, [
+                    [-1.05, 0.34, 1.2], [1.05, 0.34, 1.2],
+                    [-1.05, 0.34, -1.8], [1.05, 0.34, -1.8]
+                ], 0.31, 0.24);
+            } else {
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.45, 3.2), paint);
+                body.position.y = 0.45;
+                group.add(body);
+
+                const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.45, 1.5), new THREE.MeshStandardMaterial({ color: 0x203247, roughness: 0.3 }));
+                cabin.position.set(0, 0.82, -0.2);
+                group.add(cabin);
+
+                addTrafficWheels(group, [
+                    [-0.9, 0.26, 1.0], [0.9, 0.26, 1.0],
+                    [-0.9, 0.26, -1.0], [0.9, 0.26, -1.0]
+                ], 0.26, 0.2);
+            }
 
             return group;
         }
 
         const npcVehicles = [
-            { mesh: createNpcVehicle(0x3e78d8), speed: 0.16, laneX: -3.6, minZ: -110, maxZ: 100, dir: 1 },
-            { mesh: createNpcVehicle(0xd85353), speed: 0.14, laneX: 3.6, minZ: -95, maxZ: 115, dir: -1 },
-            { mesh: createNpcVehicle(0x5ca05f), speed: 0.12, laneX: -2.8, minZ: -75, maxZ: 90, dir: 1 }
+            { mesh: createNpcVehicle('car', 0x3e78d8), speed: 0.18, laneX: -4.2, minZ: -235, maxZ: 215, dir: 1, radius: 3.0 },
+            { mesh: createNpcVehicle('car', 0xd85353), speed: 0.15, laneX: 4.2, minZ: -225, maxZ: 230, dir: -1, radius: 3.0 },
+            { mesh: createNpcVehicle('truck', 0x5ca05f), speed: 0.12, laneX: -7.2, minZ: -215, maxZ: 220, dir: 1, radius: 3.4 },
+            { mesh: createNpcVehicle('bus', 0x396ba8), speed: 0.1, laneX: 7.1, minZ: -220, maxZ: 225, dir: -1, radius: 4.0 },
+            { mesh: createNpcVehicle('car', 0xd6a244), speed: 0.19, laneX: -2.6, minZ: -230, maxZ: 220, dir: 1, radius: 2.9 },
+            { mesh: createNpcVehicle('truck', 0x777f8a), speed: 0.11, laneX: 2.6, minZ: -220, maxZ: 230, dir: -1, radius: 3.5 }
         ];
 
-        npcVehicles[0].mesh.position.set(-3.6, 0.02, -30);
-        npcVehicles[1].mesh.position.set(3.6, 0.02, 80);
-        npcVehicles[2].mesh.position.set(-2.8, 0.02, 20);
+        npcVehicles[0].mesh.position.set(-4.2, 0.02, -140);
+        npcVehicles[1].mesh.position.set(4.2, 0.02, 170);
+        npcVehicles[2].mesh.position.set(-7.2, 0.02, -40);
+        npcVehicles[3].mesh.position.set(7.1, 0.02, 90);
+        npcVehicles[4].mesh.position.set(-2.6, 0.02, 10);
+        npcVehicles[5].mesh.position.set(2.6, 0.02, -180);
         npcVehicles.forEach((npc) => scene.add(npc.mesh));
 
         const keys = {};
@@ -978,6 +675,8 @@
         let missionFinished = false;
         let challengeLevel = 0;
         let learnerMode = 'student';
+        let activeDistrictName = 'Residencial';
+        const crossingSafety = new Map();
 
         function getAccuracy() {
             const total = safeActions + infractions;
@@ -995,13 +694,19 @@
 
             missionTitle.textContent = currentScenario >= stages.length ? 'Operacion completada' : stage.chapter;
             missionText.textContent = currentScenario >= stages.length
-                ? 'Llegaste al destino. Mantuviste una convivencia vial segura durante el traslado.'
-                : stage.learning;
+                ? 'Llegaste a la clinica. Priorizaste peatones y mantuviste una conduccion segura.'
+                : stage.learning + ' Zona activa: ' + activeDistrictName + '.';
             missionChapter.textContent = currentScenario >= stages.length
                 ? 'Traslado finalizado'
                 : 'Etapa ' + (currentScenario + 1) + ' / ' + stages.length;
             missionDifficulty.textContent = difficultyNames[challengeLevel] || difficultyNames[1];
             missionAccuracy.textContent = 'Convivencia ' + getAccuracy() + '%';
+        }
+
+        function updateDistrictState() {
+            const z = vehicle.position.z;
+            const district = districtZones.find((item) => z <= item.zMax && z > item.zMin) || districtZones[districtZones.length - 1];
+            activeDistrictName = district.name;
         }
 
         const hotspotMeshes = [];
@@ -1032,6 +737,12 @@
         const turnSpeed = 0.028;
         const maxSpeed = 0.34;
         const friction = 0.97;
+        const mapWorld = {
+            minX: -18,
+            maxX: 18,
+            minZ: -245,
+            maxZ: 225
+        };
 
         function updateHud() {
             scoreValue.textContent = String(score);
@@ -1045,6 +756,94 @@
             progressBar.style.width = progress + '%';
             speedValue.textContent = String(Math.max(0, Math.round(Math.abs(speed) * 220)));
             updateMission();
+        }
+
+        function worldToMiniMap(x, z, size) {
+            const px = ((x - mapWorld.minX) / (mapWorld.maxX - mapWorld.minX)) * size;
+            const pz = ((mapWorld.maxZ - z) / (mapWorld.maxZ - mapWorld.minZ)) * size;
+            return {
+                x: Math.max(0, Math.min(size, px)),
+                y: Math.max(0, Math.min(size, pz))
+            };
+        }
+
+        function drawMiniMap() {
+            const size = miniMapCanvas.width;
+            const center = size / 2;
+            const radius = center - 2;
+
+            miniMapCtx.clearRect(0, 0, size, size);
+            miniMapCtx.save();
+            miniMapCtx.beginPath();
+            miniMapCtx.arc(center, center, radius, 0, Math.PI * 2);
+            miniMapCtx.clip();
+
+            miniMapCtx.fillStyle = '#122431';
+            miniMapCtx.fillRect(0, 0, size, size);
+
+            const roadTop = worldToMiniMap(0, mapWorld.maxZ, size).y;
+            const roadBottom = worldToMiniMap(0, mapWorld.minZ, size).y;
+            const roadLeft = worldToMiniMap(-15, 0, size).x;
+            const roadRight = worldToMiniMap(15, 0, size).x;
+
+            miniMapCtx.fillStyle = '#2d3440';
+            miniMapCtx.fillRect(roadLeft, roadTop, roadRight - roadLeft, roadBottom - roadTop);
+
+            miniMapCtx.strokeStyle = '#ffe16a';
+            miniMapCtx.setLineDash([6, 8]);
+            miniMapCtx.lineWidth = 2;
+            miniMapCtx.beginPath();
+            const laneX = worldToMiniMap(0, 0, size).x;
+            miniMapCtx.moveTo(laneX, roadTop);
+            miniMapCtx.lineTo(laneX, roadBottom);
+            miniMapCtx.stroke();
+            miniMapCtx.setLineDash([]);
+
+            miniMapCtx.strokeStyle = 'rgba(230, 238, 247, 0.5)';
+            miniMapCtx.lineWidth = 1;
+            intersectionsZ.forEach((z) => {
+                const y = worldToMiniMap(0, z, size).y;
+                miniMapCtx.beginPath();
+                miniMapCtx.moveTo(worldToMiniMap(-15, 0, size).x, y);
+                miniMapCtx.lineTo(worldToMiniMap(15, 0, size).x, y);
+                miniMapCtx.stroke();
+            });
+
+            checkpointMeshes.forEach((cp, index) => {
+                const cpPos = worldToMiniMap(cp.position.x, cp.position.z, size);
+                miniMapCtx.fillStyle = index < currentScenario ? '#2add79' : '#58b9ff';
+                miniMapCtx.beginPath();
+                miniMapCtx.arc(cpPos.x, cpPos.y, 4.2, 0, Math.PI * 2);
+                miniMapCtx.fill();
+            });
+
+            npcVehicles.forEach((npc) => {
+                const npcPos = worldToMiniMap(npc.mesh.position.x, npc.mesh.position.z, size);
+                miniMapCtx.fillStyle = '#ffb34a';
+                miniMapCtx.beginPath();
+                miniMapCtx.arc(npcPos.x, npcPos.y, 2.8, 0, Math.PI * 2);
+                miniMapCtx.fill();
+            });
+
+            const vehiclePos = worldToMiniMap(vehicle.position.x, vehicle.position.z, size);
+            miniMapCtx.save();
+            miniMapCtx.translate(vehiclePos.x, vehiclePos.y);
+            miniMapCtx.rotate(vehicle.rotation.y);
+            miniMapCtx.fillStyle = '#ff4f66';
+            miniMapCtx.beginPath();
+            miniMapCtx.moveTo(0, -7);
+            miniMapCtx.lineTo(5.2, 5.8);
+            miniMapCtx.lineTo(-5.2, 5.8);
+            miniMapCtx.closePath();
+            miniMapCtx.fill();
+            miniMapCtx.restore();
+
+            miniMapCtx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+            miniMapCtx.lineWidth = 1.4;
+            miniMapCtx.beginPath();
+            miniMapCtx.arc(center, center, radius - 1, 0, Math.PI * 2);
+            miniMapCtx.stroke();
+            miniMapCtx.restore();
         }
 
         function showToast(message) {
@@ -1081,7 +880,7 @@
         }
 
         function resetGame() {
-            vehicle.position.set(0, 0.05, 110);
+            vehicle.position.set(0, 0.05, 212);
             vehicle.rotation.set(0, 0, 0);
             speed = 0;
             score = 0;
@@ -1103,10 +902,15 @@
             cones.forEach((cone) => {
                 cone.visible = true;
             });
-            npcVehicles[0].mesh.position.set(-3.6, 0.02, -30);
-            npcVehicles[1].mesh.position.set(3.6, 0.02, 80);
-            npcVehicles[2].mesh.position.set(-2.8, 0.02, 20);
+            npcVehicles[0].mesh.position.set(-4.2, 0.02, -140);
+            npcVehicles[1].mesh.position.set(4.2, 0.02, 170);
+            npcVehicles[2].mesh.position.set(-7.2, 0.02, -40);
+            npcVehicles[3].mesh.position.set(7.1, 0.02, 90);
+            npcVehicles[4].mesh.position.set(-2.6, 0.02, 10);
+            npcVehicles[5].mesh.position.set(2.6, 0.02, -180);
+            applyVehicleScale();
             updateHud();
+            drawMiniMap();
         }
 
         resetBtn.addEventListener('click', resetGame);
@@ -1153,8 +957,8 @@
             speed = Math.max(-profile.maxSpeed * 0.45, Math.min(profile.maxSpeed, speed));
             vehicle.translateZ(-speed);
 
-            vehicle.position.x = Math.max(-10.5, Math.min(10.5, vehicle.position.x));
-            vehicle.position.z = Math.max(-120, Math.min(115, vehicle.position.z));
+            vehicle.position.x = Math.max(-12.6, Math.min(12.6, vehicle.position.x));
+            vehicle.position.z = Math.max(-245, Math.min(225, vehicle.position.z));
 
             const desiredOffset = new THREE.Vector3(0, 6.2, 13.5).applyMatrix4(vehicle.matrixWorld);
             camera.position.lerp(desiredOffset, 0.1);
@@ -1163,6 +967,10 @@
 
         function updateNpcTraffic() {
             npcVehicles.forEach((npc) => {
+                const isNear = Math.abs(npc.mesh.position.z - vehicle.position.z) < 170;
+                npc.mesh.visible = isNear;
+                if (!isNear) return;
+
                 npc.mesh.position.z += npc.speed * npc.dir;
                 npc.mesh.position.x = npc.laneX;
 
@@ -1170,6 +978,36 @@
                 if (npc.mesh.position.z < npc.minZ) npc.mesh.position.z = npc.maxZ;
 
                 npc.mesh.rotation.y = npc.dir > 0 ? Math.PI : 0;
+            });
+        }
+
+        function updatePedestrians() {
+            pedestrians.forEach((ped, idx) => {
+                const isNear = Math.abs(ped.z - vehicle.position.z) < ped.activeRange;
+                ped.mesh.visible = isNear;
+                if (!isNear) return;
+
+                ped.mesh.position.x += ped.speed * ped.dir;
+                ped.mesh.position.z = ped.z;
+                ped.mesh.rotation.y = ped.dir > 0 ? -Math.PI / 2 : Math.PI / 2;
+
+                if (ped.dir > 0 && ped.mesh.position.x > ped.xMax) {
+                    ped.mesh.position.x = ped.xMin;
+                }
+                if (ped.dir < 0 && ped.mesh.position.x < ped.xMax) {
+                    ped.mesh.position.x = ped.xMin;
+                }
+
+                const crossingDistance = Math.abs(vehicle.position.z - ped.z);
+                if (crossingDistance < 8 && Math.abs(vehicle.position.x) < 3.3) {
+                    crossingSafety.set(idx, true);
+                }
+                if (crossingDistance > 16 && crossingSafety.get(idx)) {
+                    crossingSafety.set(idx, false);
+                    if (Math.max(0, Math.round(Math.abs(speed) * 220)) < 24) {
+                        reward('Paso peatonal gestionado de forma segura', 16);
+                    }
+                }
             });
         }
 
@@ -1203,6 +1041,11 @@
                 penalize('Reduccion insuficiente en interseccion', 22);
             }
 
+            const nearCrossing = pedestrianCrossings.some((z) => Math.abs(vehicle.position.z - z) < 7.2);
+            if (nearCrossing && speedKmh > 28) {
+                penalize('Exceso de velocidad cerca de paso peatonal', 24);
+            }
+
             const nearBump = speedBumps.some((bump) => Math.abs(vehicle.position.z - bump.position.z) < 2.4);
             if (nearBump && speedKmh > 26) {
                 penalize('Exceso de velocidad sobre resalto', 18);
@@ -1218,14 +1061,26 @@
             });
 
             npcVehicles.forEach((npc) => {
+                if (!npc.mesh.visible) return;
                 const distance = vehicle.position.distanceTo(npc.mesh.position);
-                if (distance < 2.9) {
+                if (distance < (npc.radius || 3.0)) {
                     penalize('Distancia insegura con otro vehiculo', 35);
                     vehicle.position.z += 1.6;
                 }
             });
 
-            if (Math.abs(vehicle.position.x) > 9.6) {
+            pedestrians.forEach((ped) => {
+                if (!ped.mesh.visible) return;
+                const crossingCenterRisk = Math.abs(ped.mesh.position.x) < 7.8;
+                const distance = vehicle.position.distanceTo(ped.mesh.position);
+                if (crossingCenterRisk && distance < ped.radius) {
+                    penalize('Riesgo alto: paso peatonal ocupado', 55);
+                    vehicle.position.z += 2.4;
+                    speed *= 0.6;
+                }
+            });
+
+            if (Math.abs(vehicle.position.x) > 11.8) {
                 penalize('Invadiste borde de calzada', 16);
             }
         }
@@ -1250,11 +1105,14 @@
         function animate() {
             requestAnimationFrame(animate);
             updateVehicle();
+            updateDistrictState();
             updateNpcTraffic();
+            updatePedestrians();
             detectCheckpoint();
             detectHotspots();
             detectConvivencia();
             updateHud();
+            drawMiniMap();
             renderer.render(scene, camera);
         }
 
@@ -1262,6 +1120,7 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            applyVehicleScale();
         });
 
         resetGame();

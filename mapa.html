@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Redondo Flotante</title>
+    <style>
+        /* Contenedor principal del mapa */
+        .map-container {
+            position: fixed;
+            bottom: 20px; /* Distancia desde abajo */
+            right: 20px;  /* Distancia desde la derecha */
+            width: 150px; /* Tamaño del círculo */
+            height: 150px;
+            border-radius: 50%; /* Esto lo hace redondo */
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 3px solid white;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        /* Efecto al pasar el mouse */
+        .map-container:hover {
+            transform: scale(1.1);
+            cursor: pointer;
+        }
+
+        /* Ajuste del iframe para que cubra todo el círculo */
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            /* Filtro opcional para que se vea más moderno */
+            filter: grayscale(10%) contrast(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tu contenido principal va aquí</h1>
+    <p>Mira hacia la esquina inferior derecha para ver el mapa.</p>
+
+    <div class="map-container">
+        <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3329.025345701831!2d-70.6508000!3d-33.4474865!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzPCsDI2JzUwLjkiUyA3MMKwMzknMDIuOSJX!5e0!3m2!1ses!2scl!4v1712850000000!5m2!1ses!2scl" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </div>
+
+</body>
+</html>
