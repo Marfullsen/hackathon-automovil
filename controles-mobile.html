@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Joystick Virtual Pro</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #121212;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            touch-action: none; /* Crucial para mobile */
+        }
+
+        #ui-info {
+            position: absolute;
+            top: 20px;
+            color: #00ffcc;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        /* Base del Joystick */
+        .joystick-base {
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 204, 0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* El stick (lo que mueves) */
+        .joystick-handle {
+            width: 60px;
+            height: 60px;
+            background: #00ffcc;
+            border-radius: 50%;
+            position: absolute;
+            cursor: grab;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
+            transition: background 0.2s;
+        }
+
+        .joystick-handle:active {
+            cursor: grabbing;
+            background: #00e6b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-info">
+        <h2>Joystick Interactivo</h2>
+        <p>X: <span id="valX">0</span> | Y: <span id="valY">0</span></p>
+    </div>
+
+    <div class="joystick-base" id="base">
+        <div class="joystick-handle" id="handle"></div>
+    </div>
+
+    <script>
+        const handle = document.getElementById('handle');
+        const base = document.getElementById('base');
+        const valX = document.getElementById('valX');
+        const valY = document.getElementById('valY');
+
+        let dragging = false;
+        const maxRadius = 75; // Mitad del ancho de la base
+
+        // Función principal de movimiento
+        function moveJoystick(e) {
+            if (!dragging) return;
+
+            // Obtener coordenadas según el tipo de evento (mouse o touch)
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const rect = base.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // Calcular distancia desde el centro
+            let diffX = clientX - centerX;
+            let diffY = clientY - centerY;
+
+            const distance = Math.sqrt(diffX * diffX + diffY * diffY);
+
+            // Limitar el movimiento al radio máximo usando trigonometría
+            if (distance > maxRadius) {
+                const angle = Math.atan2(diffY, diffX);
+                diffX = Math.cos(angle) * maxRadius;
+                diffY = Math.sin(angle) * maxRadius;
+            }
+
+            // Aplicar la posición visual
+            handle.style.transform = `translate(${diffX}px, ${diffY}px)`;
+
+            // Valores normalizados para el juego (entre -1 y 1)
+            const normX = (diffX / maxRadius).toFixed(2);
+            const normY = (diffY / maxRadius).toFixed(2) * -1; // Invertido para que arriba sea positivo
+
+            valX.innerText = normX;
+            valY.innerText = normY;
+        }
+
+        // Resetear posición al soltar
+        function stopJoystick() {
+            dragging = false;
+            handle.style.transition = "transform 0.2s ease-out"; // Regreso suave
+            handle.style.transform = `translate(0, 0)`;
+            valX.innerText = "0";
+            valY.innerText = "0";
+        }
+
+        function startJoystick() {
+            dragging = true;
+            handle.style.transition = "none"; // Quitar transición para respuesta instantánea
+        }
+
+        // Eventos de Mouse
+        handle.addEventListener('mousedown', startJoystick);
+        window.addEventListener('mousemove', moveJoystick);
+        window.addEventListener('mouseup', stopJoystick);
+
+        // Eventos de Touch (Móviles)
+        handle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startJoystick();
+        });
+        window.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            moveJoystick(e);
+        }, { passive: false });
+        window.addEventListener('touchend', stopJoystick);
+
+    </script>
+</body>
+</html>

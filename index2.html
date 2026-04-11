@@ -5,7 +5,131 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safe Drive Learning - Minijuego 3D Clase B</title>
+    <style>
+        .joystick-container {
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 50;
+        }
 
+        .joystick-base {
+            width: 160px;
+            height: 160px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2.5px solid rgba(0, 255, 204, 0.35);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 255, 204, 0.1);
+            touch-action: none;
+        }
+
+        .joystick-handle {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #00ffcc 0%, #00d9b3 100%);
+            border-radius: 50%;
+            position: absolute;
+            cursor: grab;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.7), 0 0 40px rgba(0, 100, 200, 0.3);
+            transition: none;
+        }
+
+        .joystick-handle:active {
+            cursor: grabbing;
+            background: linear-gradient(135deg, #00e6b8 0%, #00c9a3 100%);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.9), 0 0 50px rgba(0, 100, 200, 0.5);
+        }
+
+        .joystick-info {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #00ffcc;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            min-width: 160px;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.1);
+        }
+
+        .info-row {
+            padding: 2px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .info-row span {
+            font-weight: bold;
+            color: #00ff99;
+        }
+
+        @media (max-width: 768px) {
+            .joystick-container {
+                bottom: 84px;
+                left: auto;
+                right: 16px;
+                display: flex;
+                gap: 8px;
+            }
+
+            .joystick-base {
+                width: 112px;
+                height: 112px;
+            }
+
+            .joystick-handle {
+                width: 42px;
+                height: 42px;
+            }
+
+            .joystick-info {
+                display: none;
+            }
+
+            .controls {
+                left: auto !important;
+                right: 12px !important;
+                bottom: 14px !important;
+            }
+
+            .controls .touch-btn {
+                width: 46px;
+                height: 46px;
+                min-width: 46px;
+                padding: 0;
+                font-size: 15px;
+            }
+
+            .controls .controls-row:last-child {
+                display: none !important;
+            }
+
+            .map-container {
+                left: 10px !important;
+                right: auto !important;
+                top: auto !important;
+                bottom: 10px !important;
+            }
+
+            #miniMapCanvas {
+                width: 150px;
+                height: 150px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .joystick-container {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
@@ -48,8 +172,8 @@
 
     <section class="mission-panel" aria-live="polite">
         <div class="mission-kicker">Mision activa</div>
-        <div class="mission-title" id="missionTitle">Operacion Ruta a Clinica</div>
-        <div class="mission-text" id="missionText">Lleva al pasajero a la clinica respetando pasos peatonales y flujo vial.</div>
+        <div class="mission-title" id="missionTitle">Operacion Codigo Rojo</div>
+        <div class="mission-text" id="missionText">Traslada al paciente con urgencia a la clinica, rapido y con conduccion segura.</div>
         <div class="mission-meta">
             <span class="mission-pill" id="missionChapter">Paso 1 / 6</span>
             <span class="mission-pill" id="missionDifficulty">Guiado</span>
@@ -69,8 +193,18 @@
         </div>
     </aside>
 
+    <div class="joystick-container">
+        <div class="joystick-base" id="joystickBase">
+            <div class="joystick-handle" id="joystickHandle"></div>
+        </div>
+        <div class="joystick-info">
+            <div class="info-row">X: <span id="joystickValX">0</span></div>
+            <div class="info-row">Y: <span id="joystickValY">0</span></div>
+        </div>
+    </div>
+
     <div class="controls">
-        <div class="controls-row">
+        <div class="controls-row" id="keyboardControls">
             <button class="touch-btn" data-key="w" type="button">W</button>
             <button class="touch-btn" data-key="s" type="button">S</button>
         </div>
@@ -106,21 +240,25 @@
         import * as THREE from 'three';
 
         const stages = [
-            { chapter: 'Tramo 1 / Barrio residencial', learning: 'Inicia la ruta a la clinica manteniendo velocidad urbana y control de carril.', zGate: 170, zone: 'residencial' },
-            { chapter: 'Tramo 2 / Cruce escolar', learning: 'Reduce en pasos peatonales y cede preferencia cuando hay peatones cruzando.', zGate: 112, zone: 'escolar' },
-            { chapter: 'Tramo 3 / Centro comercial', learning: 'Anticipa cruces frecuentes y evita maniobras bruscas en zona concurrida.', zGate: 46, zone: 'comercial' },
-            { chapter: 'Tramo 4 / Corredor asistencial', learning: 'Conduce fluido entre trafico mixto manteniendo distancia de seguridad.', zGate: -24, zone: 'asistencial' },
-            { chapter: 'Tramo 5 / Acceso hospitalario', learning: 'Disminuye velocidad antes del acceso a clinica y prioriza peatones.', zGate: -102, zone: 'hospital' },
-            { chapter: 'Tramo 6 / Llegada a clinica', learning: 'Completa la llegada sin incidentes y con convivencia vial ejemplar.', zGate: -186, zone: 'final' }
+            { chapter: 'Tramo 1 / Pedro de Valdivia norte', learning: 'Inicia en zona residencial y controla aceleracion en primeras cuadras.', zGate: 420, zone: 'residencial' },
+            { chapter: 'Tramo 2 / Eje Providencia', learning: 'Mantente en carril y anticipa cruces frecuentes de alto flujo.', zGate: 310, zone: 'providencia' },
+            { chapter: 'Tramo 3 / Sector Manuel Montt', learning: 'Cede paso peatonal en cruces activos y evita adelantamientos bruscos.', zGate: 200, zone: 'comercial' },
+            { chapter: 'Tramo 4 / Plaza Italia', learning: 'Gestiona intersecciones seguidas y regula velocidad antes de cada cruce.', zGate: 90, zone: 'intersecciones' },
+            { chapter: 'Tramo 5 / Barrio Lastarria', learning: 'Conduce con precision en zona de alta actividad peatonal.', zGate: -30, zone: 'cultural' },
+            { chapter: 'Tramo 6 / Santa Lucia', learning: 'Mantiene distancia con trafico mixto y evita puntos ciegos.', zGate: -170, zone: 'centro' },
+            { chapter: 'Tramo 7 / Alameda poniente', learning: 'Administra velocidad en tramos largos con buses y cruces escalonados.', zGate: -320, zone: 'alameda' },
+            { chapter: 'Tramo 8 / Llegada a clinica', learning: 'Completa la llegada a la clinica sin incidentes ni riesgos peatonales.', zGate: -470, zone: 'final' }
         ];
 
         const districtZones = [
-            { id: 'residencial', name: 'Residencial', zMin: 130, zMax: 230 },
-            { id: 'escolar', name: 'Escolar', zMin: 70, zMax: 130 },
-            { id: 'comercial', name: 'Comercial', zMin: 10, zMax: 70 },
-            { id: 'asistencial', name: 'Asistencial', zMin: -70, zMax: 10 },
-            { id: 'hospital', name: 'Hospitalario', zMin: -170, zMax: -70 },
-            { id: 'final', name: 'Clinica', zMin: -250, zMax: -170 }
+            { id: 'residencial', name: 'Providencia norte', zMin: 360, zMax: 500 },
+            { id: 'providencia', name: 'Avenida Providencia', zMin: 250, zMax: 360 },
+            { id: 'comercial', name: 'Manuel Montt', zMin: 140, zMax: 250 },
+            { id: 'intersecciones', name: 'Plaza Italia', zMin: 20, zMax: 140 },
+            { id: 'cultural', name: 'Lastarria', zMin: -110, zMax: 20 },
+            { id: 'centro', name: 'Santiago centro', zMin: -260, zMax: -110 },
+            { id: 'alameda', name: 'Alameda poniente', zMin: -420, zMax: -260 },
+            { id: 'final', name: 'Clinica metropolitana', zMin: -540, zMax: -420 }
         ];
 
         const scoreValue = document.getElementById('scoreValue');
@@ -157,7 +295,7 @@
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x7ea7d0);
-        scene.fog = new THREE.Fog(0x7ea7d0, 35, 160);
+        scene.fog = new THREE.Fog(0x7ea7d0, 45, 310);
 
         const canvas = document.getElementById('gameCanvas');
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1200);
@@ -175,14 +313,14 @@
         scene.add(sunLight);
 
         const ground = new THREE.Mesh(
-            new THREE.PlaneGeometry(1200, 1200),
+            new THREE.PlaneGeometry(3000, 2400),
             new THREE.MeshStandardMaterial({ color: 0x35613c })
         );
         ground.rotation.x = -Math.PI / 2;
         scene.add(ground);
 
         const road = new THREE.Mesh(
-            new THREE.PlaneGeometry(30, 520),
+            new THREE.PlaneGeometry(30, 1200),
             new THREE.MeshStandardMaterial({ color: 0x2f2f32 })
         );
         road.rotation.x = -Math.PI / 2;
@@ -190,14 +328,15 @@
         scene.add(road);
 
         const laneMaterial = new THREE.MeshStandardMaterial({ color: 0xffe16a });
-        for (let z = -250; z <= 250; z += 12) {
+        for (let z = -580; z <= 580; z += 12) {
             const lane = new THREE.Mesh(new THREE.PlaneGeometry(0.45, 6), laneMaterial);
             lane.rotation.x = -Math.PI / 2;
             lane.position.set(0, 0.03, z);
             scene.add(lane);
         }
 
-        const intersectionsZ = [120, 60, 0, -60, -130];
+        // Trazado inspirado en el eje Providencia-Alameda con cuadras frecuentes.
+        const intersectionsZ = [480, 420, 360, 300, 240, 180, 120, 60, 0, -60, -120, -180, -240, -300, -360, -430, -490, -550];
         intersectionsZ.forEach((z) => {
             const crossRoad = new THREE.Mesh(
                 new THREE.PlaneGeometry(58, 12),
@@ -219,8 +358,8 @@
         });
 
         const sidewalkMaterial = new THREE.MeshStandardMaterial({ color: 0x8b8f93 });
-        const leftSidewalk = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 520), sidewalkMaterial);
-        leftSidewalk.position.set(-16, 0.1, 0);
+        const leftSidewalk = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 1150), sidewalkMaterial);
+        leftSidewalk.position.set(-16, 0.1, -15);
         scene.add(leftSidewalk);
         const rightSidewalk = leftSidewalk.clone();
         rightSidewalk.position.x = 16;
@@ -235,7 +374,7 @@
             scene.add(b);
         }
 
-        for (let i = -12; i <= 12; i += 1) {
+        for (let i = -30; i <= 30; i += 1) {
             addBuilding(-27, i * 20, 11, 5 + (Math.abs(i) % 6) * 0.6, 10, 0x9eb4ca);
             addBuilding(27, i * 20 + 10, 11, 6 + (Math.abs(i) % 5) * 0.55, 10, 0xa4b0bd);
         }
@@ -315,21 +454,22 @@
             scene.add(red);
         }
 
-        for (let z = -220; z <= 220; z += 25) {
+        for (let z = -550; z <= 530; z += 25) {
             addLampPost(-13.8, z);
             addLampPost(13.8, z + 12);
         }
 
-        for (let z = -225; z <= 225; z += 20) {
+        for (let z = -560; z <= 540; z += 20) {
             addTree(-21, z, 0x3d7f4a);
             addTree(21, z + 10, 0x4c8d56);
         }
 
-        addRoadSign(-10.9, 50);
-        addRoadSign(10.9, -5);
-        addRoadSign(-10.9, -60);
-        addTrafficLight(10.9, 58);
-        addTrafficLight(-10.9, 2);
+        intersectionsZ.forEach((z, idx) => {
+            if (idx % 2 === 0) addRoadSign(-10.9, z - 10);
+            if (idx % 3 === 0) addRoadSign(10.9, z + 8);
+            if (idx % 2 === 0) addTrafficLight(10.9, z - 2);
+            if (idx % 3 === 1) addTrafficLight(-10.9, z + 3);
+        });
 
         function addClinicLandmark(x, z) {
             const base = new THREE.Mesh(
@@ -349,7 +489,7 @@
             scene.add(crossH);
         }
 
-        addClinicLandmark(23, -198);
+        addClinicLandmark(23, -500);
 
         function addCone(x, z) {
             const cone = new THREE.Mesh(
@@ -380,10 +520,15 @@
             const z = -72 - i * 7;
             cones.push(addCone(x, z));
         }
+        for (let i = 0; i < 10; i += 1) {
+            const x = i % 2 === 0 ? -5.8 : 5.8;
+            const z = -300 - i * 8;
+            cones.push(addCone(x, z));
+        }
 
         const speedBumps = [];
         const bumpMaterial = new THREE.MeshStandardMaterial({ color: 0xe5bf3f });
-        [-12, -18, -24, -30].forEach((z) => {
+        [180, 44, -24, -176, -334].forEach((z) => {
             const bump = new THREE.Mesh(new THREE.BoxGeometry(9.4, 0.14, 0.65), bumpMaterial);
             bump.position.set(0, 0.08, z);
             scene.add(bump);
@@ -398,7 +543,7 @@
             scene.add(stripe);
         }
 
-        const pedestrianCrossings = [58, 118, 34, -84, -150];
+        const pedestrianCrossings = [430, 365, 305, 245, 185, 125, 58, 0, -82, -150, -235, -320, -405, -482];
         pedestrianCrossings.forEach((zBase) => {
             for (let x = -4; x <= 4; x += 1.2) {
                 const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 3.2), zebraMaterial);
@@ -421,11 +566,14 @@
         }
 
         const pedestrians = [
-            { mesh: createPedestrian(0x2d77b6), z: 118, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.045, radius: 1.25, activeRange: 105 },
-            { mesh: createPedestrian(0xb6632d), z: 58, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.05, radius: 1.25, activeRange: 95 },
-            { mesh: createPedestrian(0x43a061), z: 34, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.042, radius: 1.2, activeRange: 92 },
-            { mesh: createPedestrian(0x8b5fb9), z: -84, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.048, radius: 1.25, activeRange: 100 },
-            { mesh: createPedestrian(0x4f7d8b), z: -150, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.04, radius: 1.2, activeRange: 110 }
+            { mesh: createPedestrian(0x2d77b6), z: 365, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.045, radius: 1.25, activeRange: 105 },
+            { mesh: createPedestrian(0xb6632d), z: 305, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.05, radius: 1.25, activeRange: 95 },
+            { mesh: createPedestrian(0x43a061), z: 245, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.042, radius: 1.2, activeRange: 92 },
+            { mesh: createPedestrian(0x8b5fb9), z: 125, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.048, radius: 1.25, activeRange: 100 },
+            { mesh: createPedestrian(0x4f7d8b), z: 58, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.04, radius: 1.2, activeRange: 110 },
+            { mesh: createPedestrian(0x788c33), z: -82, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.047, radius: 1.2, activeRange: 96 },
+            { mesh: createPedestrian(0xb7485f), z: -235, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.044, radius: 1.25, activeRange: 102 },
+            { mesh: createPedestrian(0x3a6ca2), z: -405, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.046, radius: 1.2, activeRange: 108 }
         ];
 
         pedestrians.forEach((ped) => {
@@ -437,9 +585,19 @@
         const vehicle = new THREE.Group();
 
         const paintMaterial = new THREE.MeshStandardMaterial({
-            color: 0xb81f2f,
-            metalness: 0.46,
-            roughness: 0.35
+            color: 0xf2f5fa,
+            metalness: 0.42,
+            roughness: 0.32
+        });
+        const emergencyRedMaterial = new THREE.MeshStandardMaterial({
+            color: 0xc71f2f,
+            metalness: 0.38,
+            roughness: 0.34
+        });
+        const medicalWhiteMaterial = new THREE.MeshStandardMaterial({
+            color: 0xf8fbff,
+            metalness: 0.2,
+            roughness: 0.4
         });
         const darkTrimMaterial = new THREE.MeshStandardMaterial({
             color: 0x1a1e24,
@@ -472,6 +630,45 @@
         );
         roofBase.position.set(0, 1.03, -0.28);
         vehicle.add(roofBase);
+
+        const ambulanceCabin = new THREE.Mesh(
+            new THREE.BoxGeometry(1.68, 0.75, 2.05),
+            medicalWhiteMaterial
+        );
+        ambulanceCabin.position.set(0, 1.34, -0.35);
+        vehicle.add(ambulanceCabin);
+
+        const sideStripeLeft = new THREE.Mesh(
+            new THREE.BoxGeometry(0.04, 0.2, 3.6),
+            emergencyRedMaterial
+        );
+        sideStripeLeft.position.set(-1.03, 0.98, 0);
+        vehicle.add(sideStripeLeft);
+
+        const sideStripeRight = sideStripeLeft.clone();
+        sideStripeRight.position.x = 1.03;
+        vehicle.add(sideStripeRight);
+
+        const hoodStripe = new THREE.Mesh(
+            new THREE.BoxGeometry(0.7, 0.03, 1.2),
+            emergencyRedMaterial
+        );
+        hoodStripe.position.set(0, 0.97, 1.25);
+        vehicle.add(hoodStripe);
+
+        const crossVerticalLeft = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.22, 0.28), emergencyRedMaterial);
+        crossVerticalLeft.position.set(-1.03, 1.1, 0.8);
+        vehicle.add(crossVerticalLeft);
+        const crossHorizontalLeft = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.08, 0.46), emergencyRedMaterial);
+        crossHorizontalLeft.position.set(-1.03, 1.1, 0.8);
+        vehicle.add(crossHorizontalLeft);
+
+        const crossVerticalRight = crossVerticalLeft.clone();
+        crossVerticalRight.position.x = 1.03;
+        vehicle.add(crossVerticalRight);
+        const crossHorizontalRight = crossHorizontalLeft.clone();
+        crossHorizontalRight.position.x = 1.03;
+        vehicle.add(crossHorizontalRight);
 
         const windshield = new THREE.Mesh(
             new THREE.BoxGeometry(1.42, 0.45, 0.08),
@@ -520,6 +717,22 @@
         tailRight.position.x = 0.63;
         vehicle.add(tailRight);
 
+        const lightBarBase = new THREE.Mesh(
+            new THREE.BoxGeometry(1.06, 0.09, 0.34),
+            new THREE.MeshStandardMaterial({ color: 0x1b1f25, metalness: 0.6, roughness: 0.3 })
+        );
+        lightBarBase.position.set(0, 1.78, 0.05);
+        vehicle.add(lightBarBase);
+
+        const sirenBlueMat = new THREE.MeshStandardMaterial({ color: 0x58a7ff, emissive: 0x113766, emissiveIntensity: 0.35 });
+        const sirenRedMat = new THREE.MeshStandardMaterial({ color: 0xff5c68, emissive: 0x66161c, emissiveIntensity: 0.35 });
+        const lightBarBlue = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.07, 0.25), sirenBlueMat);
+        lightBarBlue.position.set(-0.24, 1.82, 0.05);
+        vehicle.add(lightBarBlue);
+        const lightBarRed = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.07, 0.25), sirenRedMat);
+        lightBarRed.position.set(0.24, 1.82, 0.05);
+        vehicle.add(lightBarRed);
+
         const wheelGeom = new THREE.CylinderGeometry(0.42, 0.42, 0.33, 26);
         const wheelMat = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.95 });
         const rimMat = new THREE.MeshStandardMaterial({ color: 0xaeb8c2, metalness: 0.7, roughness: 0.3 });
@@ -558,7 +771,7 @@
             vehicle.scale.set(scale, scale, scale);
         };
 
-        vehicle.position.set(0, 0.05, 212);
+        vehicle.position.set(0, 0.05, 470);
         applyVehicleScale();
         scene.add(vehicle);
 
@@ -648,21 +861,55 @@
         }
 
         const npcVehicles = [
-            { mesh: createNpcVehicle('car', 0x3e78d8), speed: 0.18, laneX: -4.2, minZ: -235, maxZ: 215, dir: 1, radius: 3.0 },
-            { mesh: createNpcVehicle('car', 0xd85353), speed: 0.15, laneX: 4.2, minZ: -225, maxZ: 230, dir: -1, radius: 3.0 },
-            { mesh: createNpcVehicle('truck', 0x5ca05f), speed: 0.12, laneX: -7.2, minZ: -215, maxZ: 220, dir: 1, radius: 3.4 },
-            { mesh: createNpcVehicle('bus', 0x396ba8), speed: 0.1, laneX: 7.1, minZ: -220, maxZ: 225, dir: -1, radius: 4.0 },
-            { mesh: createNpcVehicle('car', 0xd6a244), speed: 0.19, laneX: -2.6, minZ: -230, maxZ: 220, dir: 1, radius: 2.9 },
-            { mesh: createNpcVehicle('truck', 0x777f8a), speed: 0.11, laneX: 2.6, minZ: -220, maxZ: 230, dir: -1, radius: 3.5 }
+            { mesh: createNpcVehicle('car', 0x3e78d8), speed: 0.18, laneX: -4.2, minZ: -580, maxZ: 550, dir: 1, radius: 3.0 },
+            { mesh: createNpcVehicle('car', 0xd85353), speed: 0.15, laneX: 4.2, minZ: -580, maxZ: 550, dir: -1, radius: 3.0 },
+            { mesh: createNpcVehicle('truck', 0x5ca05f), speed: 0.12, laneX: -7.2, minZ: -580, maxZ: 550, dir: 1, radius: 3.4 },
+            { mesh: createNpcVehicle('bus', 0x396ba8), speed: 0.1, laneX: 7.1, minZ: -580, maxZ: 550, dir: -1, radius: 4.0 },
+            { mesh: createNpcVehicle('car', 0xd6a244), speed: 0.19, laneX: -2.6, minZ: -580, maxZ: 550, dir: 1, radius: 2.9 },
+            { mesh: createNpcVehicle('truck', 0x777f8a), speed: 0.11, laneX: 2.6, minZ: -580, maxZ: 550, dir: -1, radius: 3.5 },
+            { mesh: createNpcVehicle('bus', 0x4c7fb5), speed: 0.09, laneX: -9.2, minZ: -580, maxZ: 550, dir: 1, radius: 4.1 },
+            { mesh: createNpcVehicle('car', 0x9f5cc9), speed: 0.2, laneX: 9.0, minZ: -580, maxZ: 550, dir: -1, radius: 2.9 }
         ];
 
-        npcVehicles[0].mesh.position.set(-4.2, 0.02, -140);
-        npcVehicles[1].mesh.position.set(4.2, 0.02, 170);
+        npcVehicles[0].mesh.position.set(-4.2, 0.02, -280);
+        npcVehicles[1].mesh.position.set(4.2, 0.02, 420);
         npcVehicles[2].mesh.position.set(-7.2, 0.02, -40);
-        npcVehicles[3].mesh.position.set(7.1, 0.02, 90);
-        npcVehicles[4].mesh.position.set(-2.6, 0.02, 10);
-        npcVehicles[5].mesh.position.set(2.6, 0.02, -180);
+        npcVehicles[3].mesh.position.set(7.1, 0.02, 260);
+        npcVehicles[4].mesh.position.set(-2.6, 0.02, 90);
+        npcVehicles[5].mesh.position.set(2.6, 0.02, -360);
+        npcVehicles[6].mesh.position.set(-9.2, 0.02, -470);
+        npcVehicles[7].mesh.position.set(9.0, 0.02, 170);
         npcVehicles.forEach((npc) => scene.add(npc.mesh));
+
+        function createCrossTrafficVehicle(cfg) {
+            const entry = {
+                mesh: createNpcVehicle(cfg.type, cfg.color),
+                laneZ: cfg.laneZ,
+                dir: cfg.dir,
+                speed: cfg.speed,
+                minX: cfg.minX,
+                maxX: cfg.maxX,
+                startX: cfg.startX,
+                radius: cfg.radius,
+                activeRange: cfg.activeRange
+            };
+            entry.mesh.position.set(entry.startX, 0.02, entry.laneZ);
+            entry.mesh.rotation.y = entry.dir > 0 ? -Math.PI / 2 : Math.PI / 2;
+            return entry;
+        }
+
+        const crossTrafficVehicles = [
+            createCrossTrafficVehicle({ laneZ: 360, dir: 1, speed: 0.11, minX: -24, maxX: 24, startX: -20, type: 'car', color: 0x5d8ad1, radius: 3.0, activeRange: 120 }),
+            createCrossTrafficVehicle({ laneZ: 300, dir: -1, speed: 0.1, minX: -24, maxX: 24, startX: 22, type: 'car', color: 0xbf6a48, radius: 3.0, activeRange: 120 }),
+            createCrossTrafficVehicle({ laneZ: 240, dir: 1, speed: 0.085, minX: -25, maxX: 25, startX: -21, type: 'bus', color: 0x4571ab, radius: 3.9, activeRange: 130 }),
+            createCrossTrafficVehicle({ laneZ: 120, dir: -1, speed: 0.094, minX: -24, maxX: 24, startX: 21, type: 'truck', color: 0x85919e, radius: 3.4, activeRange: 125 }),
+            createCrossTrafficVehicle({ laneZ: 0, dir: 1, speed: 0.115, minX: -24, maxX: 24, startX: -18, type: 'car', color: 0xa66acf, radius: 3.0, activeRange: 120 }),
+            createCrossTrafficVehicle({ laneZ: -120, dir: -1, speed: 0.09, minX: -24, maxX: 24, startX: 19, type: 'truck', color: 0x63a26f, radius: 3.5, activeRange: 125 }),
+            createCrossTrafficVehicle({ laneZ: -240, dir: 1, speed: 0.082, minX: -25, maxX: 25, startX: -23, type: 'bus', color: 0x2f5f94, radius: 4.0, activeRange: 132 }),
+            createCrossTrafficVehicle({ laneZ: -360, dir: -1, speed: 0.108, minX: -24, maxX: 24, startX: 20, type: 'car', color: 0xd17b5a, radius: 3.0, activeRange: 120 }),
+            createCrossTrafficVehicle({ laneZ: -490, dir: 1, speed: 0.088, minX: -25, maxX: 25, startX: -22, type: 'truck', color: 0x7f8a95, radius: 3.5, activeRange: 130 })
+        ];
+        crossTrafficVehicles.forEach((cross) => scene.add(cross.mesh));
 
         const keys = {};
         let speed = 0;
@@ -675,7 +922,7 @@
         let missionFinished = false;
         let challengeLevel = 0;
         let learnerMode = 'student';
-        let activeDistrictName = 'Residencial';
+        let activeDistrictName = 'Providencia norte';
         const crossingSafety = new Map();
 
         function getAccuracy() {
@@ -695,7 +942,7 @@
             missionTitle.textContent = currentScenario >= stages.length ? 'Operacion completada' : stage.chapter;
             missionText.textContent = currentScenario >= stages.length
                 ? 'Llegaste a la clinica. Priorizaste peatones y mantuviste una conduccion segura.'
-                : stage.learning + ' Zona activa: ' + activeDistrictName + '.';
+                : stage.learning + ' Prioriza traslado de urgencia con rapidez y control. Zona activa: ' + activeDistrictName + '.';
             missionChapter.textContent = currentScenario >= stages.length
                 ? 'Traslado finalizado'
                 : 'Etapa ' + (currentScenario + 1) + ' / ' + stages.length;
@@ -711,10 +958,12 @@
 
         const hotspotMeshes = [];
         const hotspotData = [
-            { x: -8.5, z: 92, msg: 'Tip: Reduce velocidad cerca de cruces peatonales.' },
-            { x: 8.2, z: 34, msg: 'Tip: Senal PARE requiere detencion completa.' },
-            { x: -8.3, z: -24, msg: 'Tip: En lluvia, aumenta distancia de seguimiento.' },
-            { x: 8.4, z: -82, msg: 'Tip: Prioriza observacion de puntos ciegos.' }
+            { x: -8.5, z: 342, msg: 'Tip: En Providencia anticipa frenadas de buses en paraderos.' },
+            { x: 8.2, z: 184, msg: 'Tip: En cruces seguidos, baja velocidad antes de girar.' },
+            { x: -8.3, z: 28, msg: 'Tip: En zonas turisticas prioriza peatones en todo momento.' },
+            { x: 8.4, z: -146, msg: 'Tip: En avenidas anchas aumenta distancia de seguimiento.' },
+            { x: -8.2, z: -332, msg: 'Tip: En Alameda monitorea cambio de carril con mas tiempo.' },
+            { x: 8.3, z: -456, msg: 'Tip: Al acercarte a clinica, reduce y mantente en conduccion defensiva.' }
         ];
 
         hotspotData.forEach((item) => {
@@ -740,8 +989,8 @@
         const mapWorld = {
             minX: -18,
             maxX: 18,
-            minZ: -245,
-            maxZ: 225
+            minZ: -600,
+            maxZ: 550
         };
 
         function updateHud() {
@@ -825,6 +1074,15 @@
                 miniMapCtx.fill();
             });
 
+            crossTrafficVehicles.forEach((cross) => {
+                if (!cross.mesh.visible) return;
+                const crossPos = worldToMiniMap(cross.mesh.position.x, cross.mesh.position.z, size);
+                miniMapCtx.fillStyle = '#7fe3ff';
+                miniMapCtx.beginPath();
+                miniMapCtx.arc(crossPos.x, crossPos.y, 2.6, 0, Math.PI * 2);
+                miniMapCtx.fill();
+            });
+
             const vehiclePos = worldToMiniMap(vehicle.position.x, vehicle.position.z, size);
             miniMapCtx.save();
             miniMapCtx.translate(vehiclePos.x, vehiclePos.y);
@@ -880,7 +1138,7 @@
         }
 
         function resetGame() {
-            vehicle.position.set(0, 0.05, 212);
+            vehicle.position.set(0, 0.05, 470);
             vehicle.rotation.set(0, 0, 0);
             speed = 0;
             score = 0;
@@ -902,17 +1160,96 @@
             cones.forEach((cone) => {
                 cone.visible = true;
             });
-            npcVehicles[0].mesh.position.set(-4.2, 0.02, -140);
-            npcVehicles[1].mesh.position.set(4.2, 0.02, 170);
+            npcVehicles[0].mesh.position.set(-4.2, 0.02, -280);
+            npcVehicles[1].mesh.position.set(4.2, 0.02, 420);
             npcVehicles[2].mesh.position.set(-7.2, 0.02, -40);
-            npcVehicles[3].mesh.position.set(7.1, 0.02, 90);
-            npcVehicles[4].mesh.position.set(-2.6, 0.02, 10);
-            npcVehicles[5].mesh.position.set(2.6, 0.02, -180);
+            npcVehicles[3].mesh.position.set(7.1, 0.02, 260);
+            npcVehicles[4].mesh.position.set(-2.6, 0.02, 90);
+            npcVehicles[5].mesh.position.set(2.6, 0.02, -360);
+            npcVehicles[6].mesh.position.set(-9.2, 0.02, -470);
+            npcVehicles[7].mesh.position.set(9.0, 0.02, 170);
+            crossTrafficVehicles.forEach((cross) => {
+                cross.mesh.position.set(cross.startX, 0.02, cross.laneZ);
+                cross.mesh.rotation.y = cross.dir > 0 ? -Math.PI / 2 : Math.PI / 2;
+                cross.mesh.visible = false;
+            });
             applyVehicleScale();
             updateHud();
             drawMiniMap();
         }
 
+        // Joystick Control Variables
+        let joystickX = 0;
+        let joystickY = 0;
+        let joystickActive = false;
+        const joystickBase = document.getElementById('joystickBase');
+        const joystickHandle = document.getElementById('joystickHandle');
+        const joystickValX = document.getElementById('joystickValX');
+        const joystickValY = document.getElementById('joystickValY');
+        const maxJoystickRadius = 75;
+
+        function updateJoystickDisplay() {
+            joystickValX.textContent = joystickX.toFixed(2);
+            joystickValY.textContent = joystickY.toFixed(2);
+        }
+
+        function handleJoystickMove(clientX, clientY) {
+            if (!joystickActive) return;
+
+            const rect = joystickBase.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            let diffX = clientX - centerX;
+            let diffY = clientY - centerY;
+
+            const distance = Math.sqrt(diffX * diffX + diffY * diffY);
+
+            if (distance > maxJoystickRadius) {
+                const angle = Math.atan2(diffY, diffX);
+                diffX = Math.cos(angle) * maxJoystickRadius;
+                diffY = Math.sin(angle) * maxJoystickRadius;
+            }
+
+            joystickHandle.style.transform = `translate(${diffX}px, ${diffY}px)`;
+            joystickX = parseFloat((diffX / maxJoystickRadius).toFixed(2));
+            joystickY = parseFloat((diffY / maxJoystickRadius * -1).toFixed(2));
+            updateJoystickDisplay();
+        }
+
+        function stopJoystick() {
+            joystickActive = false;
+            joystickHandle.style.transition = 'transform 0.2s ease-out';
+            joystickHandle.style.transform = 'translate(0, 0)';
+            joystickX = 0;
+            joystickY = 0;
+            updateJoystickDisplay();
+        }
+
+        function startJoystick() {
+            joystickActive = true;
+            joystickHandle.style.transition = 'none';
+        }
+
+        // Joystick Events - Mouse
+        joystickHandle.addEventListener('mousedown', startJoystick);
+        window.addEventListener('mousemove', (e) => handleJoystickMove(e.clientX, e.clientY));
+        window.addEventListener('mouseup', stopJoystick);
+
+        // Joystick Events - Touch
+        joystickHandle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startJoystick();
+        });
+        window.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (joystickActive && e.touches.length > 0) {
+                handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: false });
+        window.addEventListener('touchend', stopJoystick);
+
+        // Keyboard Controls
         resetBtn.addEventListener('click', resetGame);
         modeStudent.addEventListener('click', () => setLearnerMode('student'));
         modePost.addEventListener('click', () => setLearnerMode('post'));
@@ -948,17 +1285,29 @@
 
             const profile = getDifficultyProfile();
 
+            // Keyboard input
             if (keys['a'] || keys['arrowleft']) vehicle.rotation.y += profile.turnSpeed;
             if (keys['d'] || keys['arrowright']) vehicle.rotation.y -= profile.turnSpeed;
             if (keys['w'] || keys['arrowup']) speed += acceleration;
             if (keys['s'] || keys['arrowdown']) speed -= acceleration;
 
+            // Joystick input (analog control with higher precision)
+            if (Math.abs(joystickX) > 0.1) {
+                vehicle.rotation.y -= joystickX * profile.turnSpeed * 1.5;
+            }
+            if (Math.abs(joystickY) > 0.1) {
+                speed += joystickY * acceleration * 2.0;
+            }
+
             speed *= friction;
             speed = Math.max(-profile.maxSpeed * 0.45, Math.min(profile.maxSpeed, speed));
             vehicle.translateZ(-speed);
 
-            vehicle.position.x = Math.max(-12.6, Math.min(12.6, vehicle.position.x));
-            vehicle.position.z = Math.max(-245, Math.min(225, vehicle.position.z));
+            // Límites dinámicos: se expanden en intersecciones para permitir navegación lateral
+            const nearIntersection = intersectionsZ.some((z) => Math.abs(vehicle.position.z - z) < 12);
+            const maxLateralX = nearIntersection ? 24 : 12.6;
+            vehicle.position.x = Math.max(-maxLateralX, Math.min(maxLateralX, vehicle.position.x));
+            vehicle.position.z = Math.max(-600, Math.min(550, vehicle.position.z));
 
             const desiredOffset = new THREE.Vector3(0, 6.2, 13.5).applyMatrix4(vehicle.matrixWorld);
             camera.position.lerp(desiredOffset, 0.1);
@@ -978,6 +1327,25 @@
                 if (npc.mesh.position.z < npc.minZ) npc.mesh.position.z = npc.maxZ;
 
                 npc.mesh.rotation.y = npc.dir > 0 ? Math.PI : 0;
+            });
+        }
+
+        function updateCrossTraffic() {
+            crossTrafficVehicles.forEach((cross) => {
+                const isNear = Math.abs(cross.laneZ - vehicle.position.z) < cross.activeRange;
+                cross.mesh.visible = isNear;
+                if (!isNear) return;
+
+                cross.mesh.position.x += cross.speed * cross.dir;
+                cross.mesh.position.z = cross.laneZ;
+                cross.mesh.rotation.y = cross.dir > 0 ? -Math.PI / 2 : Math.PI / 2;
+
+                if (cross.dir > 0 && cross.mesh.position.x > cross.maxX) {
+                    cross.mesh.position.x = cross.minX;
+                }
+                if (cross.dir < 0 && cross.mesh.position.x < cross.minX) {
+                    cross.mesh.position.x = cross.maxX;
+                }
             });
         }
 
@@ -1069,6 +1437,16 @@
                 }
             });
 
+            crossTrafficVehicles.forEach((cross) => {
+                if (!cross.mesh.visible) return;
+                const distance = vehicle.position.distanceTo(cross.mesh.position);
+                if (distance < cross.radius) {
+                    penalize('Riesgo con trafico cruzado en interseccion', 42);
+                    vehicle.position.z += 1.4;
+                    speed *= 0.65;
+                }
+            });
+
             pedestrians.forEach((ped) => {
                 if (!ped.mesh.visible) return;
                 const crossingCenterRisk = Math.abs(ped.mesh.position.x) < 7.8;
@@ -1104,9 +1482,13 @@
 
         function animate() {
             requestAnimationFrame(animate);
+            const pulse = performance.now() * 0.015;
+            sirenBlueMat.emissiveIntensity = 0.22 + Math.max(0, Math.sin(pulse)) * 0.85;
+            sirenRedMat.emissiveIntensity = 0.22 + Math.max(0, Math.sin(pulse + Math.PI)) * 0.85;
             updateVehicle();
             updateDistrictState();
             updateNpcTraffic();
+            updateCrossTraffic();
             updatePedestrians();
             detectCheckpoint();
             detectHotspots();
