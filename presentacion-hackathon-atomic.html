@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Automovil - Presentacion Atomic Design</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #000000;
+            --bg-elev: #0f0f0f;
+            --panel: #1a1a1a;
+            --ink: #ffffff;
+            --accent: #f2e205;
+            --muted: #a9a9a9;
+            --success: #6eff7a;
+            --shadow: #1a1a1a;
+            --border: 3px;
+            --radius: 10px;
+            --font-body: Helvetica, Arial, sans-serif;
+            --font-display: 'Press Start 2P', cursive;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: var(--font-body);
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 18% 10%, rgba(242, 226, 5, 0.12), transparent 26%),
+                radial-gradient(circle at 82% 12%, rgba(255, 255, 255, 0.08), transparent 24%),
+                linear-gradient(180deg, #000000 0%, #0f0f0f 100%);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .deck {
+            position: relative;
+            z-index: 1;
+            width: 1280px;
+            height: 720px;
+            max-width: 100vw;
+            max-height: 100vh;
+            aspect-ratio: 16 / 9;
+            margin: 0 auto;
+            padding: 12px;
+        }
+
+        .slides {
+            height: 100%;
+            display: flex;
+            transition: transform 0.45s ease;
+            will-change: transform;
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            padding: 12px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 10px;
+        }
+
+        .frame {
+            height: 100%;
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 16px;
+            background:
+                radial-gradient(circle at 80% 12%, rgba(242, 226, 5, 0.12), transparent 22%),
+                linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            box-shadow: 0 12px 26px rgba(0,0,0,0.35);
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        .content,
+        .content.reverse,
+        .content.single {
+            min-height: 0;
+        }
+
+        .topbar,
+        .bottombar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.28);
+        }
+
+        .bottombar {
+            border-top: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .brand .hackath {
+            font-size: 1.1rem;
+            color: var(--ink);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+        }
+
+        .brand .on {
+            font-family: var(--font-display);
+            font-size: 0.78rem;
+            color: var(--accent);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 2px solid var(--ink);
+            background: #1a1a1a;
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+        }
+
+        .badge .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            border: 2px solid var(--ink);
+        }
+
+        .title {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: clamp(0.82rem, 1.4vw, 1.18rem);
+            line-height: 1.55;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: clamp(1.05rem, 2.2vw, 2.2rem);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            margin-top: 8px;
+        }
+
+        .content {
+            padding: 14px 14px 12px;
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .content.reverse {
+            grid-template-columns: 0.95fr 1.05fr;
+        }
+
+        .content.reverse > .card {
+            order: 2;
+        }
+
+        .content.reverse > .diagram {
+            order: 1;
+        }
+
+        .content.single {
+            grid-template-columns: 1fr;
+        }
+
+        .card {
+            border: 2px solid var(--ink);
+            border-radius: var(--radius);
+            background: var(--panel);
+            box-shadow: 6px 6px 0 var(--shadow);
+            padding: 12px;
+            display: grid;
+            gap: 8px;
+            align-content: start;
+        }
+
+        .card h3 {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 0.58rem;
+            line-height: 1.5;
+            text-transform: uppercase;
+        }
+
+        .body {
+            color: var(--muted);
+            line-height: 1.45;
+            font-size: 0.93rem;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 9px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: #1a1a1a;
+            font-size: 0.66rem;
+        }
+
+        .chip strong {
+            color: var(--accent);
+            font-family: var(--font-display);
+            font-size: 0.48rem;
+        }
+
+        .diagram {
+            height: 100%;
+            min-height: 220px;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.18);
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.15)),
+                #0e0e0e;
+            padding: 12px;
+            display: grid;
+            gap: 8px;
+            align-content: start;
+        }
+
+        .diagram.hero {
+            background:
+                linear-gradient(180deg, rgba(242, 226, 5, 0.1), transparent 42%),
+                linear-gradient(135deg, rgba(255,255,255,0.06), rgba(0,0,0,0.18)),
+                #0e0e0e;
+        }
+
+        .diagram.mockup {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .diagram.mockup::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 10px;
+            border: 1px dashed rgba(255,255,255,0.18);
+        }
+
+        .media-placeholder {
+            border: 2px dashed rgba(255,255,255,0.22);
+            border-radius: 12px;
+            background:
+                radial-gradient(circle at 30% 25%, rgba(242, 226, 5, 0.16), transparent 28%),
+                linear-gradient(135deg, rgba(255,255,255,0.06), rgba(0,0,0,0.2)),
+                #0c0c0c;
+            padding: 14px;
+            display: grid;
+            align-content: space-between;
+            gap: 10px;
+            min-height: 220px;
+        }
+
+        .media-placeholder.large {
+            min-height: 280px;
+        }
+
+        .media-placeholder .mp-title {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 0.46rem;
+            line-height: 1.6;
+        }
+
+        .media-placeholder .mp-copy {
+            color: var(--muted);
+            line-height: 1.45;
+            font-size: 0.9rem;
+        }
+
+        .placeholder-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .placeholder-tile {
+            min-height: 84px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.18);
+            background: rgba(26,26,26,0.95);
+            padding: 10px;
+            display: grid;
+            align-content: center;
+            gap: 4px;
+        }
+
+        .placeholder-tile .tk {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 0.42rem;
+        }
+
+        .placeholder-tile .tv {
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .image-frame {
+            min-height: 240px;
+            border: 2px solid var(--ink);
+            border-radius: 12px;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(242, 226, 5, 0.22), transparent 26%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.14), transparent 18%),
+                linear-gradient(135deg, rgba(255,255,255,0.06), rgba(0,0,0,0.18)),
+                #101010;
+            position: relative;
+            display: grid;
+            align-items: end;
+            padding: 14px;
+        }
+
+        .image-frame::after {
+            content: "IMAGEN PLACEHOLDER";
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 0.42rem;
+            letter-spacing: 0.04em;
+        }
+
+        .image-frame .image-caption {
+            background: rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 10px;
+            padding: 10px;
+            color: var(--muted);
+            line-height: 1.45;
+            font-size: 0.9rem;
+        }
+
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .stack-layout {
+            display: grid;
+            gap: 12px;
+            align-content: start;
+        }
+
+        .split-stack {
+            display: grid;
+            gap: 10px;
+            align-content: start;
+        }
+
+        .nodes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .node {
+            min-height: 60px;
+            border: 2px solid var(--ink);
+            border-radius: 10px;
+            background: #1a1a1a;
+            padding: 9px;
+            display: grid;
+            align-content: center;
+            gap: 4px;
+        }
+
+        .node .k {
+            font-family: var(--font-display);
+            font-size: 0.44rem;
+            color: var(--accent);
+        }
+
+        .node .v {
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .roadmap {
+            display: grid;
+            gap: 10px;
+        }
+
+        .step {
+            border-left: 3px solid var(--ink);
+            padding-left: 10px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .metric {
+            border: 2px solid var(--ink);
+            border-radius: 10px;
+            background: #151515;
+            padding: 9px;
+        }
+
+        .metric .k {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 0.45rem;
+            margin-bottom: 6px;
+        }
+
+        .metric .v {
+            color: var(--muted);
+            line-height: 1.35;
+        }
+
+        .progress {
+            width: 100%;
+            height: 10px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        .progress span {
+            display: block;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #ffffff);
+        }
+
+        .atoms-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .hud {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .hud-item {
+            border: 2px solid var(--ink);
+            border-radius: 8px;
+            padding: 10px;
+            background: #0f0f0f;
+        }
+
+        .hud-item .k {
+            font-size: 0.56rem;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .hud-item .v {
+            margin-top: 4px;
+            font-weight: 700;
+        }
+
+        .meter {
+            width: 100%;
+            height: 14px;
+            border: 2px solid var(--ink);
+            background: #1a1a1a;
+            overflow: hidden;
+            border-radius: 999px;
+        }
+
+        .meter-fill {
+            height: 100%;
+            width: 62%;
+            background: linear-gradient(90deg, #f2e205, #ffffff);
+        }
+
+        .mission-card {
+            padding: 10px;
+        }
+
+        .mission-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .organism-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 10px;
+        }
+
+        .hero-block {
+            padding: 12px;
+        }
+
+        .hero-block h3 {
+            font-size: clamp(0.8rem, 1.6vw, 1rem);
+            margin-bottom: 10px;
+        }
+
+        .roadmap-block {
+            padding: 12px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        .slide-template {
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #0b0b0b;
+        }
+
+        .slide-frame {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 8px;
+            padding: 12px;
+            background:
+                radial-gradient(circle at 80% 8%, rgba(242, 226, 5, 0.12), transparent 24%),
+                #0a0a0a;
+        }
+
+        .slide-frame .title {
+            font-size: 0.56rem;
+        }
+
+        .slide-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .slide-body {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 8px;
+        }
+
+        .panel-mock {
+            border: 2px solid var(--ink);
+            border-radius: 8px;
+            padding: 9px;
+            background: #151515;
+        }
+
+        .panel-mock p {
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .panel-mock .mini-label {
+            display: block;
+            margin-bottom: 6px;
+            font-family: var(--font-display);
+            font-size: 0.45rem;
+            color: var(--accent);
+        }
+
+        .panel-stack {
+            display: grid;
+            gap: 8px;
+        }
+
+        .timeline-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 24px;
+            top: 10px;
+            bottom: -20px;
+            width: 3px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .timeline-item:last-child .timeline-line {
+            display: none;
+        }
+
+        .timeline-badge {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 800;
+            color: white;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            z-index: 1;
+        }
+
+        .timeline-content {
+            background: #151515;
+            padding: 16px 22px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+            flex-grow: 1;
+            margin-bottom: 25px;
+        }
+
+        .t-purple .timeline-badge { background: #7a5cff; }
+        .t-green .timeline-badge { background: #6eff7a; color: #000; }
+        .t-lime .timeline-badge { background: #f2e205; color: #000; }
+        .t-slate .timeline-badge { background: #666; }
+
+        .bullet-point {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            margin: 44px 0 22px;
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .sub-title {
+            margin: 16px 0 10px;
+            color: var(--muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 0.76rem;
+        }
+
+        .cover-title {
+            font-size: 3.3rem;
+            color: var(--accent);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .floating-icon {
+            font-size: 8rem;
+            margin-bottom: 20px;
+        }
+
+        .slide-cover {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+        }
+
+        .slide-section {
+            background: linear-gradient(135deg, #141414 0%, #090909 100%);
+            color: white;
+        }
+
+        .section-layout {
+            display: flex !important;
+            width: 100% !important;
+            height: 100% !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0 72px !important;
+            position: relative !important;
+            z-index: 10 !important;
+        }
+
+        .section-left {
+            text-align: left !important;
+            max-width: 65% !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .section-right {
+            position: relative !important;
+            width: 300px !important;
+            height: 300px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+
+        .section-title-box {
+            border-left: 15px solid var(--accent) !important;
+            padding-left: 32px !important;
+        }
+
+        .section-title-text {
+            font-size: 3.9rem !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            line-height: 1.1 !important;
+            color: white !important;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+        }
+
+        .section-number-big {
+            font-size: 11rem !important;
+            font-weight: 900 !important;
+            color: rgba(255,255,255,0.08) !important;
+            line-height: 1 !important;
+            position: absolute !important;
+            right: -20px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+        }
+
+        .section-icon {
+            font-size: 5.6rem !important;
+            position: relative !important;
+            z-index: 2 !important;
+        }
+
+        .section-media {
+            position: absolute;
+            inset: 24px 0 0 0;
+            border-radius: 16px;
+            border: 2px solid rgba(255,255,255,0.12);
+            background:
+                radial-gradient(circle at 20% 20%, rgba(242, 226, 5, 0.18), transparent 26%),
+                radial-gradient(circle at 75% 35%, rgba(255,255,255,0.12), transparent 18%),
+                linear-gradient(135deg, rgba(255,255,255,0.06), rgba(0,0,0,0.12)),
+                #101010;
+            overflow: hidden;
+        }
+
+        .section-media::before {
+            content: "";
+            position: absolute;
+            inset: 14px;
+            border: 1px dashed rgba(255,255,255,0.18);
+            border-radius: 12px;
+        }
+
+        .section-media .caption {
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 14px;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.72);
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .deco-strip {
+            display: flex;
+            height: 25px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            z-index: 20;
+        }
+
+        .deco-strip .segment {
+            height: 100%;
+            transform: skewX(-40deg);
+            margin-right: 6px;
+        }
+
+        .seg-fill { flex-grow: 1; }
+        .seg-sm { width: 30px; }
+        .seg-md { width: 60px; }
+        .seg-start { margin-left: -30px; padding-left: 30px; }
+        .seg-end { margin-right: -30px; padding-right: 30px; }
+
+        .bg-main { background: var(--bg-main); }
+        .bg-elev { background: var(--bg-elev); }
+        .bg-panel { background: var(--panel); }
+        .bg-ink { background: var(--ink); }
+        .bg-accent { background: var(--accent); }
+        .bg-muted { background: var(--muted); }
+        .bg-success { background: var(--success); }
+
+        .logo-overlay {
+            position: absolute;
+            bottom: 24px;
+            right: 28px;
+            width: 100px;
+            z-index: 9999;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            transition: all 1s ease;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 7px;
+            background: linear-gradient(90deg, var(--accent), #ffffff);
+            width: 0%;
+            transition: width 0.5s ease;
+            z-index: 200;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            z-index: 500;
+            display: flex;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #presentation-container:hover .controls {
+            opacity: 1;
+        }
+
+        .nav-btn {
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .dots {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            gap: 6px;
+            z-index: 500;
+        }
+
+        .dot-page {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid var(--ink);
+            background: #1a1a1a;
+            cursor: pointer;
+        }
+
+        .dot-page.active {
+            background: var(--accent);
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            align-items: stretch;
+        }
+
+        .slide-stack {
+            display: grid;
+            gap: 12px;
+        }
+
+        .label-mini {
+            font-family: var(--font-display);
+            font-size: 0.45rem;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .table-like {
+            display: grid;
+            gap: 8px;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 8px;
+            border: 2px solid var(--ink);
+            border-radius: 8px;
+            background: #151515;
+            padding: 9px;
+        }
+
+        .table-row strong {
+            color: var(--accent);
+            font-family: var(--font-display);
+            font-size: 0.42rem;
+            align-self: center;
+        }
+
+        .table-row span {
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .quote-box {
+            border-left: 8px solid var(--accent);
+            background: #111111;
+            padding: 12px;
+            border-radius: 0 10px 10px 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .footer-terminal {
+            margin-top: 18px;
+            border-top: 2px solid var(--accent);
+            padding-top: 10px;
+            font-family: var(--font-display);
+            font-size: 0.5rem;
+            color: var(--accent);
+        }
+
+        .slide-footer-note {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 0.42rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 960px) {
+            body {
+                overflow-y: auto;
+            }
+
+            .deck {
+                height: auto;
+                min-height: 100vh;
+                aspect-ratio: auto;
+            }
+
+            .slides {
+                display: block;
+                transform: none !important;
+            }
+
+            .slide {
+                min-width: 100%;
+                height: auto;
+                padding: 10px 0 18px;
+            }
+
+            .frame {
+                min-height: 720px;
+            }
+
+            .content,
+            .content.single,
+            .content.reverse,
+            .nodes,
+            .metric-grid,
+            .slide-body,
+            .organism-grid,
+            .section-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-layout {
+                padding: 0 24px !important;
+                flex-direction: column !important;
+                gap: 18px !important;
+                justify-content: center !important;
+            }
+
+            .section-left {
+                max-width: 100% !important;
+                justify-content: center !important;
+                text-align: center !important;
+            }
+
+            .section-title-box {
+                border-left: none !important;
+                border-top: 12px solid var(--accent) !important;
+                padding-left: 0 !important;
+                padding-top: 18px !important;
+            }
+
+            .section-title-text {
+                font-size: 2.3rem !important;
+            }
+
+            .section-right {
+                width: 200px !important;
+                height: 200px !important;
+            }
+
+            .section-number-big {
+                font-size: 8rem !important;
+            }
+
+            .cover-title {
+                font-size: 2.6rem;
+            }
+
+            .slide-content,
+            .content-body {
+                padding-left: 14px !important;
+                padding-right: 14px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="deck">
+        <div class="slides" id="slides">
+            <section class="slide slide-cover">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Hackathon Automovil</div>
+                    </div>
+                    <div class="content single slide-content" style="grid-template-columns: 1fr 0.92fr;">
+                        <div class="card" style="background: transparent; box-shadow: none; border: none; padding: 0; align-content: center;">
+                            <div class="title">Presentacion del proyecto</div>
+                            <div class="subtitle">Sistema de Aprendizaje Vial<br>para Clase B Chile</div>
+                            <p class="body">Una propuesta que convierte el proceso de aprender a manejar en una experiencia guiada, visual y jugable. El sistema mezcla diseño atomico, narrativa de entrenamiento y un minijuego 3D en Three.js.</p>
+                            <div class="chip-row">
+                                <span class="chip"><strong>Formato</strong> 16:9</span>
+                                <span class="chip"><strong>Motor</strong> Three.js</span>
+                                <span class="chip"><strong>Estilo</strong> Atomic Design</span>
+                            </div>
+                            <div class="placeholder-grid" style="margin-top: 14px;">
+                                <div class="placeholder-tile"><div class="tk">CAPA 1</div><div class="tv">Portada + pitch visual para jurado.</div></div>
+                                <div class="placeholder-tile"><div class="tk">CAPA 2</div><div class="tv">Resumen del problema y la solución.</div></div>
+                            </div>
+                        </div>
+                        <div class="diagram hero mockup">
+                            <div class="nodes">
+                                <div class="node"><div class="k">Problema</div><div class="v">Desmotivacion para obtener la licencia</div></div>
+                                <div class="node"><div class="k">Solucion</div><div class="v">Aprendizaje activo con juego</div></div>
+                                <div class="node"><div class="k">Target</div><div class="v">Jovenes de 15 a 30 años</div></div>
+                                <div class="node"><div class="k">Entrega</div><div class="v">Pitch + demo interactiva</div></div>
+                            </div>
+                            <div class="image-frame" style="min-height: 170px;">
+                                <div class="image-caption">Placeholder visual para una imagen del auto, del HUD o de la escena 3D principal.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">Hackath ON / Portada del deck / 01</div>
+                        <div class="slide-footer-note">Identidad: negro, blanco, amarillo pixel y gris oscuro</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Contexto</div>
+                    </div>
+                    <div class="content reverse">
+                        <div class="card">
+                            <h3>Slide 02 / El desafio</h3>
+                            <div class="subtitle">Por que la gente evita sacar la licencia</div>
+                            <p class="body">El proyecto parte de una tension simple: muchas personas posponen la licencia por miedo, costo, saturacion teorica o falta de motivacion. La hackathon pide una respuesta practica, accesible y demostrable.</p>
+                            <div class="chip-row">
+                                <span class="chip"><strong>Dolor</strong> ansiedad</span>
+                                <span class="chip"><strong>Dolor</strong> tiempo</span>
+                                <span class="chip"><strong>Dolor</strong> memoria pasiva</span>
+                            </div>
+                            <div class="split-layout" style="margin-top: 12px;">
+                                <div class="media-placeholder">
+                                    <div class="mp-title">REFERENCIA VISUAL</div>
+                                    <div class="mp-copy">Espacio para una imagen del usuario, la licencia o una escena de aprendizaje.</div>
+                                </div>
+                                <div class="placeholder-grid">
+                                    <div class="placeholder-tile"><div class="tk">MIEDO</div><div class="tv">Bloqueo inicial.</div></div>
+                                    <div class="placeholder-tile"><div class="tk">COSTO</div><div class="tv">Barreras reales.</div></div>
+                                    <div class="placeholder-tile"><div class="tk">TIEMPO</div><div class="tv">Proceso largo.</div></div>
+                                    <div class="placeholder-tile"><div class="tk">MOTIVACION</div><div class="tv">Necesita refuerzo.</div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="diagram">
+                            <div class="table-like">
+                                <div class="table-row"><strong>MOTIVACION</strong><span>La teoria tradicional no conecta con la experiencia real de conducir.</span></div>
+                                <div class="table-row"><strong>APRENDIZAJE</strong><span>Se estudia para aprobar, no para decidir bien en contexto vial.</span></div>
+                                <div class="table-row"><strong>ACCESO</strong><span>Hace falta una herramienta simple, movil y entretenida.</span></div>
+                            </div>
+                            <div class="image-frame">
+                                <div class="image-caption">Placeholder para gráfico de causas, ejemplo de Ishikawa o flujo del problema.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">02 / El problema real que la propuesta ataca</div>
+                        <div class="slide-footer-note">Aprender a conducir requiere practica mental antes de la practica fisica</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide slide-section">
+                <div class="frame" style="background: transparent; border: none; box-shadow: none;">
+                    <div class="bg-pattern-dots"></div>
+                    <div class="section-layout">
+                        <div class="section-left">
+                            <div class="section-title-box">
+                                <div class="section-title-text">Objetivo de la<br>Hackathon</div>
+                            </div>
+                        </div>
+                        <div class="section-right">
+                            <div class="section-media">
+                                <div class="caption">Placeholder para imagen de la hackathon, equipo o mockup del proyecto.</div>
+                            </div>
+                            <div class="section-number-big">01</div>
+                            <div class="section-icon">🎯</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Objetivo</div>
+                    </div>
+                    <div class="content">
+                        <div class="card">
+                            <h3>Slide 04 / Enfoque</h3>
+                            <p class="body">El objetivo es construir una experiencia que ayude a aprender, practicar y recordar normas de seguridad vial con una interfaz clara, memorable y atractiva para la presentacion del jurado.</p>
+                            <div class="chip-row">
+                                <span class="chip"><strong>Meta</strong> aprender haciendo</span>
+                                <span class="chip"><strong>Meta</strong> reducir abandono</span>
+                                <span class="chip"><strong>Meta</strong> mejorar retencion</span>
+                            </div>
+                            <div class="image-frame" style="min-height: 180px; margin-top: 10px;">
+                                <div class="image-caption">Placeholder para imagen del flujo Input / Update / Render o del auto en escena.</div>
+                            </div>
+                        </div>
+                        <div class="diagram hero">
+                            <div class="nodes">
+                                <div class="node"><div class="k">INPUT</div><div class="v">Escenario vial + decision</div></div>
+                                <div class="node"><div class="k">UPDATE</div><div class="v">Regla de transito + feedback</div></div>
+                                <div class="node"><div class="k">RENDER</div><div class="v">Puntaje + progreso + racha</div></div>
+                                <div class="node"><div class="k">NEXT</div><div class="v">Siguiente capitulo</div></div>
+                            </div>
+                            <div class="placeholder-grid">
+                                <div class="placeholder-tile"><div class="tk">MISION</div><div class="tv">Texto breve de objetivo.</div></div>
+                                <div class="placeholder-tile"><div class="tk">RECOMPENSA</div><div class="tv">Puntos, racha y feedback.</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">04 / Objetivo pedagogico + objetivo de experiencia</div>
+                        <div class="slide-footer-note">Aprender sin lectura pasiva</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide slide-section">
+                <div class="frame" style="background: transparent; border: none; box-shadow: none;">
+                    <div class="bg-pattern-dots"></div>
+                    <div class="section-layout">
+                        <div class="section-left">
+                            <div class="section-title-box">
+                                <div class="section-title-text">Sistema<br>Atomico</div>
+                            </div>
+                        </div>
+                        <div class="section-right">
+                            <div class="section-media">
+                                <div class="caption">Placeholder para una imagen que represente átomos, moléculas y organismos del sistema visual.</div>
+                            </div>
+                            <div class="section-number-big">02</div>
+                            <div class="section-icon">🧩</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Atomos</div>
+                    </div>
+                    <div class="content reverse">
+                        <div class="card">
+                            <h3>Slide 06 / Atomos</h3>
+                            <p class="body">La base del sistema visual se apoya en atomos simples: botones, chips, labels y tokens de color. Estos elementos son los ladrillos que mantienen consistencia entre la presentación y el juego.</p>
+                            <div class="action-row">
+                                <button class="chip" type="button"><span class="dot" style="background:#6eff7a"></span>Boton</button>
+                                <button class="chip" type="button"><span class="dot" style="background:#f2e205"></span>Chip</button>
+                                <button class="chip" type="button"><span class="dot" style="background:#ffffff"></span>Token</button>
+                            </div>
+                            <div class="placeholder-grid" style="margin-top: 12px;">
+                                <div class="placeholder-tile"><div class="tk">BOTON</div><div class="tv">Accion primaria.</div></div>
+                                <div class="placeholder-tile"><div class="tk">CHIP</div><div class="tv">Estado o categoría.</div></div>
+                                <div class="placeholder-tile"><div class="tk">LABEL</div><div class="tv">Jerarquia informativa.</div></div>
+                                <div class="placeholder-tile"><div class="tk">TOKEN</div><div class="tv">Color y consistencia.</div></div>
+                            </div>
+                        </div>
+                        <div class="diagram">
+                            <div class="label-mini">PALETA</div>
+                            <div class="color-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                <div class="node" style="min-height:72px; background:#000; color:#fff;"><div class="k">MAIN</div><div class="v">#000000</div></div>
+                                <div class="node" style="min-height:72px; background:#1a1a1a; color:#fff;"><div class="k">PANEL</div><div class="v">#1A1A1A</div></div>
+                                <div class="node" style="min-height:72px; background:#f2e205; color:#000;"><div class="k">ACCENT</div><div class="v">#F2E205</div></div>
+                                <div class="node" style="min-height:72px; background:#a9a9a9; color:#000;"><div class="k">MUTED</div><div class="v">#A9A9A9</div></div>
+                            </div>
+                            <div class="image-frame" style="min-height: 150px;">
+                                <div class="image-caption">Placeholder para mockup de paleta o sistema visual aplicado.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">06 / Sistema visual unificado</div>
+                        <div class="slide-footer-note">Atomos que sostienen todo el deck</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Moleculas</div>
+                    </div>
+                    <div class="content">
+                        <div class="card">
+                            <h3>Slide 07 / Moleculas</h3>
+                            <p class="body">Las moleculas combinan atomos en piezas utiles: HUD, card de mision, barras de progreso y bloques de feedback. Aqui la interfaz empieza a contar una historia funcional.</p>
+                            <div class="chip-row">
+                                <span class="chip"><strong>HUD</strong> puntaje y progreso</span>
+                                <span class="chip"><strong>Card</strong> desafio</span>
+                                <span class="chip"><strong>Feedback</strong> respuesta inmediata</span>
+                            </div>
+                        </div>
+                        <div class="diagram">
+                            <div class="hud">
+                                <article class="hud-item">
+                                    <div class="k">Puntaje</div>
+                                    <div class="v">300</div>
+                                </article>
+                                <article class="hud-item">
+                                    <div class="k">Precision</div>
+                                    <div class="v">83%</div>
+                                </article>
+                                <article class="hud-item">
+                                    <div class="k">Desafio</div>
+                                    <div class="v">Activo</div>
+                                </article>
+                            </div>
+                            <div class="meter"><div class="meter-fill"></div></div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">07 / Moleculas funcionales de la experiencia</div>
+                        <div class="slide-footer-note">La interfaz refuerza el juego y el aprendizaje</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide slide-section">
+                <div class="frame" style="background: transparent; border: none; box-shadow: none;">
+                    <div class="bg-pattern-dots"></div>
+                    <div class="section-layout">
+                        <div class="section-left">
+                            <div class="section-title-box">
+                                <div class="section-title-text">Gameplay<br>y Aprendizaje</div>
+                            </div>
+                        </div>
+                        <div class="section-right">
+                            <div class="section-media">
+                                <div class="caption">Placeholder para una captura del minijuego, el HUD o el vehículo 3D.</div>
+                            </div>
+                            <div class="section-number-big">03</div>
+                            <div class="section-icon">🚗</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Gameplay</div>
+                    </div>
+                    <div class="content reverse">
+                        <div class="card">
+                            <h3>Slide 09 / Juego</h3>
+                            <p class="body">El juego propone conducir, encontrar checkpoints, responder preguntas y recoger feedback. La experiencia mezcla movimiento, decision y recompensa para sostener la atencion del jugador.</p>
+                            <div class="chip-row">
+                                <span class="chip"><strong>Loop</strong> input update feedback</span>
+                                <span class="chip"><strong>Loop</strong> checkpoints</span>
+                                <span class="chip"><strong>Loop</strong> exploracion</span>
+                            </div>
+                            <div class="split-layout" style="margin-top: 12px;">
+                                <div class="image-frame">
+                                    <div class="image-caption">Placeholder para captura del escenario Three.js o del auto moderno.</div>
+                                </div>
+                                <div class="stack-layout">
+                                    <div class="placeholder-tile"><div class="tk">CHECKPOINT</div><div class="tv">Pregunta + decisión.</div></div>
+                                    <div class="placeholder-tile"><div class="tk">HOTSPOT</div><div class="tv">Bonus de exploración.</div></div>
+                                    <div class="placeholder-tile"><div class="tk">FEEDBACK</div><div class="tv">Explicación inmediata.</div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="diagram hero mockup">
+                            <div class="nodes">
+                                <div class="node"><div class="k">AUTO</div><div class="v">Movimiento tactil y teclado</div></div>
+                                <div class="node"><div class="k">CHECKPOINT</div><div class="v">Preguntas por escenario</div></div>
+                                <div class="node"><div class="k">HOTSPOT</div><div class="v">Coleccionables + bonus</div></div>
+                                <div class="node"><div class="k">FEEDBACK</div><div class="v">Explicacion inmediata</div></div>
+                            </div>
+                            <div class="media-placeholder">
+                                <div class="mp-title">CAPTURA DEL GAMEPLAY</div>
+                                <div class="mp-copy">Placeholder para una imagen del HUD completo o de la ruta de juego.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">09 / Loop jugable para aprendizaje activo</div>
+                        <div class="slide-footer-note">Aprendizaje por decision, no por lectura pasiva</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Aprendizaje</div>
+                    </div>
+                    <div class="content">
+                        <div class="card">
+                            <h3>Slide 10 / Aprendizaje</h3>
+                            <p class="body">Cada escenario traduce una regla vial a una conducta concreta. El objetivo no es solo responder bien, sino reconocer riesgos y justificar una decision segura.</p>
+                            <div class="quote-box">El aprendizaje mejora cuando la respuesta correcta se explica en contexto y el error no castiga, sino que corrige.</div>
+                        </div>
+                        <div class="diagram">
+                            <div class="table-like">
+                                <div class="table-row"><strong>PRIORIDAD</strong><span>Peatones, pasos habilitados, intersecciones y señalizacion.</span></div>
+                                <div class="table-row"><strong>CLIMA</strong><span>Lluvia, distancia de frenado y moderacion de velocidad.</span></div>
+                                <div class="table-row"><strong>CONTROL</strong><span>Frenado, giro, estacionamiento y observacion.</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">10 / Aprender con contexto y retroalimentacion</div>
+                        <div class="slide-footer-note">La licencia se practica, no solo se memoriza</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide slide-section">
+                <div class="frame" style="background: transparent; border: none; box-shadow: none;">
+                    <div class="bg-pattern-dots"></div>
+                    <div class="section-layout">
+                        <div class="section-left">
+                            <div class="section-title-box">
+                                <div class="section-title-text">Innovacion<br>y Accesibilidad</div>
+                            </div>
+                        </div>
+                        <div class="section-right">
+                            <div class="section-media">
+                                <div class="caption">Placeholder para el cierre visual: equipo, logo o render final.</div>
+                            </div>
+                            <div class="section-number-big">04</div>
+                            <div class="section-icon">⚡</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Innovacion</div>
+                    </div>
+                    <div class="content reverse">
+                        <div class="card">
+                            <h3>Slide 12 / Diferencial</h3>
+                            <p class="body">La propuesta combina Three.js, gamificacion ligera y diseño atomico. Eso la hace distinta de una simple app de quiz: aqui la experiencia tiene mundo, ritmo y una identidad visual coherente.</p>
+                            <div class="chip-row">
+                                <span class="chip"><strong>3D</strong> ligero</span>
+                                <span class="chip"><strong>UI</strong> responsive</span>
+                                <span class="chip"><strong>UX</strong> entretenida</span>
+                            </div>
+                            <div class="media-placeholder large" style="margin-top: 10px;">
+                                <div class="mp-title">DIFERENCIAL VISUAL</div>
+                                <div class="mp-copy">Placeholder para una imagen comparativa: antes / después, o pantalla principal del juego.</div>
+                            </div>
+                        </div>
+                        <div class="diagram hero">
+                            <div class="table-like">
+                                <div class="table-row"><strong>ACCESO</strong><span>Funciona desde equipos modestos hasta notebooks de mejor gama.</span></div>
+                                <div class="table-row"><strong>MULTIPLATAFORMA</strong><span>Mobile-first sin hardware adicional ni nube obligatoria.</span></div>
+                                <div class="table-row"><strong>DISEÑO</strong><span>Atomos, moleculas, organismos y templates alineados.</span></div>
+                            </div>
+                            <div class="placeholder-grid">
+                                <div class="placeholder-tile"><div class="tk">WEBGL</div><div class="tv">Escena ligera.</div></div>
+                                <div class="placeholder-tile"><div class="tk">MOBILE</div><div class="tv">Controles táctiles.</div></div>
+                                <div class="placeholder-tile"><div class="tk">PITCH</div><div class="tv">Idea defendible.</div></div>
+                                <div class="placeholder-tile"><div class="tk">ARTE</div><div class="tv">Identidad consistente.</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">12 / Innovacion con limites reales de hardware</div>
+                        <div class="slide-footer-note">Ligero, accesible y defendible ante jurado</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide slide-section">
+                <div class="frame" style="background: transparent; border: none; box-shadow: none;">
+                    <div class="bg-pattern-dots"></div>
+                    <div class="section-layout">
+                        <div class="section-left">
+                            <div class="section-title-box">
+                                <div class="section-title-text">Roadmap y<br>Cierre</div>
+                            </div>
+                        </div>
+                        <div class="section-right">
+                            <div class="section-number-big">05</div>
+                            <div class="section-icon">🚀</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Roadmap</div>
+                    </div>
+                    <div class="content">
+                        <div class="card">
+                            <h3>Slide 14 / Desarrollo</h3>
+                            <p class="body">La ejecucion puede leerse por etapas: base visual, minijuego, calibracion pedagogica y pitch final. La estructura permite avanzar rapido sin perder calidad de experiencia.</p>
+                            <div class="roadmap">
+                                <div class="step"><strong>Etapa 1:</strong> sistema atomico y deck.</div>
+                                <div class="step"><strong>Etapa 2:</strong> escena Three.js y mecánicas.</div>
+                                <div class="step"><strong>Etapa 3:</strong> retroalimentacion y dificultad adaptativa.</div>
+                                <div class="step"><strong>Etapa 4:</strong> demo y presentacion final.</div>
+                            </div>
+                            <div class="image-frame" style="min-height: 170px; margin-top: 10px;">
+                                <div class="image-caption">Placeholder para un timeline visual, roadmap gráfico o screenshot del avance del proyecto.</div>
+                            </div>
+                        </div>
+                        <div class="diagram">
+                            <div class="nodes">
+                                <div class="node"><div class="k">ATOMIC DESIGN</div><div class="v">Lenguaje visual unificado</div></div>
+                                <div class="node"><div class="k">PRESENTACION</div><div class="v">Deck 16:9 de pitch</div></div>
+                                <div class="node"><div class="k">GAMEPLAY</div><div class="v">Decisiones viales reales</div></div>
+                                <div class="node"><div class="k">CIERRE</div><div class="v">Narrativa clara para jurado</div></div>
+                            </div>
+                            <div class="media-placeholder">
+                                <div class="mp-title">MOMENTO DE ENTREGA</div>
+                                <div class="mp-copy">Placeholder para imagen final del equipo, logo o escena de demo.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">14 / Roadmap de ejecucion</div>
+                        <div class="slide-footer-note">Cierre listo para pitch y demo</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="frame">
+                    <div class="topbar">
+                        <div class="brand"><span class="hackath">Hackath</span><span class="on">ON</span></div>
+                        <div class="badge"><span class="dot"></span> Cierre</div>
+                    </div>
+                    <div class="content reverse">
+                        <div class="card">
+                            <h3>Slide 15 / Resultado</h3>
+                            <div class="subtitle">La hackathon como experiencia completa</div>
+                            <p class="body">El proyecto une diseño atomic, narrativa, juego y aprendizaje. La entrega final no solo muestra una idea, sino una experiencia lista para presentar y seguir evolucionando.</p>
+                            <div class="chip-row">
+                                <span class="chip"><strong>Valor</strong> claridad</span>
+                                <span class="chip"><strong>Valor</strong> retencion</span>
+                                <span class="chip"><strong>Valor</strong> innovacion</span>
+                            </div>
+                            <div class="image-frame" style="min-height: 180px; margin-top: 10px;">
+                                <div class="image-caption">Placeholder para la imagen de cierre: logo, equipo o visual final del pitch.</div>
+                            </div>
+                        </div>
+                        <div class="split-stack">
+                            <div class="card">
+                                <h3>Mensaje final</h3>
+                                <p class="body">No se trata solo de enseñar a manejar. Se trata de transformar un proceso dificil en algo que se entiende, se practica y se recuerda.</p>
+                            </div>
+                            <div class="diagram hero mockup">
+                                <div class="nodes">
+                                    <div class="node"><div class="k">MISION</div><div class="v">Aprender a decidir bien</div></div>
+                                    <div class="node"><div class="k">IMPACTO</div><div class="v">Menos barreras para obtener la licencia</div></div>
+                                    <div class="node"><div class="k">IDENTIDAD</div><div class="v">Hackath ON + Atomic Design</div></div>
+                                    <div class="node"><div class="k">CIERRE</div><div class="v">Listo para jurado</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottombar">
+                        <div class="slide-footer-note">15 / Cierre de la propuesta</div>
+                        <div class="slide-footer-note">Gracias. Presentacion lista para exponer</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="controls">
+            <button class="nav-btn" id="prevBtn" type="button">❮</button>
+            <button class="nav-btn" id="nextBtn" type="button">❯</button>
+        </div>
+        <div class="dots" id="dots"></div>
+        <div class="progress-bar" id="progressBar"></div>
+    </main>
+
+    <script>
+        const slides = document.getElementById('slides');
+        const dots = document.getElementById('dots');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        const slideCount = slides.children.length;
+        let current = 0;
+
+        for (let index = 0; index < slideCount; index += 1) {
+            const dot = document.createElement('button');
+            dot.className = 'dot-page';
+            dot.type = 'button';
+            dot.setAttribute('aria-label', 'Ir a la slide ' + (index + 1));
+            dot.addEventListener('click', () => {
+                current = index;
+                render();
+            });
+            dots.appendChild(dot);
+        }
+
+        function render() {
+            slides.style.transform = 'translateX(-' + (current * 100) + '%)';
+            [...dots.children].forEach((dot, index) => {
+                dot.classList.toggle('active', index === current);
+            });
+            progressBar.style.width = ((current + 1) / slideCount * 100) + '%';
+        }
+
+        function goNext() {
+            current = (current + 1) % slideCount;
+            render();
+        }
+
+        function goPrev() {
+            current = (current - 1 + slideCount) % slideCount;
+            render();
+        }
+
+        prevBtn.addEventListener('click', goPrev);
+        nextBtn.addEventListener('click', goNext);
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight') goNext();
+            if (event.key === 'ArrowLeft') goPrev();
+        });
+
+        render();
+    </script>
+</body>
+</html>

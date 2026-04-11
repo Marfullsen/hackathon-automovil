@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cluster Digital - Tacometro Moderno</title>
+    <style>
+        :root {
+            --bg: #050608;
+            --panel: #0d1014;
+            --panel-2: #131820;
+            --panel-3: #1b2430;
+            --text: #eef2f7;
+            --muted: #9ba9b7;
+            --accent: #55d7ff;
+            --accent-2: #3df28f;
+            --warn: #ffcc4d;
+            --danger: #ff5e5e;
+            --line: rgba(255, 255, 255, 0.08);
+            --shadow: rgba(0, 0, 0, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at 50% 20%, rgba(85, 215, 255, 0.12), transparent 35%),
+                radial-gradient(circle at 15% 75%, rgba(61, 242, 143, 0.08), transparent 28%),
+                linear-gradient(180deg, #0a0c10 0%, #050608 100%);
+            color: var(--text);
+            font-family: Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .cluster {
+            width: min(96vw, 1280px);
+            height: min(88vh, 720px);
+            min-height: 720px;
+            border-radius: 36px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
+                linear-gradient(180deg, var(--panel) 0%, #0a0d11 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow:
+                0 28px 80px var(--shadow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                inset 0 -24px 60px rgba(0, 0, 0, 0.35);
+            position: relative;
+            overflow: hidden;
+            padding: 26px;
+        }
+
+        .cluster::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.05) 20%, transparent 40%),
+                linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.02), transparent);
+            pointer-events: none;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand {
+            display: grid;
+            gap: 4px;
+        }
+
+        .brand .label {
+            font-size: 0.72rem;
+            letter-spacing: 0.25em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .brand .title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .status-strip {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text);
+            font-size: 0.8rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .pill strong {
+            font-size: 0.88rem;
+        }
+
+        .pill .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 12px rgba(85, 215, 255, 0.85);
+        }
+
+        .dash {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr 1.2fr;
+            gap: 18px;
+            align-items: stretch;
+            position: relative;
+            z-index: 1;
+            height: calc(100% - 78px);
+        }
+
+        .panel {
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05), transparent 38%),
+                linear-gradient(180deg, var(--panel-2) 0%, var(--panel) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::after {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            top: 18px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+        }
+
+        .gauge-wrap {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 10px;
+        }
+
+        .gauge-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .gauge-head strong {
+            color: var(--text);
+            font-size: 1rem;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+
+        .gauge {
+            width: 100%;
+            height: 100%;
+            min-height: 360px;
+        }
+
+        .ring {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.08);
+            stroke-width: 10;
+        }
+
+        .ring-accent {
+            fill: none;
+            stroke: rgba(85, 215, 255, 0.24);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 220 120;
+        }
+
+        .tick {
+            stroke: rgba(255, 255, 255, 0.68);
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+
+        .tick.minor {
+            stroke-width: 2;
+            opacity: 0.5;
+        }
+
+        .tick.redline {
+            stroke: var(--danger);
+            opacity: 0.9;
+        }
+
+        .scale-text {
+            fill: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+            text-anchor: middle;
+        }
+
+        .scale-text.muted {
+            fill: var(--muted);
+            font-weight: 600;
+        }
+
+        .needle {
+            stroke: #ffffff;
+            stroke-width: 4;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 12px rgba(255,255,255,0.35));
+            transform-origin: 210px 210px;
+        }
+
+        .needle.speed {
+            stroke: var(--accent);
+        }
+
+        .hub {
+            fill: #ffffff;
+        }
+
+        .hub-core {
+            fill: var(--panel);
+            stroke: rgba(255,255,255,0.25);
+            stroke-width: 2;
+        }
+
+        .screen {
+            display: grid;
+            grid-template-rows: auto auto auto 1fr;
+            gap: 14px;
+        }
+
+        .screen-card {
+            border-radius: 22px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 28%),
+                linear-gradient(180deg, #0e1218 0%, #0a0d11 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px;
+            display: grid;
+            gap: 10px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+        }
+
+        .screen-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .big-value {
+            font-size: clamp(2.3rem, 4.2vw, 4.8rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+        }
+
+        .big-value span {
+            font-size: 0.4em;
+            color: var(--muted);
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .subgrid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .mini-card {
+            border-radius: 18px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: grid;
+            gap: 6px;
+        }
+
+        .mini-card .k {
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .mini-card .v {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .lights {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .light {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.35);
+        }
+
+        .light.red.active {
+            background: var(--danger);
+            box-shadow: 0 0 16px rgba(255, 94, 94, 0.75);
+        }
+
+        .light.yellow.active {
+            background: var(--warn);
+            box-shadow: 0 0 16px rgba(255, 204, 77, 0.75);
+        }
+
+        .light.green.active {
+            background: var(--accent-2);
+            box-shadow: 0 0 16px rgba(61, 242, 143, 0.75);
+        }
+
+        .warning-panel {
+            display: grid;
+            gap: 12px;
+        }
+
+        .warning-title {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+        }
+
+        .warning-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .warning-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.92rem;
+        }
+
+        .warning-item strong {
+            font-size: 1rem;
+        }
+
+        .footer-note {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding-top: 2px;
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+        .range {
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(85,215,255,0.3), rgba(61,242,143,0.3));
+            outline: none;
+        }
+
+        .range::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--text);
+            border: 3px solid var(--accent);
+            cursor: pointer;
+        }
+
+        .brand-badge {
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+
+        @media (max-width: 1100px) {
+            .cluster {
+                height: auto;
+                min-height: 0;
+            }
+
+            .dash {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .gauge {
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .cluster {
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+                padding: 16px;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .status-strip {
+                justify-content: flex-start;
+            }
+
+            .subgrid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="cluster" aria-label="Tacometro moderno">
+        <div class="top-bar">
+            <div class="brand">
+                <div class="label">Instrument cluster</div>
+                <div class="title">Tacometro digital realista</div>
+                <div class="brand-badge">Drive mode / simulacion visual</div>
+            </div>
+            <div class="status-strip">
+                <div class="pill"><span class="dot"></span> READY</div>
+                <div class="pill"><strong id="driveMode">D</strong> GEAR</div>
+                <div class="pill"><strong id="ambientTemp">22</strong> C</div>
+            </div>
+        </div>
+
+        <div class="dash">
+            <section class="panel gauge-wrap">
+                <div class="gauge-head">
+                    <strong>RPM</strong>
+                    <span>x1000 / min</span>
+                </div>
+                <svg class="gauge" viewBox="0 0 420 420" role="img" aria-label="Tacometro">
+                    <defs>
+                        <linearGradient id="needleGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="100%" stop-color="#55d7ff"/>
+                        </linearGradient>
+                    </defs>
+                    <circle cx="210" cy="210" r="155" class="ring"/>
+                    <path d="M 65 246 A 170 170 0 0 1 355 246" class="ring-accent"/>
+
+                    <g id="tachTicks"></g>
+                    <g id="tachLabels"></g>
+
+                    <line id="tachNeedle" x1="210" y1="210" x2="210" y2="72" class="needle" style="transform: rotate(-124deg);" />
+                    <circle cx="210" cy="210" r="18" class="hub"/>
+                    <circle cx="210" cy="210" r="10" class="hub-core"/>
+                </svg>
+                <div class="footer-note">
+                    <span>Rango realista 0 - 8</span>
+                    <span id="rpmValue">0.0</span>
+                </div>
+            </section>
+
+            <section class="panel screen">
+                <div class="screen-card">
+                    <div class="screen-row">
+                        <span>14:30</span>
+                        <span>GPS ON</span>
+                    </div>
+                    <div class="big-value" id="speedValue">0 <span>km/h</span></div>
+                    <div class="screen-row">
+                        <span id="tripDistance">TRIP 128.4 km</span>
+                        <span id="rangeValue">AUTONOMIA 412 km</span>
+                    </div>
+                </div>
+
+                <div class="subgrid">
+                    <div class="mini-card">
+                        <div class="k">Engranaje</div>
+                        <div class="v" id="gearValue">D</div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="k">Temperatura motor</div>
+                        <div class="v"><span id="engineTemp">89</span>°C</div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="k">Combustible</div>
+                        <div class="v"><span id="fuelValue">64</span>%</div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="k">Modo</div>
+                        <div class="v">ECO</div>
+                    </div>
+                </div>
+
+                <div class="mini-card">
+                    <div class="k">Simulacion</div>
+                    <input id="driveRange" class="range" type="range" min="0" max="220" value="0" aria-label="Control de velocidad simulada">
+                </div>
+            </section>
+
+            <section class="panel warning-panel">
+                <div class="warning-title">Indicadores y asistentes</div>
+                <div class="lights">
+                    <div class="light red active" title="Falla grave"></div>
+                    <div class="light yellow active" title="Advertencia"></div>
+                    <div class="light green active" title="Sistema activo"></div>
+                </div>
+
+                <div class="warning-list">
+                    <div class="warning-item">
+                        <div>
+                            <strong>Lane Assist</strong><br>
+                            <span style="color: var(--muted);">Asistencia lateral activa</span>
+                        </div>
+                        <span style="color: var(--accent-2);">ON</span>
+                    </div>
+                    <div class="warning-item">
+                        <div>
+                            <strong>ABS</strong><br>
+                            <span style="color: var(--muted);">Estabilidad y frenado seguro</span>
+                        </div>
+                        <span style="color: var(--accent);">OK</span>
+                    </div>
+                    <div class="warning-item">
+                        <div>
+                            <strong>Motor</strong><br>
+                            <span style="color: var(--muted);">Operando dentro de rango</span>
+                        </div>
+                        <span style="color: var(--warn);">89°C</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <script>
+        const tachNeedle = document.getElementById('tachNeedle');
+        const tachTicks = document.getElementById('tachTicks');
+        const tachLabels = document.getElementById('tachLabels');
+        const speedValue = document.getElementById('speedValue');
+        const rpmValue = document.getElementById('rpmValue');
+        const gearValue = document.getElementById('gearValue');
+        const driveMode = document.getElementById('driveMode');
+        const ambientTemp = document.getElementById('ambientTemp');
+        const engineTemp = document.getElementById('engineTemp');
+        const fuelValue = document.getElementById('fuelValue');
+        const rangeValue = document.getElementById('rangeValue');
+        const tripDistance = document.getElementById('tripDistance');
+        const driveRange = document.getElementById('driveRange');
+
+        const center = 210;
+        const radius = 155;
+        const startAngle = -124;
+        const endAngle = 124;
+
+        function polarToCartesian(cx, cy, r, angleInDegrees) {
+            const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+            return {
+                x: cx + (r * Math.cos(angleInRadians)),
+                y: cy + (r * Math.sin(angleInRadians))
+            };
+        }
+
+        function describeArc(cx, cy, r, startAngleDeg, endAngleDeg) {
+            const start = polarToCartesian(cx, cy, r, endAngleDeg);
+            const end = polarToCartesian(cx, cy, r, startAngleDeg);
+            const largeArcFlag = endAngleDeg - startAngleDeg <= 180 ? 0 : 1;
+            return ['M', start.x, start.y, 'A', r, r, 0, largeArcFlag, 0, end.x, end.y].join(' ');
+        }
+
+        function buildGauge() {
+            const majorValues = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+            for (let i = 0; i <= 40; i += 1) {
+                const value = i / 5;
+                const angle = startAngle + (value / 8) * (endAngle - startAngle);
+                const outer = polarToCartesian(center, center, radius - 4, angle);
+                const inner = polarToCartesian(center, center, radius - (i % 5 === 0 ? 26 : 16), angle);
+                const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                tick.setAttribute('x1', inner.x);
+                tick.setAttribute('y1', inner.y);
+                tick.setAttribute('x2', outer.x);
+                tick.setAttribute('y2', outer.y);
+                tick.setAttribute('class', i % 5 === 0 ? 'tick' : 'tick minor');
+                if (value >= 7) tick.classList.add('redline');
+                tachTicks.appendChild(tick);
+            }
+
+            majorValues.forEach((value) => {
+                const angle = startAngle + (value / 8) * (endAngle - startAngle);
+                const pos = polarToCartesian(center, center, radius - 52, angle);
+                const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                txt.setAttribute('x', pos.x);
+                txt.setAttribute('y', pos.y + 4);
+                txt.setAttribute('class', value === 0 || value >= 7 ? 'scale-text' : 'scale-text muted');
+                txt.textContent = value;
+                tachLabels.appendChild(txt);
+            });
+
+            const redArc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            redArc.setAttribute('d', describeArc(center, center, radius, 92, 124));
+            redArc.setAttribute('fill', 'none');
+            redArc.setAttribute('stroke', 'rgba(255,94,94,0.9)');
+            redArc.setAttribute('stroke-width', '10');
+            redArc.setAttribute('stroke-linecap', 'round');
+            tachTicks.appendChild(redArc);
+        }
+
+        buildGauge();
+
+        let simulatedSpeed = 0;
+        let targetSpeed = 0;
+        let trip = 128.4;
+
+        driveRange.addEventListener('input', () => {
+            targetSpeed = Number(driveRange.value);
+        });
+
+        function updateDashboard(time) {
+            const driveWave = 115 + Math.sin(time / 4200) * 35 + Math.sin(time / 1700) * 14;
+            const manualTarget = Number(driveRange.value);
+            targetSpeed = Math.max(driveWave, manualTarget);
+
+            simulatedSpeed += (targetSpeed - simulatedSpeed) * 0.05;
+            simulatedSpeed = Math.max(0, Math.min(220, simulatedSpeed));
+
+            const rpm = Math.min(8, 0.9 + (simulatedSpeed / 220) * 6.8 + Math.sin(time / 280) * 0.08);
+            const rotation = startAngle + (rpm / 8) * (endAngle - startAngle);
+            tachNeedle.style.transform = 'rotate(' + rotation + 'deg)';
+
+            speedValue.innerHTML = Math.round(simulatedSpeed) + ' <span>km/h</span>';
+            rpmValue.textContent = rpm.toFixed(1);
+
+            const gear = simulatedSpeed < 5 ? 'P' : simulatedSpeed < 25 ? '1' : simulatedSpeed < 55 ? '2' : simulatedSpeed < 95 ? '3' : simulatedSpeed < 140 ? '4' : 'D';
+            gearValue.textContent = gear;
+            driveMode.textContent = gear;
+
+            const fuel = Math.max(12, 64 - (simulatedSpeed * 0.01));
+            fuelValue.textContent = Math.round(fuel);
+
+            const temp = Math.min(98, 82 + (simulatedSpeed / 220) * 14 + Math.sin(time / 1500) * 1.2);
+            engineTemp.textContent = Math.round(temp);
+
+            const ambient = 22 + Math.sin(time / 9000) * 1.5;
+            ambientTemp.textContent = Math.round(ambient);
+
+            trip += simulatedSpeed / 360000;
+            tripDistance.textContent = 'TRIP ' + trip.toFixed(1) + ' km';
+            rangeValue.textContent = 'AUTONOMIA ' + Math.max(0, Math.round((fuel / 100) * 520)) + ' km';
+
+            requestAnimationFrame(updateDashboard);
+        }
+
+        requestAnimationFrame(updateDashboard);
+    </script>
+</body>
+</html>

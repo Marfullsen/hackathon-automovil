@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Drive Learning - Minijuego 3D Clase B</title>
+    <style>
+        :root {
+            --bg: #07090d;
+            --panel: rgba(10, 16, 24, 0.86);
+            --line: rgba(255, 255, 255, 0.18);
+            --text: #f4f7fb;
+            --muted: #afbac8;
+            --accent: #3db5ff;
+            --ok: #2add79;
+            --bad: #ff6666;
+            --warn: #ffc94a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        #gameCanvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        .hud {
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .metric {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 7px;
+            backdrop-filter: blur(4px);
+            min-height: 48px;
+        }
+
+        .metric .label {
+            font-size: 0.6rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric .value {
+            margin-top: 3px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .mission-panel {
+            position: fixed;
+            left: 8px;
+            right: 8px;
+            top: 78px;
+            z-index: 19;
+            background: rgba(10, 16, 24, 0.9);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 10px 12px;
+            backdrop-filter: blur(6px);
+            display: grid;
+            gap: 6px;
+        }
+
+        .mission-kicker {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .mission-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .mission-text {
+            font-size: 0.82rem;
+            line-height: 1.45;
+            color: var(--muted);
+        }
+
+        .mission-meta {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mission-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 0.7rem;
+        }
+
+        .progress-wrap {
+            margin-top: 4px;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), #75ceff);
+        }
+
+        .loop-tip {
+            display: none;
+        }
+
+        .loop-tip strong { color: var(--text); }
+
+        .mode-label {
+            margin-top: 8px;
+            margin-bottom: 6px;
+            font-size: 0.74rem;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .mode-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            border-radius: 8px;
+            font-size: 0.72rem;
+            padding: 6px 8px;
+            cursor: pointer;
+        }
+
+        .mode-btn.active {
+            background: var(--accent);
+            color: #03121e;
+            border-color: transparent;
+            font-weight: 700;
+        }
+
+        .controls {
+            position: fixed;
+            right: 8px;
+            bottom: 8px;
+            display: grid;
+            gap: 6px;
+            z-index: 20;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .touch-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 700;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .legend {
+            display: none;
+        }
+
+        .legend strong {
+            color: var(--text);
+        }
+
+        .mobile-mode {
+            position: fixed;
+            left: 8px;
+            bottom: 8px;
+            z-index: 21;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 6px;
+            display: grid;
+            gap: 6px;
+            max-width: calc(100vw - 190px);
+        }
+
+        .mobile-mode .mode-label {
+            margin: 0;
+            font-size: 0.62rem;
+            color: var(--muted);
+        }
+
+        .mobile-mode .mode-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mobile-mode .mode-btn {
+            font-size: 0.66rem;
+            padding: 5px 7px;
+        }
+
+        .question-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            place-items: center;
+            background: rgba(0, 0, 0, 0.52);
+            z-index: 50;
+            padding: 14px;
+        }
+
+        .question-card {
+            width: min(720px, 96vw);
+            background: #0f1621;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+            display: grid;
+            gap: 10px;
+        }
+
+        .question-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .question-head h2 {
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .badge {
+            font-size: 0.74rem;
+            color: var(--muted);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 4px 8px;
+        }
+
+        .question-text {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .option-btn:hover { border-color: var(--accent); }
+
+        .feedback {
+            display: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .feedback.ok {
+            display: block;
+            background: rgba(42, 221, 121, 0.15);
+            border: 1px solid rgba(42, 221, 121, 0.5);
+        }
+
+        .feedback.bad {
+            display: block;
+            background: rgba(255, 102, 102, 0.15);
+            border: 1px solid rgba(255, 102, 102, 0.5);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .btn {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 9px 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #03121e;
+            border: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+        }
+
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 60;
+            background: rgba(10, 16, 24, 0.92);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            color: var(--text);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            max-width: min(90vw, 340px);
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (min-width: 901px) {
+            .hud {
+                top: 12px;
+                left: 12px;
+                right: 12px;
+                grid-template-columns: repeat(5, minmax(120px, 1fr));
+                gap: 8px;
+            }
+
+            .metric {
+                border-radius: 12px;
+                padding: 10px;
+                backdrop-filter: blur(6px);
+                min-height: 58px;
+            }
+
+            .metric .label { font-size: 0.72rem; }
+            .metric .value { font-size: 1.05rem; margin-top: 4px; }
+            .progress-wrap { margin-top: 6px; height: 8px; }
+
+            .mission-panel {
+                top: 82px;
+                left: 12px;
+                right: auto;
+                width: min(420px, calc(100vw - 24px));
+                padding: 12px 14px;
+            }
+
+            .mission-title {
+                font-size: 1.08rem;
+            }
+
+            .mission-text {
+                font-size: 0.86rem;
+            }
+
+            .loop-tip {
+                display: block;
+                position: fixed;
+                top: 86px;
+                right: 12px;
+                max-width: 300px;
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 10px;
+                z-index: 20;
+                font-size: 0.82rem;
+                line-height: 1.4;
+                color: var(--muted);
+                pointer-events: auto;
+            }
+
+            .controls {
+                left: 12px;
+                right: auto;
+                bottom: 12px;
+                gap: 8px;
+            }
+
+            .controls-row { gap: 8px; }
+
+            .touch-btn {
+                width: 58px;
+                height: 58px;
+                border-radius: 12px;
+                font-size: 1.1rem;
+            }
+
+            .legend {
+                display: block;
+                position: fixed;
+                bottom: 12px;
+                right: 12px;
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 10px;
+                font-size: 0.82rem;
+                color: var(--muted);
+                z-index: 20;
+                max-width: 360px;
+                line-height: 1.35;
+            }
+
+            .mobile-mode {
+                left: 12px;
+                bottom: 170px;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <section class="hud">
+        <article class="metric">
+            <div class="label">Puntaje</div>
+            <div class="value" id="scoreValue">0</div>
+        </article>
+        <article class="metric">
+            <div class="label">Escenario</div>
+            <div class="value"><span id="scenarioIndex">0</span> / <span id="scenarioTotal">6</span></div>
+        </article>
+        <article class="metric">
+            <div class="label">Velocidad</div>
+            <div class="value"><span id="speedValue">0</span> km/h</div>
+        </article>
+        <article class="metric">
+            <div class="label">Progreso</div>
+            <div class="value" id="progressText">0%</div>
+            <div class="progress-wrap"><div class="progress" id="progressBar"></div></div>
+        </article>
+        <article class="metric">
+            <div class="label">Precision</div>
+            <div class="value" id="accuracyValue">0%</div>
+        </article>
+        <article class="metric">
+            <div class="label">Desafio</div>
+            <div class="value" id="challengeValue">Guiado</div>
+        </article>
+        <article class="metric">
+            <div class="label">Motivacion</div>
+            <div class="value"><span id="streakValue">0</span> racha</div>
+        </article>
+        <article class="metric">
+            <div class="label">Exploracion</div>
+            <div class="value"><span id="collectValue">0</span> / <span id="collectTotal">0</span></div>
+        </article>
+    </section>
+
+    <section class="mission-panel" aria-live="polite">
+        <div class="mission-kicker">Mision activa</div>
+        <div class="mission-title" id="missionTitle">Capitulo 1 / Inicio seguro</div>
+        <div class="mission-text" id="missionText">Aprende a leer el entorno antes de acelerar.</div>
+        <div class="mission-meta">
+            <span class="mission-pill" id="missionChapter">Paso 1 / 6</span>
+            <span class="mission-pill" id="missionDifficulty">Guiado</span>
+            <span class="mission-pill" id="missionAccuracy">Precision 0%</span>
+        </div>
+    </section>
+
+    <aside class="loop-tip">
+        <strong>Game Loop:</strong> Input (mover auto) -> Update (logica vial) -> Feedback (explicacion + puntaje).
+    </aside>
+
+    <aside class="mobile-mode">
+        <div class="mode-label">Publico objetivo</div>
+        <div class="mode-row">
+            <button class="mode-btn active" id="modeStudent" type="button">Estudiante activo</button>
+            <button class="mode-btn" id="modePost" type="button">Post-estudiante</button>
+        </div>
+    </aside>
+
+    <div class="controls">
+        <div class="controls-row">
+            <button class="touch-btn" data-key="w" type="button">W</button>
+            <button class="touch-btn" data-key="s" type="button">S</button>
+        </div>
+        <div class="controls-row">
+            <button class="touch-btn" data-key="a" type="button">A</button>
+            <button class="touch-btn" data-key="d" type="button">D</button>
+            <button class="touch-btn" id="resetBtn" type="button">R</button>
+        </div>
+    </div>
+
+    <aside class="legend">
+        Usa WASD o los botones para conducir. Pasa por los checkpoints azules para activar preguntas Clase B.
+        <br><br>
+        <strong>Alcance tecnico:</strong> mobile-first, mecanicas simples, sin nube, sin multijugador sincrono.
+    </aside>
+
+    <section class="question-modal" id="questionModal">
+        <article class="question-card">
+            <div class="question-head">
+                <h2 id="questionTitle">Escenario vial</h2>
+                <span class="badge" id="questionTag">Normativa</span>
+            </div>
+            <p class="question-text" id="questionText"></p>
+            <div id="questionOptions"></div>
+            <div class="feedback" id="feedbackBox"></div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="closeBtn" type="button">Cerrar</button>
+                <button class="btn btn-primary" id="nextBtn" type="button" disabled>Continuar</button>
+            </div>
+        </article>
+    </section>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const scenarios = [
+            {
+                chapter: 'Capitulo 1 / Inicio seguro',
+                title: 'Peaton en paso habilitado',
+                tag: 'Prioridad de paso',
+                learning: 'Aprende a reconocer prioridad peatonal antes de acelerar.',
+                text: 'Ves a un peaton iniciando cruce en paso senalizado. Que corresponde?',
+                options: ['Acelerar para pasar primero.', 'Detenerse y ceder el paso.', 'Tocar bocina y seguir.'],
+                correct: 1,
+                explanation: 'Correcto: el peaton tiene prioridad en cruce habilitado.'
+            },
+            {
+                chapter: 'Capitulo 2 / Senales basicas',
+                title: 'Senal PARE',
+                tag: 'Senaletica obligatoria',
+                learning: 'Identifica señales que exigen detencion completa y lectura del entorno.',
+                text: 'Llegas a un cruce con PARE. Cual es la maniobra segura?',
+                options: ['Reducir velocidad y pasar.', 'Detener por completo, observar y avanzar seguro.', 'Seguir si no viene vehiculo cercano.'],
+                correct: 1,
+                explanation: 'Correcto: PARE exige detencion completa antes de continuar.'
+            },
+            {
+                chapter: 'Capitulo 3 / Clima y distancia',
+                title: 'Conduccion con lluvia',
+                tag: 'Condicion adversa',
+                learning: 'Ajusta velocidad, frenado y distancia de seguimiento cuando baja la adherencia.',
+                text: 'La via esta mojada. Que ajuste deberias realizar?',
+                options: ['Mantener misma distancia.', 'Aumentar distancia y moderar velocidad.', 'Frenar bruscamente en cada curva.'],
+                correct: 1,
+                explanation: 'Correcto: con lluvia aumenta la distancia de frenado.'
+            },
+            {
+                chapter: 'Capitulo 4 / Cruce complejo',
+                title: 'Interseccion sin semaforo',
+                tag: 'Priorizacion',
+                learning: 'Entrena observacion antes de cruzar una interseccion sin control semaforico.',
+                text: 'Llegas a una interseccion sin semaforo y con visibilidad parcial. Que haces primero?',
+                options: ['Cruzar rapido antes que otros.', 'Reducir velocidad, mirar ambos lados y ceder si corresponde.', 'Aumentar velocidad para despejar el punto.'],
+                correct: 1,
+                explanation: 'Correcto: primero observas, reduces velocidad y cedes si corresponde.'
+            },
+            {
+                chapter: 'Capitulo 5 / Maniobras',
+                title: 'Estacionamiento seguro',
+                tag: 'Control del vehiculo',
+                learning: 'El manejo no es solo avanzar: también es maniobrar con control y previsión.',
+                text: 'Vas a estacionar paralelo a la calzada. Cual es la accion mas segura?',
+                options: ['Alinear, revisar espejos y avanzar lento.', 'Girar de golpe hasta quedar dentro.', 'Detenerse sobre el cruce y corregir despues.'],
+                correct: 0,
+                explanation: 'Correcto: alineacion, espejos y avance lento dan mayor control.'
+            },
+            {
+                chapter: 'Capitulo 6 / Zonas criticas',
+                title: 'Zona escolar',
+                tag: 'Exigencia alta',
+                learning: 'Refuerza decisiones defensivas en zonas de mayor riesgo para peatones y ciclistas.',
+                text: 'Te aproximas a una zona escolar con flujo de estudiantes. Que criterio aplica?',
+                options: ['Aumentar precaucion y bajar velocidad.', 'Mantener velocidad porque no hay semaforo.', 'Usar bocina como senal principal.'],
+                correct: 0,
+                explanation: 'Correcto: en zona escolar debes reducir velocidad y reforzar precaucion.'
+            }
+        ];
+
+        const scoreValue = document.getElementById('scoreValue');
+        const scenarioIndex = document.getElementById('scenarioIndex');
+        const scenarioTotal = document.getElementById('scenarioTotal');
+        const speedValue = document.getElementById('speedValue');
+        const progressText = document.getElementById('progressText');
+        const progressBar = document.getElementById('progressBar');
+        const streakValue = document.getElementById('streakValue');
+        const collectValue = document.getElementById('collectValue');
+        const collectTotal = document.getElementById('collectTotal');
+        const accuracyValue = document.getElementById('accuracyValue');
+        const challengeValue = document.getElementById('challengeValue');
+        const missionTitle = document.getElementById('missionTitle');
+        const missionText = document.getElementById('missionText');
+        const missionChapter = document.getElementById('missionChapter');
+        const missionDifficulty = document.getElementById('missionDifficulty');
+        const missionAccuracy = document.getElementById('missionAccuracy');
+        const resetBtn = document.getElementById('resetBtn');
+        const modeStudent = document.getElementById('modeStudent');
+        const modePost = document.getElementById('modePost');
+        const toast = document.getElementById('toast');
+
+        const questionModal = document.getElementById('questionModal');
+        const questionTitle = document.getElementById('questionTitle');
+        const questionTag = document.getElementById('questionTag');
+        const questionText = document.getElementById('questionText');
+        const questionOptions = document.getElementById('questionOptions');
+        const feedbackBox = document.getElementById('feedbackBox');
+        const closeBtn = document.getElementById('closeBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        scenarioTotal.textContent = scenarios.length;
+
+        const difficultyNames = ['Guiado', 'Activo', 'Exigente'];
+        const difficultyProfiles = [
+            { maxSpeed: 0.30, turnSpeed: 0.024, checkpointRadius: 3.6, hotspotRadius: 2.35 },
+            { maxSpeed: 0.34, turnSpeed: 0.028, checkpointRadius: 3.1, hotspotRadius: 2.15 },
+            { maxSpeed: 0.38, turnSpeed: 0.031, checkpointRadius: 2.75, hotspotRadius: 1.95 }
+        ];
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x7ea7d0);
+        scene.fog = new THREE.Fog(0x7ea7d0, 35, 160);
+
+        const canvas = document.getElementById('gameCanvas');
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1200);
+        camera.position.set(0, 6, 12);
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.DirectionalLight(0xffffff, 0.85);
+        sunLight.position.set(30, 45, 10);
+        scene.add(sunLight);
+
+        const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(800, 800),
+            new THREE.MeshStandardMaterial({ color: 0x35613c })
+        );
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
+
+        const road = new THREE.Mesh(
+            new THREE.PlaneGeometry(26, 260),
+            new THREE.MeshStandardMaterial({ color: 0x2f2f32 })
+        );
+        road.rotation.x = -Math.PI / 2;
+        road.position.y = 0.01;
+        scene.add(road);
+
+        const laneMaterial = new THREE.MeshStandardMaterial({ color: 0xffe16a });
+        for (let z = -120; z <= 120; z += 12) {
+            const lane = new THREE.Mesh(new THREE.PlaneGeometry(0.45, 6), laneMaterial);
+            lane.rotation.x = -Math.PI / 2;
+            lane.position.set(0, 0.03, z);
+            scene.add(lane);
+        }
+
+        const sidewalkMaterial = new THREE.MeshStandardMaterial({ color: 0x8b8f93 });
+        const leftSidewalk = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.2, 260), sidewalkMaterial);
+        leftSidewalk.position.set(-14, 0.1, 0);
+        scene.add(leftSidewalk);
+        const rightSidewalk = leftSidewalk.clone();
+        rightSidewalk.position.x = 14;
+        scene.add(rightSidewalk);
+
+        function addBuilding(x, z, w, h, d, color) {
+            const b = new THREE.Mesh(
+                new THREE.BoxGeometry(w, h, d),
+                new THREE.MeshStandardMaterial({ color })
+            );
+            b.position.set(x, h / 2, z);
+            scene.add(b);
+        }
+
+        for (let i = -5; i <= 5; i += 1) {
+            addBuilding(-24, i * 20, 11, 5 + (i + 5) * 0.6, 10, 0x9eb4ca);
+            addBuilding(24, i * 20 + 10, 11, 6 + (5 - i) * 0.55, 10, 0xa4b0bd);
+        }
+
+        function addLampPost(x, z) {
+            const pole = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.08, 0.08, 4.2, 10),
+                new THREE.MeshStandardMaterial({ color: 0x353c47, metalness: 0.4, roughness: 0.6 })
+            );
+            pole.position.set(x, 2.1, z);
+            scene.add(pole);
+
+            const lamp = new THREE.Mesh(
+                new THREE.BoxGeometry(0.5, 0.2, 0.3),
+                new THREE.MeshStandardMaterial({ color: 0xd8e8ff, emissive: 0x6da9ff, emissiveIntensity: 0.3 })
+            );
+            lamp.position.set(x, 4.1, z + 0.2);
+            scene.add(lamp);
+        }
+
+        function addTree(x, z, crownColor = 0x3e7d43) {
+            const trunk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.14, 0.18, 1.2, 8),
+                new THREE.MeshStandardMaterial({ color: 0x6f5134 })
+            );
+            trunk.position.set(x, 0.6, z);
+            scene.add(trunk);
+
+            const crown = new THREE.Mesh(
+                new THREE.SphereGeometry(0.65, 12, 12),
+                new THREE.MeshStandardMaterial({ color: crownColor })
+            );
+            crown.position.set(x, 1.55, z);
+            scene.add(crown);
+        }
+
+        function addRoadSign(x, z, textColor = 0xffffff) {
+            const post = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.05, 0.05, 1.2, 8),
+                new THREE.MeshStandardMaterial({ color: 0xb3b8be })
+            );
+            post.position.set(x, 0.6, z);
+            scene.add(post);
+
+            const sign = new THREE.Mesh(
+                new THREE.BoxGeometry(0.7, 0.5, 0.06),
+                new THREE.MeshStandardMaterial({ color: 0x2e78d6, emissive: 0x103566, emissiveIntensity: 0.15 })
+            );
+            sign.position.set(x, 1.25, z);
+            scene.add(sign);
+
+            const mark = new THREE.Mesh(
+                new THREE.CircleGeometry(0.08, 12),
+                new THREE.MeshBasicMaterial({ color: textColor })
+            );
+            mark.position.set(x, 1.25, z + 0.035);
+            scene.add(mark);
+        }
+
+        function addTrafficLight(x, z) {
+            const pole = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.08, 0.08, 3.1, 10),
+                new THREE.MeshStandardMaterial({ color: 0x30343b })
+            );
+            pole.position.set(x, 1.55, z);
+            scene.add(pole);
+
+            const box = new THREE.Mesh(
+                new THREE.BoxGeometry(0.36, 0.9, 0.28),
+                new THREE.MeshStandardMaterial({ color: 0x1d2128 })
+            );
+            box.position.set(x, 2.5, z);
+            scene.add(box);
+
+            const red = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 10), new THREE.MeshStandardMaterial({ color: 0xff5e5e, emissive: 0x661515, emissiveIntensity: 0.55 }));
+            red.position.set(x, 2.72, z + 0.15);
+            scene.add(red);
+        }
+
+        for (let z = -100; z <= 100; z += 25) {
+            addLampPost(-11.8, z);
+            addLampPost(11.8, z + 12);
+        }
+
+        for (let z = -105; z <= 105; z += 20) {
+            addTree(-18, z, 0x3d7f4a);
+            addTree(18, z + 10, 0x4c8d56);
+        }
+
+        addRoadSign(-10.9, 50);
+        addRoadSign(10.9, -5);
+        addRoadSign(-10.9, -60);
+        addTrafficLight(10.9, 58);
+        addTrafficLight(-10.9, 2);
+
+        const zebraMaterial = new THREE.MeshStandardMaterial({ color: 0xe7edf3 });
+        for (let x = -3; x <= 3; x += 1) {
+            const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 3.6), zebraMaterial);
+            stripe.rotation.x = -Math.PI / 2;
+            stripe.position.set(x, 0.035, 58);
+            scene.add(stripe);
+        }
+
+        const vehicle = new THREE.Group();
+
+        const paintMaterial = new THREE.MeshStandardMaterial({
+            color: 0xb81f2f,
+            metalness: 0.46,
+            roughness: 0.35
+        });
+        const darkTrimMaterial = new THREE.MeshStandardMaterial({
+            color: 0x1a1e24,
+            metalness: 0.2,
+            roughness: 0.75
+        });
+        const glassMaterial = new THREE.MeshStandardMaterial({
+            color: 0x22384f,
+            metalness: 0.05,
+            roughness: 0.2
+        });
+
+        const chassis = new THREE.Mesh(
+            new THREE.BoxGeometry(2.05, 0.42, 3.95),
+            paintMaterial
+        );
+        chassis.position.y = 0.55;
+        vehicle.add(chassis);
+
+        const hood = new THREE.Mesh(
+            new THREE.BoxGeometry(1.88, 0.25, 1.15),
+            paintMaterial
+        );
+        hood.position.set(0, 0.83, 1.25);
+        vehicle.add(hood);
+
+        const roofBase = new THREE.Mesh(
+            new THREE.BoxGeometry(1.55, 0.56, 1.95),
+            paintMaterial
+        );
+        roofBase.position.set(0, 1.03, -0.28);
+        vehicle.add(roofBase);
+
+        const windshield = new THREE.Mesh(
+            new THREE.BoxGeometry(1.42, 0.45, 0.08),
+            glassMaterial
+        );
+        windshield.position.set(0, 1.08, 0.72);
+        windshield.rotation.x = -0.48;
+        vehicle.add(windshield);
+
+        const rearWindow = new THREE.Mesh(
+            new THREE.BoxGeometry(1.3, 0.38, 0.08),
+            glassMaterial
+        );
+        rearWindow.position.set(0, 1.04, -1.17);
+        rearWindow.rotation.x = 0.45;
+        vehicle.add(rearWindow);
+
+        const frontBumper = new THREE.Mesh(
+            new THREE.BoxGeometry(2.0, 0.18, 0.22),
+            darkTrimMaterial
+        );
+        frontBumper.position.set(0, 0.4, 1.95);
+        vehicle.add(frontBumper);
+
+        const rearBumper = new THREE.Mesh(
+            new THREE.BoxGeometry(2.0, 0.18, 0.22),
+            darkTrimMaterial
+        );
+        rearBumper.position.set(0, 0.4, -1.95);
+        vehicle.add(rearBumper);
+
+        const headLightMat = new THREE.MeshStandardMaterial({ color: 0xdff8ff, emissive: 0x8ac4ff, emissiveIntensity: 0.28 });
+        const tailLightMat = new THREE.MeshStandardMaterial({ color: 0xff5d5d, emissive: 0x7a1010, emissiveIntensity: 0.28 });
+
+        const headLeft = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.08), headLightMat);
+        headLeft.position.set(-0.62, 0.63, 1.98);
+        vehicle.add(headLeft);
+        const headRight = headLeft.clone();
+        headRight.position.x = 0.62;
+        vehicle.add(headRight);
+
+        const tailLeft = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.1, 0.08), tailLightMat);
+        tailLeft.position.set(-0.63, 0.62, -1.98);
+        vehicle.add(tailLeft);
+        const tailRight = tailLeft.clone();
+        tailRight.position.x = 0.63;
+        vehicle.add(tailRight);
+
+        const wheelGeom = new THREE.CylinderGeometry(0.42, 0.42, 0.33, 26);
+        const wheelMat = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.95 });
+        const rimMat = new THREE.MeshStandardMaterial({ color: 0xaeb8c2, metalness: 0.7, roughness: 0.3 });
+        const wheelPos = [
+            [-1.02, 0.42, 1.25], [1.02, 0.42, 1.25],
+            [-1.02, 0.42, -1.25], [1.02, 0.42, -1.25]
+        ];
+
+        wheelPos.forEach((p) => {
+            const w = new THREE.Mesh(wheelGeom, wheelMat);
+            w.rotation.z = Math.PI / 2;
+            w.position.set(p[0], p[1], p[2]);
+            vehicle.add(w);
+
+            const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.34, 18), rimMat);
+            rim.rotation.z = Math.PI / 2;
+            rim.position.set(p[0], p[1], p[2]);
+            vehicle.add(rim);
+        });
+
+        const sideSkirtLeft = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.16, 3.55), darkTrimMaterial);
+        sideSkirtLeft.position.set(-1.01, 0.44, 0);
+        vehicle.add(sideSkirtLeft);
+        const sideSkirtRight = sideSkirtLeft.clone();
+        sideSkirtRight.position.x = 1.01;
+        vehicle.add(sideSkirtRight);
+
+        vehicle.position.set(0, 0.05, 110);
+        scene.add(vehicle);
+
+        const checkpointGeometry = new THREE.CylinderGeometry(1.8, 1.8, 0.25, 28);
+        const checkpointMaterial = new THREE.MeshStandardMaterial({ color: 0x35adff, emissive: 0x0e4f7a, emissiveIntensity: 0.45 });
+
+        const checkpointMeshes = scenarios.map((_, i) => {
+            const cp = new THREE.Mesh(checkpointGeometry, checkpointMaterial.clone());
+            cp.rotation.x = Math.PI / 2;
+            cp.position.set(0, 0.15, 60 - i * 55);
+            scene.add(cp);
+            return cp;
+        });
+
+        const keys = {};
+        let speed = 0;
+        let score = 0;
+        let streak = 0;
+        let collected = 0;
+        let currentScenario = 0;
+        let pausedForQuestion = false;
+        let questionAnswered = false;
+        let correctAnswers = 0;
+        let totalAnswers = 0;
+        let challengeLevel = 0;
+        let learnerMode = 'student';
+
+        function getAccuracy() {
+            if (!totalAnswers) return 0;
+            return Math.round((correctAnswers / totalAnswers) * 100);
+        }
+
+        function getDifficultyProfile() {
+            return difficultyProfiles[challengeLevel] || difficultyProfiles[1];
+        }
+
+        function updateMission() {
+            const scenario = scenarios[Math.min(currentScenario, scenarios.length - 1)] || scenarios[0];
+            if (!scenario) return;
+
+            missionTitle.textContent = currentScenario >= scenarios.length ? 'Capitulo final / Cierre' : scenario.chapter;
+            missionText.textContent = currentScenario >= scenarios.length
+                ? 'Ya completaste la ruta. Revisa tu precision, el puntaje y repite para consolidar el aprendizaje.'
+                : scenario.learning;
+            missionChapter.textContent = currentScenario >= scenarios.length
+                ? 'Sesion completa'
+                : 'Paso ' + (currentScenario + 1) + ' / ' + scenarios.length;
+            missionDifficulty.textContent = difficultyNames[challengeLevel] || difficultyNames[1];
+            missionAccuracy.textContent = 'Precision ' + getAccuracy() + '%';
+        }
+
+        const hotspotMeshes = [];
+        const hotspotData = [
+            { x: -8.5, z: 92, msg: 'Tip: Reduce velocidad cerca de cruces peatonales.' },
+            { x: 8.2, z: 34, msg: 'Tip: Senal PARE requiere detencion completa.' },
+            { x: -8.3, z: -24, msg: 'Tip: En lluvia, aumenta distancia de seguimiento.' },
+            { x: 8.4, z: -82, msg: 'Tip: Prioriza observacion de puntos ciegos.' }
+        ];
+
+        hotspotData.forEach((item) => {
+            const g = new THREE.Mesh(
+                new THREE.TorusGeometry(0.55, 0.12, 12, 18),
+                new THREE.MeshStandardMaterial({ color: 0xffcf54, emissive: 0x7a5a12, emissiveIntensity: 0.35 })
+            );
+            g.rotation.x = Math.PI / 2;
+            g.position.set(item.x, 0.6, item.z);
+            g.userData = { collected: false, msg: item.msg };
+            scene.add(g);
+            hotspotMeshes.push(g);
+        });
+
+        collectTotal.textContent = String(hotspotMeshes.length);
+
+        let toastTimer;
+
+        const acceleration = 0.0038;
+        const turnSpeed = 0.028;
+        const maxSpeed = 0.34;
+        const friction = 0.97;
+
+        function updateHud() {
+            scoreValue.textContent = String(score);
+            scenarioIndex.textContent = String(currentScenario);
+            streakValue.textContent = String(streak);
+            collectValue.textContent = String(collected);
+            const progress = Math.round((currentScenario / scenarios.length) * 100);
+            progressText.textContent = progress + '%';
+            progressBar.style.width = progress + '%';
+            speedValue.textContent = String(Math.max(0, Math.round(Math.abs(speed) * 220)));
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2200);
+        }
+
+        function setLearnerMode(mode) {
+            learnerMode = mode;
+            modeStudent.classList.toggle('active', mode === 'student');
+            modePost.classList.toggle('active', mode === 'post');
+        }
+
+        function openScenario(index) {
+            const scenario = scenarios[index];
+            pausedForQuestion = true;
+            questionAnswered = false;
+            nextBtn.disabled = true;
+
+            questionTitle.textContent = scenario.title;
+            questionTag.textContent = scenario.tag;
+            questionText.textContent = scenario.text;
+            questionOptions.innerHTML = '';
+            feedbackBox.className = 'feedback';
+            feedbackBox.textContent = '';
+
+            scenario.options.forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'option-btn';
+                b.textContent = opt;
+                b.addEventListener('click', () => answerQuestion(i));
+                questionOptions.appendChild(b);
+            });
+
+            questionModal.style.display = 'grid';
+        }
+
+        function answerQuestion(choice) {
+            if (questionAnswered) return;
+            questionAnswered = true;
+            const scenario = scenarios[currentScenario];
+            totalAnswers += 1;
+            const isCorrect = choice === scenario.correct;
+
+            if (isCorrect) {
+                score += 100;
+                streak += 1;
+                correctAnswers += 1;
+                challengeLevel = Math.min(2, challengeLevel + 1);
+                feedbackBox.className = 'feedback ok';
+                if (learnerMode === 'student') {
+                    feedbackBox.textContent = scenario.explanation + ' +100 puntos. Refuerzo rapido para validar contenido del curso.';
+                } else {
+                    feedbackBox.textContent = scenario.explanation + ' +100 puntos. Refuerzo conceptual para evitar aprendizaje memoristico.';
+                }
+            } else {
+                streak = 0;
+                challengeLevel = Math.max(0, challengeLevel - 1);
+                feedbackBox.className = 'feedback bad';
+                if (learnerMode === 'student') {
+                    feedbackBox.textContent = 'Respuesta no segura. ' + scenario.explanation + ' Revisa este criterio antes del examen municipal.';
+                } else {
+                    feedbackBox.textContent = 'Respuesta no segura. ' + scenario.explanation + ' Analiza por que esta decision reduce riesgo en contexto real.';
+                }
+            }
+
+            nextBtn.disabled = false;
+            updateHud();
+        }
+
+        function closeScenario() {
+            questionModal.style.display = 'none';
+            pausedForQuestion = false;
+            currentScenario += 1;
+            updateHud();
+
+            if (currentScenario >= scenarios.length) {
+                pausedForQuestion = true;
+                questionModal.style.display = 'grid';
+                questionTitle.textContent = 'Sesion completada';
+                questionTag.textContent = 'Resumen adaptativo';
+                questionText.textContent = 'Completaste la ruta Clase B. Tu desempeño ajusto el nivel del reto de forma dinamica durante la sesion.';       
+                questionOptions.innerHTML = '';
+                feedbackBox.className = 'feedback ok';
+                feedbackBox.textContent = 'Puntaje final: ' + score + ' puntos. Precision: ' + getAccuracy() + '%. Racha maxima: ' + streak + '. Exploracion: ' + collected + ' coleccionables.';
+                nextBtn.disabled = true;
+                updateMission();
+            }
+        }
+
+        nextBtn.addEventListener('click', closeScenario);
+        closeBtn.addEventListener('click', () => {
+            if (questionAnswered || currentScenario >= scenarios.length) {
+                if (currentScenario < scenarios.length) {
+                    closeScenario();
+                } else {
+                    questionModal.style.display = 'none';
+                }
+            }
+        });
+
+        function resetGame() {
+            vehicle.position.set(0, 0.05, 110);
+            vehicle.rotation.set(0, 0, 0);
+            speed = 0;
+            score = 0;
+            streak = 0;
+            collected = 0;
+            correctAnswers = 0;
+            totalAnswers = 0;
+            challengeLevel = 0;
+            currentScenario = 0;
+            pausedForQuestion = false;
+            questionModal.style.display = 'none';
+            checkpointMeshes.forEach((cp) => {
+                cp.material.color.setHex(0x35adff);
+                cp.material.emissive.setHex(0x0e4f7a);
+            });
+            hotspotMeshes.forEach((hotspot) => {
+                hotspot.userData.collected = false;
+                hotspot.visible = true;
+            });
+            updateHud();
+        }
+
+        resetBtn.addEventListener('click', resetGame);
+        modeStudent.addEventListener('click', () => setLearnerMode('student'));
+        modePost.addEventListener('click', () => setLearnerMode('post'));
+
+        window.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            if (e.key.toLowerCase() === 'r') resetGame();
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+
+        document.querySelectorAll('.touch-btn[data-key]').forEach((btn) => {
+            const key = btn.getAttribute('data-key');
+            const start = (event) => {
+                event.preventDefault();
+                keys[key] = true;
+            };
+            const end = (event) => {
+                event.preventDefault();
+                keys[key] = false;
+            };
+
+            btn.addEventListener('pointerdown', start);
+            btn.addEventListener('pointerup', end);
+            btn.addEventListener('pointerleave', end);
+            btn.addEventListener('pointercancel', end);
+        });
+
+        function updateVehicle() {
+            if (pausedForQuestion) return;
+
+            const profile = getDifficultyProfile();
+
+            if (keys['a'] || keys['arrowleft']) vehicle.rotation.y += profile.turnSpeed;
+            if (keys['d'] || keys['arrowright']) vehicle.rotation.y -= profile.turnSpeed;
+            if (keys['w'] || keys['arrowup']) speed += acceleration;
+            if (keys['s'] || keys['arrowdown']) speed -= acceleration;
+
+            speed *= friction;
+            speed = Math.max(-profile.maxSpeed * 0.45, Math.min(profile.maxSpeed, speed));
+            vehicle.translateZ(-speed);
+
+            vehicle.position.x = Math.max(-10.5, Math.min(10.5, vehicle.position.x));
+            vehicle.position.z = Math.max(-120, Math.min(115, vehicle.position.z));
+
+            const desiredOffset = new THREE.Vector3(0, 6.2, 13.5).applyMatrix4(vehicle.matrixWorld);
+            camera.position.lerp(desiredOffset, 0.1);
+            camera.lookAt(vehicle.position.x, vehicle.position.y + 0.8, vehicle.position.z - 7);
+        }
+
+        function detectCheckpoint() {
+            if (pausedForQuestion || currentScenario >= scenarios.length) return;
+
+            const cp = checkpointMeshes[currentScenario];
+            const distance = vehicle.position.distanceTo(cp.position);
+            cp.rotation.z += 0.01;
+
+            if (distance < getDifficultyProfile().checkpointRadius) {
+                cp.material.color.setHex(0x2add79);
+                cp.material.emissive.setHex(0x165732);
+                openScenario(currentScenario);
+            }
+        }
+
+        function detectHotspots() {
+            hotspotMeshes.forEach((hotspot) => {
+                hotspot.rotation.z += 0.03;
+                if (hotspot.userData.collected) return;
+
+                const distance = vehicle.position.distanceTo(hotspot.position);
+                if (distance < getDifficultyProfile().hotspotRadius) {
+                    hotspot.userData.collected = true;
+                    hotspot.visible = false;
+                    collected += 1;
+                    score += 25;
+                    showToast(hotspot.userData.msg + ' (+25)');
+                    updateHud();
+                }
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updateVehicle();
+            detectCheckpoint();
+            detectHotspots();
+            updateHud();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        resetGame();
+        setLearnerMode('student');
+        animate();
+    </script>
+</body>
+</html>
