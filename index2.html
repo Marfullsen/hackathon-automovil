@@ -129,6 +129,154 @@
                 display: none !important;
             }
         }
+
+        /* Estilos del Modal de Misión */
+        .mission-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+            padding: 16px;
+        }
+
+        .mission-modal.hidden {
+            display: none;
+        }
+
+        .mission-modal-content {
+            background: linear-gradient(135deg, #0f1621 0%, #1a2235 100%);
+            border: 2px solid rgba(61, 181, 255, 0.4);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(61, 181, 255, 0.2);
+        }
+
+        .mission-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(61, 181, 255, 0.2);
+            background: rgba(61, 181, 255, 0.08);
+        }
+
+        .mission-modal-header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            color: #00ffcc;
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #00ffcc;
+            font-size: 32px;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.2);
+            color: #ff6b6b;
+        }
+
+        .mission-modal-body {
+            padding: 20px;
+            color: #f4f7fb;
+        }
+
+        .mission-intro {
+            font-size: 1rem;
+            color: #00ffcc;
+            margin: 0 0 20px 0;
+            font-weight: 600;
+        }
+
+        .mission-objectives,
+        .mission-rules {
+            margin-bottom: 20px;
+        }
+
+        .mission-objectives h3,
+        .mission-rules h3 {
+            color: #00ffcc;
+            font-size: 0.95rem;
+            margin: 0 0 12px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mission-objectives ol {
+            margin: 0;
+            padding-left: 20px;
+            list-style-type: decimal;
+        }
+
+        .mission-objectives li {
+            margin-bottom: 10px;
+            color: #afbac8;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .mission-objectives strong {
+            color: #75ceff;
+        }
+
+        .mission-rules ul {
+            margin: 0;
+            padding-left: 20px;
+            list-style-type: none;
+        }
+
+        .mission-rules li {
+            margin-bottom: 10px;
+            color: #afbac8;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .mission-modal-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(61, 181, 255, 0.2);
+            text-align: center;
+        }
+
+        .btn-start-mission {
+            background: linear-gradient(135deg, #00ffcc 0%, #00d9b3 100%);
+            border: none;
+            color: #03121e;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 14px 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+        }
+
+        .btn-start-mission:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(0, 255, 204, 0.5);
+        }
+
+        .btn-start-mission:active {
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
@@ -168,15 +316,23 @@
             <div class="label">Exploracion</div>
             <div class="value"><span id="collectValue">0</span> / <span id="collectTotal">0</span></div>
         </article>
+        <article class="metric">
+            <div class="label">Infracciones</div>
+            <div class="value" id="infractionValue">0</div>
+        </article>
+        <article class="metric">
+            <div class="label">Ultima infraccion</div>
+            <div class="value" id="lastInfractionValue" style="font-size: 11px; color: #ff6b6b;">Ninguna</div>
+        </article>
     </section>
 
     <section class="mission-panel" aria-live="polite">
         <div class="mission-kicker">Mision activa</div>
-        <div class="mission-title" id="missionTitle">Operacion Codigo Rojo</div>
-        <div class="mission-text" id="missionText">Traslada al paciente con urgencia a la clinica, rapido y con conduccion segura.</div>
+        <div class="mission-title" id="missionTitle">Patrullaje Urbano</div>
+        <div class="mission-text" id="missionText">Completa un recorrido de seguridad visitando 5 puntos de control en la ciudad.</div>
         <div class="mission-meta">
-            <span class="mission-pill" id="missionChapter">Paso 1 / 6</span>
-            <span class="mission-pill" id="missionDifficulty">Guiado</span>
+            <span class="mission-pill" id="missionChapter">Punto 1 / 5</span>
+            <span class="mission-pill" id="missionDifficulty">Seguridad</span>
             <span class="mission-pill" id="missionAccuracy">Convivencia 0%</span>
         </div>
     </section>
@@ -228,6 +384,42 @@
         <div class="map-label">Minimapa</div>
     </div>
 
+    <!-- Modal de bienvenida y misión -->
+    <div class="mission-modal hidden" id="missionModal">
+        <div class="mission-modal-content">
+            <div class="mission-modal-header">
+                <h1 id="modalMissionTitle">Patrullaje Urbano</h1>
+                <button class="modal-close" id="closeModalBtn" type="button">×</button>
+            </div>
+            <div class="mission-modal-body">
+                <p class="mission-intro">¡Bienvenido Agente! Tu misión es completar un patrullaje de seguridad vial en la ciudad.</p>
+                <div class="mission-objectives">
+                    <h3>Puntos de Patrullaje:</h3>
+                    <ol id="objectivesList">
+                        <li><strong>Punto 1 - Zona Residencial Norte:</strong> Verifica seguridad en sector residencial</li>
+                        <li><strong>Punto 2 - Eje Este:</strong> Supervisa avenida principal de tráfico</li>
+                        <li><strong>Punto 3 - Centro Urbano:</strong> Inspecciona cruce central</li>
+                        <li><strong>Punto 4 - Sector Oeste:</strong> Verifica zona oeste de la ciudad</li>
+                        <li><strong>Punto 5 - Retorno a Base:</strong> Completa el patrullaje</li>
+                    </ol>
+                </div>
+                <div class="mission-rules">
+                    <h3>Normas de Tránsito a Respetar:</h3>
+                    <ul>
+                        <li>🚦 Respetar límites de velocidad (60 km/h urbano, 100 km/h avenida)</li>
+                        <li>🚚 Mantener distancia segura de otros vehículos</li>
+                        <li>🚶 Cuidar a los peatones en cruces</li>
+                        <li>⚠️ No chocar con obstáculos ni otros vehículos</li>
+                        <li>🎯 Completar el patrullaje en orden</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mission-modal-footer">
+                <button class="btn-start-mission" id="startMissionBtn" type="button">Comenzar Misión 🚓</button>
+            </div>
+        </div>
+    </div>
+
     <script type="importmap">
         {
             "imports": {
@@ -236,29 +428,51 @@
         }
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
     <script type="module">
         import * as THREE from 'three';
 
+        // Trazado complejo con múltiples curvas y giros
+        const routeWaypoints = [
+            { x: 0, z: 450, angle: 0 },      // Inicio
+            { x: 0, z: 350, angle: 0 },      // Hacia norte - recta
+            { x: 0, z: 280, angle: 0 },      // Primera intersección
+            { x: 120, z: 280, angle: -Math.PI / 2 },  // Giro a derecha
+            { x: 120, z: 150, angle: -Math.PI / 2 },  // Hacia este
+            { x: 120, z: 80, angle: 0 },     // Giro a norte
+            { x: 0, z: 80, angle: Math.PI / 2 },      // Giro a izquierda
+            { x: -120, z: 80, angle: Math.PI / 2 },   // Hacia oeste
+            { x: -120, z: 200, angle: 0 },   // Giro a norte
+            { x: 0, z: 200, angle: -Math.PI / 2 },    // Hacia este
+            { x: 0, z: 0, angle: 0 },        // Centro - cruce importante
+            { x: 0, z: -100, angle: 0 },     // Hacia sur
+            { x: 100, z: -100, angle: -Math.PI / 2 }, // Giro derecha
+            { x: 100, z: -220, angle: -Math.PI / 2 }, // Hacia sur este
+            { x: 0, z: -220, angle: Math.PI / 2 },    // Giro izquierda
+            { x: -100, z: -220, angle: Math.PI / 2 }, // Hacia oeste
+            { x: -100, z: -100, angle: 0 },           // Giro norte
+            { x: 0, z: -100, angle: -Math.PI / 2 },   // Hacia clínica
+            { x: 0, z: -280, angle: 0 },    // Sector sur
+            { x: 0, z: -400, angle: 0 }     // Llegada a clínica
+        ];
+
         const stages = [
-            { chapter: 'Tramo 1 / Pedro de Valdivia norte', learning: 'Inicia en zona residencial y controla aceleracion en primeras cuadras.', zGate: 420, zone: 'residencial' },
-            { chapter: 'Tramo 2 / Eje Providencia', learning: 'Mantente en carril y anticipa cruces frecuentes de alto flujo.', zGate: 310, zone: 'providencia' },
-            { chapter: 'Tramo 3 / Sector Manuel Montt', learning: 'Cede paso peatonal en cruces activos y evita adelantamientos bruscos.', zGate: 200, zone: 'comercial' },
-            { chapter: 'Tramo 4 / Plaza Italia', learning: 'Gestiona intersecciones seguidas y regula velocidad antes de cada cruce.', zGate: 90, zone: 'intersecciones' },
-            { chapter: 'Tramo 5 / Barrio Lastarria', learning: 'Conduce con precision en zona de alta actividad peatonal.', zGate: -30, zone: 'cultural' },
-            { chapter: 'Tramo 6 / Santa Lucia', learning: 'Mantiene distancia con trafico mixto y evita puntos ciegos.', zGate: -170, zone: 'centro' },
-            { chapter: 'Tramo 7 / Alameda poniente', learning: 'Administra velocidad en tramos largos con buses y cruces escalonados.', zGate: -320, zone: 'alameda' },
-            { chapter: 'Tramo 8 / Llegada a clinica', learning: 'Completa la llegada a la clinica sin incidentes ni riesgos peatonales.', zGate: -470, zone: 'final' }
+            { chapter: 'Patrullaje Urbano - Punto 1', learning: 'Zona Residencial Norte - Verifica seguridad en sector residencial.', wpIdx: 1, zone: 'residencial', x: 0, z: 380 },
+            { chapter: 'Patrullaje Urbano - Punto 2', learning: 'Eje Este - Supervisa avenida principal de tráfico.', wpIdx: 5, zone: 'comercial', x: 140, z: 120 },
+            { chapter: 'Patrullaje Urbano - Punto 3', learning: 'Centro Urbano - Inspecciona cruce central.', wpIdx: 10, zone: 'cultural', x: 0, z: 0 },
+            { chapter: 'Patrullaje Urbano - Punto 4', learning: 'Sector Oeste - Verifica zona oeste de la ciudad.', wpIdx: 8, zone: 'intersecciones', x: -140, z: 130 },
+            { chapter: 'Patrullaje Urbano - Punto 5 (Final)', learning: 'Regresa a base - Completa el patrullaje urbano.', wpIdx: 1, zone: 'residencial', x: 0, z: 380 }
         ];
 
         const districtZones = [
-            { id: 'residencial', name: 'Providencia norte', zMin: 360, zMax: 500 },
-            { id: 'providencia', name: 'Avenida Providencia', zMin: 250, zMax: 360 },
-            { id: 'comercial', name: 'Manuel Montt', zMin: 140, zMax: 250 },
-            { id: 'intersecciones', name: 'Plaza Italia', zMin: 20, zMax: 140 },
-            { id: 'cultural', name: 'Lastarria', zMin: -110, zMax: 20 },
-            { id: 'centro', name: 'Santiago centro', zMin: -260, zMax: -110 },
-            { id: 'alameda', name: 'Alameda poniente', zMin: -420, zMax: -260 },
-            { id: 'final', name: 'Clinica metropolitana', zMin: -540, zMax: -420 }
+            { id: 'residencial', name: 'Zona Residencial', xMin: -20, xMax: 20, zMin: 350, zMax: 500 },
+            { id: 'providencia', name: 'Intersección Norte', xMin: -50, xMax: 150, zMin: 180, zMax: 350 },
+            { id: 'comercial', name: 'Eje Este', xMin: 50, xMax: 180, zMin: 0, zMax: 200 },
+            { id: 'intersecciones', name: 'Sector Oeste', xMin: -180, xMax: 50, zMin: 0, zMax: 250 },
+            { id: 'cultural', name: 'Centro Urbano', xMin: -50, xMax: 50, zMin: -150, zMax: 150 },
+            { id: 'centro', name: 'Zona Sur-Este', xMin: 50, xMax: 150, zMin: -280, zMax: 0 },
+            { id: 'alameda', name: 'Sector Sur-Oeste', xMin: -150, xMax: 50, zMin: -280, zMax: -100 },
+            { id: 'final', name: 'Clínica Destino', xMin: -30, xMax: 30, zMin: -450, zMax: -350 }
         ];
 
         const scoreValue = document.getElementById('scoreValue');
@@ -283,15 +497,51 @@
         const toast = document.getElementById('toast');
         const miniMapCanvas = document.getElementById('miniMapCanvas');
         const miniMapCtx = miniMapCanvas.getContext('2d');
+        const infractionValue = document.getElementById('infractionValue');
+        const lastInfractionValue = document.getElementById('lastInfractionValue');
+        
+        // Referencias del Modal
+        const missionModal = document.getElementById('missionModal');
+        const startMissionBtn = document.getElementById('startMissionBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalMissionTitle = document.getElementById('modalMissionTitle');
 
         scenarioTotal.textContent = stages.length;
 
         const difficultyNames = ['Guiado', 'Activo', 'Exigente'];
         const difficultyProfiles = [
-            { maxSpeed: 0.30, turnSpeed: 0.024, checkpointRadius: 3.6, hotspotRadius: 2.35 },
-            { maxSpeed: 0.34, turnSpeed: 0.028, checkpointRadius: 3.1, hotspotRadius: 2.15 },
-            { maxSpeed: 0.38, turnSpeed: 0.031, checkpointRadius: 2.75, hotspotRadius: 1.95 }
+            { maxSpeed: 0.56, turnSpeed: 0.024, checkpointRadius: 3.6, hotspotRadius: 2.35 },
+            { maxSpeed: 0.62, turnSpeed: 0.028, checkpointRadius: 3.1, hotspotRadius: 2.15 },
+            { maxSpeed: 0.68, turnSpeed: 0.031, checkpointRadius: 2.75, hotspotRadius: 1.95 }
         ];
+
+        const CHILEAN_TRAFFIC_RULES = {
+            maxSpeedUrban: 60,
+            maxSpeedRural: 100,
+            maxSpeedHighway: 120,
+            safeFollowingDistance: 0.5,
+            pedestrianPriorityRadius: 5.0,
+            trafficLightRadius: 4.0,
+            speedBumpRadius: 3.5,
+            zoneSchoolRadius: 8.0,
+            zoneSchoolMaxSpeed: 45,
+            laneChangePenalty: 30,
+            redLightPenalty: 150,
+            speedExcessPenalty: 50,
+            pedestrianCollisionPenalty: 200,
+            vehicleCollisionPenalty: 100,
+            safeManeuverBonus: 25
+        };
+
+        const INFRACTION_TYPES = {
+            SPEEDING: 'speeding',
+            RED_LIGHT: 'redLight',
+            UNSAFE_DISTANCE: 'unsafeDistance',
+            PEDESTRIAN_VIOLATION: 'pedestrianViolation',
+            COLLISION: 'collision',
+            RECKLESS_MANEUVER: 'recklessManeuver',
+            SAFE_MANEUVER: 'safeManeuver'
+        };
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x7ea7d0);
@@ -319,65 +569,220 @@
         ground.rotation.x = -Math.PI / 2;
         scene.add(ground);
 
-        const road = new THREE.Mesh(
-            new THREE.PlaneGeometry(30, 1200),
-            new THREE.MeshStandardMaterial({ color: 0x2f2f32 })
-        );
-        road.rotation.x = -Math.PI / 2;
-        road.position.y = 0.01;
+        const road = new THREE.Group();
         scene.add(road);
 
-        const laneMaterial = new THREE.MeshStandardMaterial({ color: 0xffe16a });
-        for (let z = -580; z <= 580; z += 12) {
-            const lane = new THREE.Mesh(new THREE.PlaneGeometry(0.45, 6), laneMaterial);
-            lane.rotation.x = -Math.PI / 2;
-            lane.position.set(0, 0.03, z);
-            scene.add(lane);
-        }
-
-        // Trazado inspirado en el eje Providencia-Alameda con cuadras frecuentes.
-        const intersectionsZ = [480, 420, 360, 300, 240, 180, 120, 60, 0, -60, -120, -180, -240, -300, -360, -430, -490, -550];
-        intersectionsZ.forEach((z) => {
-            const crossRoad = new THREE.Mesh(
-                new THREE.PlaneGeometry(58, 12),
-                new THREE.MeshStandardMaterial({ color: 0x2a2a2d })
+        // Crear segmentos de carretera entre waypoints
+        for (let i = 0; i < routeWaypoints.length - 1; i++) {
+            const wp1 = routeWaypoints[i];
+            const wp2 = routeWaypoints[i + 1];
+            
+            const dx = wp2.x - wp1.x;
+            const dz = wp2.z - wp1.z;
+            const distance = Math.sqrt(dx * dx + dz * dz);
+            const midX = (wp1.x + wp2.x) / 2;
+            const midZ = (wp1.z + wp2.z) / 2;
+            const angle = Math.atan2(dx, -dz);
+            
+            // Carretera principal
+            const roadSeg = new THREE.Mesh(
+                new THREE.PlaneGeometry(28, distance + 20),
+                new THREE.MeshStandardMaterial({ color: 0x2f2f32 })
             );
-            crossRoad.rotation.x = -Math.PI / 2;
-            crossRoad.position.set(0, 0.015, z);
-            scene.add(crossRoad);
-
-            for (let x = -24; x <= 24; x += 7) {
-                const mark = new THREE.Mesh(
-                    new THREE.PlaneGeometry(2.4, 0.34),
-                    new THREE.MeshStandardMaterial({ color: 0xf2f2f2 })
+            roadSeg.rotation.x = -Math.PI / 2;
+            roadSeg.rotation.z = angle;
+            roadSeg.position.set(midX, 0.01, midZ);
+            road.add(roadSeg);
+            
+            // Líneas de carril punteadas en el segmento
+            const numDashes = Math.ceil(distance / 12);
+            for (let j = 0; j < numDashes; j++) {
+                const t = j / numDashes;
+                const px = wp1.x + dx * t;
+                const pz = wp1.z + dz * t;
+                
+                const lane = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.45, 8),
+                    new THREE.MeshStandardMaterial({ color: 0xffe16a })
                 );
-                mark.rotation.x = -Math.PI / 2;
-                mark.position.set(x, 0.04, z - 2.6);
-                scene.add(mark);
+                lane.rotation.x = -Math.PI / 2;
+                lane.rotation.z = angle;
+                lane.position.set(px, 0.03, pz);
+                road.add(lane);
             }
-        });
+            
+            // Crear entradas para intersecciones
+            if (i > 0) {
+                const crossRoad = new THREE.Mesh(
+                    new THREE.PlaneGeometry(50, 28),
+                    new THREE.MeshStandardMaterial({ color: 0x2a2a2d })
+                );
+                crossRoad.rotation.x = -Math.PI / 2;
+                crossRoad.rotation.z = wp1.angle;
+                crossRoad.position.set(wp1.x, 0.015, wp1.z);
+                road.add(crossRoad);
+                
+                // Marcas blancas para cruces peatonales
+                for (let x = -20; x <= 20; x += 6) {
+                    const mark = new THREE.Mesh(
+                        new THREE.PlaneGeometry(2.4, 0.34),
+                        new THREE.MeshStandardMaterial({ color: 0xf2f2f2 })
+                    );
+                    mark.rotation.x = -Math.PI / 2;
+                    const rotX = Math.cos(wp1.angle) * x - Math.sin(wp1.angle) * (-2.6);
+                    const rotZ = Math.sin(wp1.angle) * x + Math.cos(wp1.angle) * (-2.6);
+                    mark.rotation.z = wp1.angle;
+                    mark.position.set(wp1.x + rotX, 0.04, wp1.z + rotZ);
+                    road.add(mark);
+                }
+            }
+        }
 
         const sidewalkMaterial = new THREE.MeshStandardMaterial({ color: 0x8b8f93 });
-        const leftSidewalk = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 1150), sidewalkMaterial);
-        leftSidewalk.position.set(-16, 0.1, -15);
-        scene.add(leftSidewalk);
-        const rightSidewalk = leftSidewalk.clone();
-        rightSidewalk.position.x = 16;
-        scene.add(rightSidewalk);
+        
+        // Aceras expandidas para el circuito más amplio
+        const sidewalks = [
+            { x: -22, z: -15, w: 4, d: 1150 },   // Acera norte oeste
+            { x: 22, z: -15, w: 4, d: 1150 },    // Acera norte este
+            { x: -40, z: 150, w: 4, d: 200 },    // Acera oeste norte
+            { x: 40, z: 150, w: 4, d: 200 },     // Acera este norte
+            { x: -40, z: -100, w: 4, d: 200 },   // Acera oeste sur
+            { x: 40, z: -100, w: 4, d: 200 }     // Acera este sur
+        ];
+        
+        sidewalks.forEach(sw => {
+            const sidewalk = new THREE.Mesh(new THREE.BoxGeometry(sw.w, 0.2, sw.d), sidewalkMaterial);
+            sidewalk.position.set(sw.x, 0.1, sw.z);
+            scene.add(sidewalk);
+        });
 
-        function addBuilding(x, z, w, h, d, color) {
-            const b = new THREE.Mesh(
-                new THREE.BoxGeometry(w, h, d),
-                new THREE.MeshStandardMaterial({ color })
+        // Sistema de calles ordenado tipo GTA - grilla urbana
+        // Crear manzanas (bloques) verdes entre calles
+        function addUrbanBlock(x, z, sizeX = 35, sizeZ = 35) {
+            // Césped/parque de manzana
+            const block = new THREE.Mesh(
+                new THREE.PlaneGeometry(sizeX, sizeZ),
+                new THREE.MeshStandardMaterial({ color: 0x3a8a5c })
             );
-            b.position.set(x, h / 2, z);
-            scene.add(b);
+            block.rotation.x = -Math.PI / 2;
+            block.position.set(x, 0.005, z);
+            scene.add(block);
+            
+            // Agregar edificios DENTRO de la manzana
+            const buildingHeights = [6, 8, 7, 9, 6.5];
+            const buildingWidths = [12, 14, 13, 16, 11];
+            
+            // Crear 1-3 edificios por manzana, distribuidos
+            const numBuildings = 1 + Math.floor(Math.random() * 2);
+            for (let i = 0; i < numBuildings; i++) {
+                const bx = x + (Math.random() - 0.5) * (sizeX - 20);
+                const bz = z + (Math.random() - 0.5) * (sizeZ - 20);
+                const height = buildingHeights[Math.floor(Math.random() * buildingHeights.length)];
+                const width = buildingWidths[Math.floor(Math.random() * buildingWidths.length)];
+                const colorVar = Math.floor(Math.random() * 6);
+                createBuilding(bx, bz, width, 10, height, colorVar);
+            }
+            
+            // Árboles decorativos (menos cantidad ahora que hay edificios)
+            const treeCount = 2 + Math.floor(Math.random() * 2);
+            for (let i = 0; i < treeCount; i++) {
+                const tx = x + (Math.random() - 0.5) * sizeX * 0.6;
+                const tz = z + (Math.random() - 0.5) * sizeZ * 0.6;
+                const treeColors = [0x2d6a3d, 0x3d7f4a, 0x4c8d56];
+                addTree(tx, tz, treeColors[Math.floor(Math.random() * treeColors.length)]);
+            }
         }
 
-        for (let i = -30; i <= 30; i += 1) {
-            addBuilding(-27, i * 20, 11, 5 + (Math.abs(i) % 6) * 0.6, 10, 0x9eb4ca);
-            addBuilding(27, i * 20 + 10, 11, 6 + (Math.abs(i) % 5) * 0.55, 10, 0xa4b0bd);
+        // Función para crear edificios urbanos con ventanas (optimizado)
+        function createBuilding(x, z, width = 15, depth = 12, height = 8, colorVariation = 0) {
+            const colors = [
+                0xb8a080,  // Ladrillo claro
+                0xa58968,  // Ladrillo medio
+                0x9a7a63,  // Ladrillo oscuro
+                0xc0b0a0,  // Gris claro
+                0x8a8a8a,  // Gris medio
+                0x7a7a7a   // Gris oscuro
+            ];
+            const color = colors[colorVariation % colors.length];
+
+            const building = new THREE.Group();
+            
+            // Cuerpo principal del edificio con ventanas texturizadas
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            
+            // Fondo del edificio
+            ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+            ctx.fillRect(0, 0, 256, 256);
+            
+            // Dibujar ventanas en la textura
+            ctx.fillStyle = '#1a2830';
+            const windowPixelSize = 20;
+            for (let row = 0; row < 12; row++) {
+                for (let col = 0; col < 12; col++) {
+                    const x_pix = col * 22 + 1;
+                    const y_pix = row * 22 + 1;
+                    if (x_pix < 256 && y_pix < 256) {
+                        ctx.fillRect(x_pix, y_pix, windowPixelSize, windowPixelSize);
+                        // Reflejo de luz
+                        ctx.fillStyle = '#445566';
+                        ctx.fillRect(x_pix + 2, y_pix + 2, 6, 6);
+                        ctx.fillStyle = '#1a2830';
+                    }
+                }
+            }
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.magFilter = THREE.NearestFilter;
+            
+            const bodyMaterial = new THREE.MeshStandardMaterial({
+                map: texture,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const body = new THREE.Mesh(
+                new THREE.BoxGeometry(width, height, depth),
+                bodyMaterial
+            );
+            body.position.y = height / 2;
+            building.add(body);
+
+            // Techo
+            const roof = new THREE.Mesh(
+                new THREE.BoxGeometry(width + 0.4, 0.8, depth + 0.4),
+                new THREE.MeshStandardMaterial({
+                    color: 0x5a4a3a,
+                    roughness: 0.8
+                })
+            );
+            roof.position.y = height + 0.4;
+            building.add(roof);
+
+            building.position.set(x, 0, z);
+            scene.add(building);
+            return building;
         }
+
+        // Definir tamaños de bloques (optimizado para rendimiento)
+        const blockSize = 35;
+        const streetWidth = 60;
+
+        // Generar bloques urbanos CON edificios integrados
+        for (let bx = -150; bx <= 150; bx += blockSize + streetWidth) {
+            for (let bz = -450; bz <= 450; bz += blockSize + streetWidth) {
+                const distToWaypoint = Math.min(...routeWaypoints.map(wp => 
+                    Math.sqrt((bx - wp.x) ** 2 + (bz - wp.z) ** 2)
+                ));
+                
+                if (distToWaypoint > 50) {
+                    addUrbanBlock(bx, bz, blockSize, blockSize);
+                }
+            }
+        }
+        
 
         function addLampPost(x, z) {
             const pole = new THREE.Mesh(
@@ -454,21 +859,38 @@
             scene.add(red);
         }
 
+        // DELIMITACIÓN DE ZONAS - Calles vs Construcción
+        const STREET_WIDTH = 25;  // ±25 unidades en X = carril de conducción
+        const STREET_BOUNDARY_X = 32;  // Límite donde comienza zona de construcción
+        
+        // Postes de luz FUERA DE LAS CALLES (en bordes de acera)
         for (let z = -550; z <= 530; z += 25) {
-            addLampPost(-13.8, z);
-            addLampPost(13.8, z + 12);
+            addLampPost(-STREET_BOUNDARY_X - 5, z);
+            addLampPost(STREET_BOUNDARY_X + 5, z + 12);
         }
 
-        for (let z = -560; z <= 540; z += 20) {
-            addTree(-21, z, 0x3d7f4a);
-            addTree(21, z + 10, 0x4c8d56);
+        // Árboles solo en zonas MUY alejadas de las calles
+        for (let z = -560; z <= 540; z += 30) {
+            addTree(-200, z, 0x2d6a3d);
+            addTree(200, z + 15, 0x3d7f4a);
         }
 
-        intersectionsZ.forEach((z, idx) => {
-            if (idx % 2 === 0) addRoadSign(-10.9, z - 10);
-            if (idx % 3 === 0) addRoadSign(10.9, z + 8);
-            if (idx % 2 === 0) addTrafficLight(10.9, z - 2);
-            if (idx % 3 === 1) addTrafficLight(-10.9, z + 3);
+        // Semáforos SOLO en intersecciones principales dentro de las calles
+        const trafficLightPositions = [
+            { x: 20, z: 280 },
+            { x: -20, z: 280 },
+            { x: 20, z: 80 },
+            { x: -20, z: 80 },
+            { x: 20, z: 0 },
+            { x: -20, z: 0 },
+            { x: 20, z: -100 },
+            { x: -20, z: -100 },
+            { x: 20, z: -220 },
+            { x: -20, z: -220 }
+        ];
+        
+        trafficLightPositions.forEach((pos) => {
+            addTrafficLight(pos.x, pos.z);
         });
 
         function addClinicLandmark(x, z) {
@@ -489,7 +911,7 @@
             scene.add(crossH);
         }
 
-        addClinicLandmark(23, -500);
+        addClinicLandmark(65, -500);
 
         function addCone(x, z) {
             const cone = new THREE.Mesh(
@@ -510,25 +932,31 @@
         }
 
         const cones = [];
-        for (let i = 0; i < 12; i += 1) {
-            const x = i % 2 === 0 ? -6 : 6;
-            const z = 58 - i * 7;
-            cones.push(addCone(x, z));
-        }
-        for (let i = 0; i < 8; i += 1) {
-            const x = i % 2 === 0 ? -6.2 : 6.2;
-            const z = -72 - i * 7;
-            cones.push(addCone(x, z));
-        }
-        for (let i = 0; i < 10; i += 1) {
-            const x = i % 2 === 0 ? -5.8 : 5.8;
-            const z = -300 - i * 8;
-            cones.push(addCone(x, z));
-        }
+        
+        // Conos en CALLES - Restricción de carriles en ciertas zonas
+        const coneZones = [
+            // Zona norte - restricción lateral
+            { posX: 10, startZ: 40, endZ: 80, step: 7, side: 1 },
+            { posX: -10, startZ: 40, endZ: 80, step: 7, side: -1 },
+            // Zona centro - restricción lateral
+            { posX: 8, startZ: -60, endZ: -20, step: 8, side: 1 },
+            { posX: -8, startZ: -60, endZ: -20, step: 8, side: -1 },
+            // Zona sur - restricción central
+            { posX: 0, startZ: -280, endZ: -240, step: 10, side: 0 }
+        ];
+        
+        coneZones.forEach(zone => {
+            for (let z = zone.startZ; z <= zone.endZ; z += zone.step) {
+                cones.push(addCone(zone.posX, z));
+            }
+        });
 
         const speedBumps = [];
         const bumpMaterial = new THREE.MeshStandardMaterial({ color: 0xe5bf3f });
-        [180, 44, -24, -176, -334].forEach((z) => {
+        
+        // Resaltos (Speed Bumps) SOLO EN CALLES - zonas residenciales y escolares
+        const bumpZones = [180, 44, -24, -176, -334];  // Posiciones Z de resaltos
+        bumpZones.forEach((z) => {
             const bump = new THREE.Mesh(new THREE.BoxGeometry(9.4, 0.14, 0.65), bumpMaterial);
             bump.position.set(0, 0.08, z);
             scene.add(bump);
@@ -536,6 +964,8 @@
         });
 
         const zebraMaterial = new THREE.MeshStandardMaterial({ color: 0xe7edf3 });
+        
+        // Paso de cebra inicial EN LA CALLE
         for (let x = -3; x <= 3; x += 1) {
             const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 3.6), zebraMaterial);
             stripe.rotation.x = -Math.PI / 2;
@@ -543,12 +973,21 @@
             scene.add(stripe);
         }
 
-        const pedestrianCrossings = [430, 365, 305, 245, 185, 125, 58, 0, -82, -150, -235, -320, -405, -482];
-        pedestrianCrossings.forEach((zBase) => {
-            for (let x = -4; x <= 4; x += 1.2) {
+        // Pasos de cebra SOLO en intersecciones de calles principales
+        const pedestrianCrossings = [
+            { x: 0, z: 430 }, { x: 0, z: 350 }, 
+            { x: 0, z: 280 },  // Intersección principal norte
+            { x: 0, z: 100 }, { x: 0, z: 0 }, 
+            { x: 0, z: -100 },  // Centro
+            { x: 0, z: -220 },  // Intersección sur
+            { x: 0, z: -350 }   // Acceso clínica
+        ];
+        
+        pedestrianCrossings.forEach((crossing) => {
+            for (let offset = -4; offset <= 4; offset += 1.2) {
                 const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 3.2), zebraMaterial);
                 stripe.rotation.x = -Math.PI / 2;
-                stripe.position.set(x, 0.035, zBase);
+                stripe.position.set(crossing.x + offset, 0.035, crossing.z);
                 scene.add(stripe);
             }
         });
@@ -566,18 +1005,32 @@
         }
 
         const pedestrians = [
-            { mesh: createPedestrian(0x2d77b6), z: 365, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.045, radius: 1.25, activeRange: 105 },
-            { mesh: createPedestrian(0xb6632d), z: 305, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.05, radius: 1.25, activeRange: 95 },
-            { mesh: createPedestrian(0x43a061), z: 245, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.042, radius: 1.2, activeRange: 92 },
-            { mesh: createPedestrian(0x8b5fb9), z: 125, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.048, radius: 1.25, activeRange: 100 },
-            { mesh: createPedestrian(0x4f7d8b), z: 58, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.04, radius: 1.2, activeRange: 110 },
-            { mesh: createPedestrian(0x788c33), z: -82, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.047, radius: 1.2, activeRange: 96 },
-            { mesh: createPedestrian(0xb7485f), z: -235, xMin: -10.5, xMax: 10.5, dir: 1, speed: 0.044, radius: 1.25, activeRange: 102 },
-            { mesh: createPedestrian(0x3a6ca2), z: -405, xMin: 10.5, xMax: -10.5, dir: -1, speed: 0.046, radius: 1.2, activeRange: 108 }
+            // Zona norte residencial
+            { mesh: createPedestrian(0x2d77b6), x: -8, z: 420, xMin: -15, xMax: 10, dir: 1, speed: 0.035, radius: 1.25, activeRange: 120 },
+            { mesh: createPedestrian(0xb6632d), x: 8, z: 400, xMin: 15, xMax: -10, dir: -1, speed: 0.038, radius: 1.25, activeRange: 120 },
+            // Intersección norte
+            { mesh: createPedestrian(0x43a061), x: 0, z: 320, xMin: -20, xMax: 20, dir: 1, speed: 0.04, radius: 1.2, activeRange: 100 },
+            { mesh: createPedestrian(0x8b5fb9), x: 50, z: 280, xMin: 20, xMax: 60, dir: 1, speed: 0.042, radius: 1.25, activeRange: 110 },
+            // Eje Este
+            { mesh: createPedestrian(0x4f7d8b), x: 150, z: 200, xMin: 120, xMax: 180, dir: 1, speed: 0.036, radius: 1.2, activeRange: 115 },
+            { mesh: createPedestrian(0x788c33), x: 130, z: 100, xMin: 160, xMax: 100, dir: -1, speed: 0.039, radius: 1.2, activeRange: 105 },
+            // Zona central norte
+            { mesh: createPedestrian(0xb7485f), x: -50, z: 150, xMin: -100, xMax: 0, dir: 1, speed: 0.034, radius: 1.25, activeRange: 100 },
+            { mesh: createPedestrian(0x3a6ca2), x: 20, z: 80, xMin: -30, xMax: 60, dir: 1, speed: 0.041, radius: 1.2, activeRange: 120 },
+            // Centro urbano
+            { mesh: createPedestrian(0xd4a4ff), x: -30, z: 0, xMin: -60, xMax: 10, dir: 1, speed: 0.037, radius: 1.25, activeRange: 110 },
+            { mesh: createPedestrian(0x99dd77), x: 30, z: 50, xMin: 0, xMax: 80, dir: 1, speed: 0.038, radius: 1.2, activeRange: 115 },
+            // Zona sur este
+            { mesh: createPedestrian(0xff9966), x: 110, z: -100, xMin: 70, xMax: 140, dir: 1, speed: 0.036, radius: 1.25, activeRange: 105 },
+            { mesh: createPedestrian(0x66ccff), x: 100, z: -180, xMin: 140, xMax: 60, dir: -1, speed: 0.039, radius: 1.2, activeRange: 112 },
+            // Zona sur oeste
+            { mesh: createPedestrian(0xffcc99), x: -90, z: -220, xMin: -140, xMax: -40, dir: 1, speed: 0.035, radius: 1.25, activeRange: 110 },
+            // Acceso a clínica
+            { mesh: createPedestrian(0x99ff99), x: 0, z: -350, xMin: -30, xMax: 30, dir: 1, speed: 0.032, radius: 1.2, activeRange: 100 }
         ];
 
         pedestrians.forEach((ped) => {
-            ped.mesh.position.set(ped.xMin, 0.02, ped.z);
+            ped.mesh.position.set(ped.x, 0.02, ped.z);
             ped.mesh.visible = false;
             scene.add(ped.mesh);
         });
@@ -775,15 +1228,59 @@
         applyVehicleScale();
         scene.add(vehicle);
 
-        const checkpointGeometry = new THREE.CylinderGeometry(1.8, 1.8, 0.25, 28);
-        const checkpointMaterial = new THREE.MeshStandardMaterial({ color: 0x35adff, emissive: 0x0e4f7a, emissiveIntensity: 0.45 });
+        // Función para crear banderines de patrullaje
+        function createPatrolFlag(x, z, pointNumber) {
+            const group = new THREE.Group();
+            
+            // Poste del banderín
+            const pole = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.08, 0.08, 3.5, 12),
+                new THREE.MeshStandardMaterial({ color: 0x404040, metalness: 0.6 })
+            );
+            pole.position.set(0, 1.75, 0);
+            group.add(pole);
+            
+            // Bandera (plano colorido)
+            const flagColors = [0xff4444, 0x44ff44, 0x4444ff, 0xffff44, 0xff44ff];
+            const flagColor = flagColors[pointNumber % flagColors.length];
+            
+            const flag = new THREE.Mesh(
+                new THREE.PlaneGeometry(2.2, 1.3),
+                new THREE.MeshStandardMaterial({ 
+                    color: flagColor, 
+                    emissive: flagColor,
+                    emissiveIntensity: 0.3,
+                    side: THREE.DoubleSide
+                })
+            );
+            flag.rotation.y = Math.PI / 4;
+            flag.position.set(1.2, 2.8, 0);
+            group.add(flag);
+            
+            // Número en el banderín (usando geometría simple)
+            const numberGeom = new THREE.SphereGeometry(0.25, 16, 16);
+            const numberMat = new THREE.MeshStandardMaterial({ 
+                color: 0xffffff,
+                emissive: flagColor,
+                emissiveIntensity: 0.6
+            });
+            const numberMesh = new THREE.Mesh(numberGeom, numberMat);
+            numberMesh.position.set(1.2, 2.8, 0.15);
+            group.add(numberMesh);
+            
+            // Luz del banderín
+            const light = new THREE.PointLight(flagColor, 0.8, 15);
+            light.position.set(1.2, 2.8, 0.5);
+            group.add(light);
+            
+            group.position.set(x, 0, z);
+            return group;
+        }
 
-        const checkpointMeshes = stages.map((stage) => {
-            const cp = new THREE.Mesh(checkpointGeometry, checkpointMaterial.clone());
-            cp.rotation.x = Math.PI / 2;
-            cp.position.set(0, 0.15, stage.zGate);
-            scene.add(cp);
-            return cp;
+        const checkpointMeshes = stages.map((stage, idx) => {
+            const flag = createPatrolFlag(stage.x, stage.z, idx + 1);
+            scene.add(flag);
+            return flag;
         });
 
         function addTrafficWheels(group, positions, radius = 0.28, width = 0.22) {
@@ -913,6 +1410,7 @@
 
         const keys = {};
         let speed = 0;
+        let throttleHold = 0;
         let score = 0;
         let streak = 0;
         let collected = 0;
@@ -951,19 +1449,26 @@
         }
 
         function updateDistrictState() {
+            const x = vehicle.position.x;
             const z = vehicle.position.z;
-            const district = districtZones.find((item) => z <= item.zMax && z > item.zMin) || districtZones[districtZones.length - 1];
+            const district = districtZones.find((item) => 
+                x >= item.xMin && x <= item.xMax && z >= item.zMin && z <= item.zMax
+            ) || districtZones[districtZones.length - 1];
             activeDistrictName = district.name;
         }
 
         const hotspotMeshes = [];
         const hotspotData = [
-            { x: -8.5, z: 342, msg: 'Tip: En Providencia anticipa frenadas de buses en paraderos.' },
-            { x: 8.2, z: 184, msg: 'Tip: En cruces seguidos, baja velocidad antes de girar.' },
-            { x: -8.3, z: 28, msg: 'Tip: En zonas turisticas prioriza peatones en todo momento.' },
-            { x: 8.4, z: -146, msg: 'Tip: En avenidas anchas aumenta distancia de seguimiento.' },
-            { x: -8.2, z: -332, msg: 'Tip: En Alameda monitorea cambio de carril con mas tiempo.' },
-            { x: 8.3, z: -456, msg: 'Tip: Al acercarte a clinica, reduce y mantente en conduccion defensiva.' }
+            { x: -8.5, z: 420, msg: 'Tip: Inicia con control suave de aceleración en zona residencial.' },
+            { x: 8.2, z: 320, msg: 'Tip: Anticipa el giro a la derecha, reduce velocidad antes de la curva.' },
+            { x: 130, z: 180, msg: 'Tip: En eje este mantén distancia de vehículos que cruzan.' },
+            { x: 120, z: 50, msg: 'Tip: Prepárate para girar izquierda hacia zona oeste.' },
+            { x: -8.3, z: 100, msg: 'Tip: Zona central con alto tráfico, máxima precaución.' },
+            { x: -130, z: 150, msg: 'Tip: En sector oeste modera velocidad para el retorno.' },
+            { x: 80, z: -150, msg: 'Tip: Nueva curva sur, anticipa cambio de dirección.' },
+            { x: -80, z: -220, msg: 'Tip: En zona sur aumenta atención a peatones urbanos.' },
+            { x: 8.3, z: -350, msg: 'Tip: Aproximación final a destino, reducir velocidad progresivamente.' },
+            { x: 0, z: -450, msg: 'Tip: Llegada a clínica: estaciona con máxima seguridad.' }
         ];
 
         hotspotData.forEach((item) => {
@@ -982,10 +1487,128 @@
 
         let toastTimer;
 
-        const acceleration = 0.0038;
+        class InfractionSystem {
+            constructor() {
+                this.infractions = [];
+                this.lastInfractionTime = {};
+                this.infractionCooldown = 1000;
+            }
+
+            recordInfraction(type, severity = 1, message = '') {
+                const now = Date.now();
+                if (this.lastInfractionTime[type] && now - this.lastInfractionTime[type] < this.infractionCooldown) {
+                    return;
+                }
+
+                this.lastInfractionTime[type] = now;
+                const infraction = {
+                    type,
+                    severity,
+                    timestamp: now,
+                    message
+                };
+                this.infractions.push(infraction);
+                infractions++;
+                return infraction;
+            }
+
+            getPenalty(type) {
+                switch (type) {
+                    case INFRACTION_TYPES.RED_LIGHT:
+                        return CHILEAN_TRAFFIC_RULES.redLightPenalty;
+                    case INFRACTION_TYPES.PEDESTRIAN_VIOLATION:
+                        return CHILEAN_TRAFFIC_RULES.pedestrianCollisionPenalty;
+                    case INFRACTION_TYPES.SPEEDING:
+                        return CHILEAN_TRAFFIC_RULES.speedExcessPenalty;
+                    case INFRACTION_TYPES.UNSAFE_DISTANCE:
+                        return CHILEAN_TRAFFIC_RULES.laneChangePenalty;
+                    case INFRACTION_TYPES.COLLISION:
+                        return CHILEAN_TRAFFIC_RULES.vehicleCollisionPenalty;
+                    case INFRACTION_TYPES.RECKLESS_MANEUVER:
+                        return 30;
+                    case INFRACTION_TYPES.SAFE_MANEUVER:
+                        return -CHILEAN_TRAFFIC_RULES.safeManeuverBonus;
+                    default:
+                        return 0;
+                }
+            }
+
+            clear() {
+                this.infractions = [];
+                this.lastInfractionTime = {};
+            }
+        }
+
+        class EmergencyAudioSystem {
+            constructor() {
+                this.sirenVolume = 0.5;
+                this.siren = null;
+                this.audioAvailable = typeof window.Howl !== 'undefined';
+                this.initAudio();
+            }
+
+            initAudio() {
+                if (!this.audioAvailable) {
+                    console.log('Howler.js no disponible');
+                    return;
+                }
+                try {
+                    this.siren = new window.Howl({
+                        src: ['data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YCIAAAAAAA=='],
+                        loop: true,
+                        volume: this.sirenVolume
+                    });
+                } catch (e) {
+                    console.log('Error inicializando audio:', e);
+                    this.audioAvailable = false;
+                }
+            }
+
+            playSiren() {
+                if (!this.audioAvailable || !this.siren) return;
+                try {
+                    this.siren.volume(this.sirenVolume);
+                    if (!this.siren.playing()) {
+                        this.siren.play();
+                    }
+                } catch (e) {
+                    console.log('Error reproduciendo sirena', e);
+                }
+            }
+
+            stopSiren() {
+                if (!this.audioAvailable || !this.siren) return;
+                try {
+                    if (this.siren.playing()) {
+                        this.siren.stop();
+                    }
+                } catch (e) {
+                    console.log('Error deteniendo sirena', e);
+                }
+            }
+
+            setSirenIntensity(frequency) {
+                if (!this.audioAvailable || !this.siren) return;
+                try {
+                    if (this.siren.playing()) {
+                        this.sirenVolume = Math.min(frequency / 100, 1.0);
+                        this.siren.volume(this.sirenVolume);
+                    }
+                } catch (e) {
+                    // Silenciar errores de audio
+                }
+            }
+        }
+
+        const infractionSystem = new InfractionSystem();
+        const emergencyAudio = new EmergencyAudioSystem();
+
+        const acceleration = 0.0068;
         const turnSpeed = 0.028;
         const maxSpeed = 0.34;
         const friction = 0.97;
+        const throttleFriction = 0.992;
+        const coastFriction = 0.968;
         const mapWorld = {
             minX: -18,
             maxX: 18,
@@ -1004,6 +1627,15 @@
             progressText.textContent = progress + '%';
             progressBar.style.width = progress + '%';
             speedValue.textContent = String(Math.max(0, Math.round(Math.abs(speed) * 220)));
+            infractionValue.textContent = String(infractionSystem.infractions.length);
+            
+            if (infractionSystem.infractions.length > 0) {
+                const lastInfraction = infractionSystem.infractions[infractionSystem.infractions.length - 1];
+                lastInfractionValue.textContent = lastInfraction.message.substring(0, 30) + '...';
+            } else {
+                lastInfractionValue.textContent = 'Ninguna';
+            }
+            
             updateMission();
         }
 
@@ -1050,20 +1682,82 @@
 
             miniMapCtx.strokeStyle = 'rgba(230, 238, 247, 0.5)';
             miniMapCtx.lineWidth = 1;
-            intersectionsZ.forEach((z) => {
-                const y = worldToMiniMap(0, z, size).y;
+            
+            // Dibujar la ruta completa conectando waypoints
+            miniMapCtx.strokeStyle = 'rgba(93, 184, 255, 0.6)';
+            miniMapCtx.lineWidth = 2.5;
+            miniMapCtx.setLineDash([8, 4]);
+            miniMapCtx.beginPath();
+            for (let i = 0; i < routeWaypoints.length; i++) {
+                const wp = routeWaypoints[i];
+                const pos = worldToMiniMap(wp.x, wp.z, size);
+                if (i === 0) {
+                    miniMapCtx.moveTo(pos.x, pos.y);
+                } else {
+                    miniMapCtx.lineTo(pos.x, pos.y);
+                }
+            }
+            miniMapCtx.stroke();
+            miniMapCtx.setLineDash([]);
+            
+            // Dibujar intersecciones basadas en waypoints
+            routeWaypoints.forEach((wp) => {
+                const pos = worldToMiniMap(wp.x, wp.z, size);
                 miniMapCtx.beginPath();
-                miniMapCtx.moveTo(worldToMiniMap(-15, 0, size).x, y);
-                miniMapCtx.lineTo(worldToMiniMap(15, 0, size).x, y);
+                miniMapCtx.arc(pos.x, pos.y, 2, 0, Math.PI * 2);
                 miniMapCtx.stroke();
             });
 
             checkpointMeshes.forEach((cp, index) => {
                 const cpPos = worldToMiniMap(cp.position.x, cp.position.z, size);
-                miniMapCtx.fillStyle = index < currentScenario ? '#2add79' : '#58b9ff';
-                miniMapCtx.beginPath();
-                miniMapCtx.arc(cpPos.x, cpPos.y, 4.2, 0, Math.PI * 2);
-                miniMapCtx.fill();
+                
+                if (index < currentScenario) {
+                    // Completado - Verde
+                    miniMapCtx.fillStyle = '#2add79';
+                    miniMapCtx.strokeStyle = '#1aa85a';
+                    miniMapCtx.lineWidth = 2;
+                    miniMapCtx.beginPath();
+                    miniMapCtx.arc(cpPos.x, cpPos.y, 5.5, 0, Math.PI * 2);
+                    miniMapCtx.fill();
+                    miniMapCtx.stroke();
+                    
+                    // Checkmark en los completados
+                    miniMapCtx.fillStyle = '#0a1f1a';
+                    miniMapCtx.font = 'bold 8px Arial';
+                    miniMapCtx.textAlign = 'center';
+                    miniMapCtx.textBaseline = 'middle';
+                    miniMapCtx.fillText('✓', cpPos.x, cpPos.y);
+                } else if (index === currentScenario) {
+                    // Próximo objetivo - Amarillo/Dorado pulsante
+                    const pulse = Math.sin(performance.now() * 0.004) * 0.5 + 0.5;
+                    const size_pulsante = 5 + pulse * 2.5;
+                    miniMapCtx.fillStyle = '#ffed4e';
+                    miniMapCtx.strokeStyle = '#ffc94a';
+                    miniMapCtx.lineWidth = 2.5;
+                    miniMapCtx.beginPath();
+                    miniMapCtx.arc(cpPos.x, cpPos.y, size_pulsante, 0, Math.PI * 2);
+                    miniMapCtx.fill();
+                    miniMapCtx.stroke();
+                    
+                    // Número del punto actual
+                    miniMapCtx.fillStyle = '#000000';
+                    miniMapCtx.font = 'bold 9px Arial';
+                    miniMapCtx.fillText(String(index + 1), cpPos.x, cpPos.y);
+                } else {
+                    // Pendientes - Rojo claro
+                    miniMapCtx.fillStyle = '#ff6b6b';
+                    miniMapCtx.strokeStyle = '#cc3333';
+                    miniMapCtx.lineWidth = 1.5;
+                    miniMapCtx.beginPath();
+                    miniMapCtx.arc(cpPos.x, cpPos.y, 4.5, 0, Math.PI * 2);
+                    miniMapCtx.fill();
+                    miniMapCtx.stroke();
+                    
+                    // Número del punto pendiente
+                    miniMapCtx.fillStyle = '#ffffff';
+                    miniMapCtx.font = 'bold 8px Arial';
+                    miniMapCtx.fillText(String(index + 1), cpPos.x, cpPos.y);
+                }
             });
 
             npcVehicles.forEach((npc) => {
@@ -1119,12 +1813,51 @@
             modePost.classList.toggle('active', mode === 'post');
         }
 
-        function penalize(message, amount = 30) {
+        function showMissionModal() {
+            missionModal.classList.remove('hidden');
+            modalMissionTitle.textContent = 'Patrullaje Urbano';
+            getObjectivesList().style.display = 'block';
+            getMissionRules().style.display = 'block';
+            getMissionIntro().textContent = '¡Bienvenido Agente! Tu misión es completar un patrullaje de seguridad vial en la ciudad.';
+            startMissionBtn.textContent = 'Comenzar Misión 🚓';
+        }
+
+        function showMissionCompletedModal() {
+            missionModal.classList.remove('hidden');
+            modalMissionTitle.textContent = '✅ ¡Misión Completada!';
+            getObjectivesList().style.display = 'none';
+            getMissionRules().style.display = 'none';
+            getMissionIntro().textContent = `🎉 ¡Felicidades! Completaste el patrullaje urbano con un score de ${score} puntos y ${getAccuracy()}% de convivencia vial.`;
+            startMissionBtn.textContent = 'Nueva Misión';
+            startMissionBtn.addEventListener('click', resetGame, { once: true });
+        }
+
+        function getObjectivesList() {
+            return document.querySelector('.mission-objectives');
+        }
+
+        function getMissionRules() {
+            return document.querySelector('.mission-rules');
+        }
+
+        function getMissionIntro() {
+            return document.querySelector('.mission-intro');
+        }
+
+        function closeMissionModal() {
+            missionModal.classList.add('hidden');
+        }
+
+        function penalize(message, amount = 30, infractionType = INFRACTION_TYPES.RECKLESS_MANEUVER) {
             score = Math.max(0, score - amount);
-            infractions += 1;
             streak = 0;
             challengeLevel = Math.max(0, challengeLevel - 1);
-            showToast(message + ' (-' + amount + ')');
+            
+            const infraction = infractionSystem.recordInfraction(infractionType, 1, message);
+            if (infraction) {
+                showToast(message + ' (-' + amount + ')');
+            }
+            
             updateHud();
         }
 
@@ -1133,6 +1866,8 @@
             safeActions += 1;
             streak += 1;
             challengeLevel = Math.min(2, challengeLevel + 1);
+            
+            infractionSystem.recordInfraction(INFRACTION_TYPES.SAFE_MANEUVER, -1, message);
             showToast(message + ' (+' + amount + ')');
             updateHud();
         }
@@ -1141,6 +1876,7 @@
             vehicle.position.set(0, 0.05, 470);
             vehicle.rotation.set(0, 0, 0);
             speed = 0;
+            throttleHold = 0;
             score = 0;
             streak = 0;
             collected = 0;
@@ -1149,10 +1885,8 @@
             challengeLevel = 0;
             currentScenario = 0;
             missionFinished = false;
-            checkpointMeshes.forEach((cp) => {
-                cp.material.color.setHex(0x35adff);
-                cp.material.emissive.setHex(0x0e4f7a);
-            });
+            infractionSystem.clear();
+            emergencyAudio.stopSiren();
             hotspotMeshes.forEach((hotspot) => {
                 hotspot.userData.collected = false;
                 hotspot.visible = true;
@@ -1176,6 +1910,7 @@
             applyVehicleScale();
             updateHud();
             drawMiniMap();
+            showMissionModal();
         }
 
         // Joystick Control Variables
@@ -1254,6 +1989,10 @@
         modeStudent.addEventListener('click', () => setLearnerMode('student'));
         modePost.addEventListener('click', () => setLearnerMode('post'));
 
+        // Modal Controls
+        startMissionBtn.addEventListener('click', closeMissionModal);
+        closeModalBtn.addEventListener('click', closeMissionModal);
+
         window.addEventListener('keydown', (e) => {
             keys[e.key.toLowerCase()] = true;
             if (e.key.toLowerCase() === 'r') resetGame();
@@ -1284,30 +2023,45 @@
             if (missionFinished) return;
 
             const profile = getDifficultyProfile();
+            const forwardKey = keys['w'] || keys['arrowup'];
+            const backwardKey = keys['s'] || keys['arrowdown'];
+            const forwardJoy = joystickY > 0.1;
+            const backwardJoy = joystickY < -0.1;
+            const pressingForward = forwardKey || forwardJoy;
 
             // Keyboard input
             if (keys['a'] || keys['arrowleft']) vehicle.rotation.y += profile.turnSpeed;
             if (keys['d'] || keys['arrowright']) vehicle.rotation.y -= profile.turnSpeed;
-            if (keys['w'] || keys['arrowup']) speed += acceleration;
-            if (keys['s'] || keys['arrowdown']) speed -= acceleration;
+
+            if (pressingForward && !backwardKey && !backwardJoy) {
+                throttleHold = Math.min(90, throttleHold + 1);
+            } else {
+                throttleHold = Math.max(0, throttleHold - 4);
+            }
+            const throttleRamp = 1 + (throttleHold / 90) * 1.4;
+
+            if (forwardKey) speed += acceleration * throttleRamp;
+            if (backwardKey) speed -= acceleration * 1.2;
 
             // Joystick input (analog control with higher precision)
             if (Math.abs(joystickX) > 0.1) {
                 vehicle.rotation.y -= joystickX * profile.turnSpeed * 1.5;
             }
-            if (Math.abs(joystickY) > 0.1) {
-                speed += joystickY * acceleration * 2.0;
+            if (forwardJoy) {
+                speed += joystickY * acceleration * 2.4 * throttleRamp;
+            } else if (backwardJoy) {
+                speed += joystickY * acceleration * 1.8;
             }
 
-            speed *= friction;
+            speed *= pressingForward ? throttleFriction : coastFriction;
+            if (backwardKey && speed > 0.02) speed *= 0.94;
             speed = Math.max(-profile.maxSpeed * 0.45, Math.min(profile.maxSpeed, speed));
             vehicle.translateZ(-speed);
 
-            // Límites dinámicos: se expanden en intersecciones para permitir navegación lateral
-            const nearIntersection = intersectionsZ.some((z) => Math.abs(vehicle.position.z - z) < 12);
-            const maxLateralX = nearIntersection ? 24 : 12.6;
-            vehicle.position.x = Math.max(-maxLateralX, Math.min(maxLateralX, vehicle.position.x));
-            vehicle.position.z = Math.max(-600, Math.min(550, vehicle.position.z));
+            // Límites expandidos: zona de juego mucho más amplia para permitir maniobrabilidad
+            // El circuito ahora permite moverse en toda la zona con giros y cursas
+            vehicle.position.x = Math.max(-280, Math.min(280, vehicle.position.x));
+            vehicle.position.z = Math.max(-500, Math.min(500, vehicle.position.z));
 
             const desiredOffset = new THREE.Vector3(0, 6.2, 13.5).applyMatrix4(vehicle.matrixWorld);
             camera.position.lerp(desiredOffset, 0.1);
@@ -1351,8 +2105,15 @@
 
         function updatePedestrians() {
             pedestrians.forEach((ped, idx) => {
-                const isNear = Math.abs(ped.z - vehicle.position.z) < ped.activeRange;
+                const distVec = new THREE.Vector3(
+                    vehicle.position.x - ped.mesh.position.x,
+                    0,
+                    vehicle.position.z - ped.z
+                );
+                const dist = distVec.length();
+                const isNear = dist < ped.activeRange;
                 ped.mesh.visible = isNear;
+                
                 if (!isNear) return;
 
                 ped.mesh.position.x += ped.speed * ped.dir;
@@ -1366,11 +2127,10 @@
                     ped.mesh.position.x = ped.xMin;
                 }
 
-                const crossingDistance = Math.abs(vehicle.position.z - ped.z);
-                if (crossingDistance < 8 && Math.abs(vehicle.position.x) < 3.3) {
+                if (dist < 4 && Math.abs(vehicle.position.x - ped.mesh.position.x) < 2) {
                     crossingSafety.set(idx, true);
                 }
-                if (crossingDistance > 16 && crossingSafety.get(idx)) {
+                if (dist > 15 && crossingSafety.get(idx)) {
                     crossingSafety.set(idx, false);
                     if (Math.max(0, Math.round(Math.abs(speed) * 220)) < 24) {
                         reward('Paso peatonal gestionado de forma segura', 16);
@@ -1382,18 +2142,20 @@
         function detectCheckpoint() {
             if (missionFinished || currentScenario >= stages.length) return;
 
-            const cp = checkpointMeshes[currentScenario];
-            const distance = vehicle.position.distanceTo(cp.position);
-            cp.rotation.z += 0.01;
+            const stage = stages[currentScenario];
+            const checkpointPos = new THREE.Vector3(stage.x, 0, stage.z);
+            const distance = vehicle.position.distanceTo(checkpointPos);
+            const checkpointRadius = 5.5;  // Radio de detección del banderín
 
-            if (distance < getDifficultyProfile().checkpointRadius) {
-                cp.material.color.setHex(0x2add79);
-                cp.material.emissive.setHex(0x165732);
-                reward('Tramo completado con conduccion segura', 70);
+            if (distance < checkpointRadius) {
+                const pointNum = currentScenario + 1;
+                reward(`Punto ${pointNum} alcanzado - Patrullaje en progreso`, 60);
                 currentScenario += 1;
+                
                 if (currentScenario >= stages.length) {
                     missionFinished = true;
-                    reward('Traslado completado: convivencia vial lograda', 120);
+                    reward('¡Patrullaje urbano completado! Seguridad vial lograda 🚓', 150);
+                    setTimeout(() => showMissionCompletedModal(), 500);  // Mostrar modal de éxito
                 }
                 updateHud();
             }
@@ -1404,19 +2166,34 @@
 
             const speedKmh = Math.max(0, Math.round(Math.abs(speed) * 220));
 
-            const nearIntersection = intersectionsZ.some((z) => Math.abs(vehicle.position.z - z) < 7.5);
-            if (nearIntersection && speedKmh > 38) {
-                penalize('Reduccion insuficiente en interseccion', 22);
+            // Detectar proximidad a intersecciones (waypoints)
+            const nearWaypoint = routeWaypoints.some((wp) => {
+                const dist = Math.sqrt((vehicle.position.x - wp.x) ** 2 + (vehicle.position.z - wp.z) ** 2);
+                return dist < 20;
+            });
+            
+            if (nearWaypoint && speedKmh > 40) {
+                penalize('Velocidad excesiva en interseccion', 22, INFRACTION_TYPES.SPEEDING);
             }
 
-            const nearCrossing = pedestrianCrossings.some((z) => Math.abs(vehicle.position.z - z) < 7.2);
-            if (nearCrossing && speedKmh > 28) {
-                penalize('Exceso de velocidad cerca de paso peatonal', 24);
+            // Detectar proximidad a cruces peatonales
+            const nearCrossing = pedestrianCrossings.some((crossing) => {
+                const dist = Math.sqrt((vehicle.position.x - crossing.x) ** 2 + (vehicle.position.z - crossing.z) ** 2);
+                return dist < 15;
+            });
+            
+            if (nearCrossing && speedKmh > 32) {
+                penalize('Exceso de velocidad cerca de paso peatonal', 24, INFRACTION_TYPES.PEDESTRIAN_VIOLATION);
             }
 
-            const nearBump = speedBumps.some((bump) => Math.abs(vehicle.position.z - bump.position.z) < 2.4);
-            if (nearBump && speedKmh > 26) {
-                penalize('Exceso de velocidad sobre resalto', 18);
+            // Detectar proximidad a resaltos
+            const nearBump = speedBumps.some((bump) => {
+                const dist = Math.sqrt((vehicle.position.x - bump.position.x) ** 2 + (vehicle.position.z - bump.position.z) ** 2);
+                return dist < 4;
+            });
+            
+            if (nearBump && speedKmh > 28) {
+                penalize('Exceso de velocidad sobre resalto', 18, INFRACTION_TYPES.SPEEDING);
             }
 
             cones.forEach((cone) => {
@@ -1424,7 +2201,7 @@
                 const distance = vehicle.position.distanceTo(cone.position);
                 if (distance < 1.35) {
                     cone.visible = false;
-                    penalize('Cono impactado en zona de obras', 28);
+                    penalize('Cono impactado en zona de obras', 28, INFRACTION_TYPES.COLLISION);
                 }
             });
 
@@ -1432,8 +2209,8 @@
                 if (!npc.mesh.visible) return;
                 const distance = vehicle.position.distanceTo(npc.mesh.position);
                 if (distance < (npc.radius || 3.0)) {
-                    penalize('Distancia insegura con otro vehiculo', 35);
-                    vehicle.position.z += 1.6;
+                    penalize('Distancia insegura con otro vehiculo', 35, INFRACTION_TYPES.UNSAFE_DISTANCE);
+                    vehicle.position.z -= 1.6;
                 }
             });
 
@@ -1441,7 +2218,7 @@
                 if (!cross.mesh.visible) return;
                 const distance = vehicle.position.distanceTo(cross.mesh.position);
                 if (distance < cross.radius) {
-                    penalize('Riesgo con trafico cruzado en interseccion', 42);
+                    penalize('Riesgo con trafico cruzado en interseccion', 42, INFRACTION_TYPES.RED_LIGHT);
                     vehicle.position.z += 1.4;
                     speed *= 0.65;
                 }
@@ -1449,17 +2226,17 @@
 
             pedestrians.forEach((ped) => {
                 if (!ped.mesh.visible) return;
-                const crossingCenterRisk = Math.abs(ped.mesh.position.x) < 7.8;
                 const distance = vehicle.position.distanceTo(ped.mesh.position);
-                if (crossingCenterRisk && distance < ped.radius) {
-                    penalize('Riesgo alto: paso peatonal ocupado', 55);
-                    vehicle.position.z += 2.4;
+                if (distance < ped.radius) {
+                    penalize('Riesgo alto: paso peatonal ocupado', 55, INFRACTION_TYPES.PEDESTRIAN_VIOLATION);
+                    vehicle.position.x -= 0.8;
                     speed *= 0.6;
                 }
             });
 
-            if (Math.abs(vehicle.position.x) > 11.8) {
-                penalize('Invadiste borde de calzada', 16);
+            // Límite lateral extendido pero todavía válido
+            if (Math.abs(vehicle.position.x) > 200) {
+                penalize('Saliste de la zona de conduccion', 30);
             }
         }
 
@@ -1485,6 +2262,15 @@
             const pulse = performance.now() * 0.015;
             sirenBlueMat.emissiveIntensity = 0.22 + Math.max(0, Math.sin(pulse)) * 0.85;
             sirenRedMat.emissiveIntensity = 0.22 + Math.max(0, Math.sin(pulse + Math.PI)) * 0.85;
+            
+            const speedKmh = Math.max(0, Math.round(Math.abs(speed) * 220));
+            emergencyAudio.setSirenIntensity(speedKmh);
+            if (speedKmh > 15 && !missionFinished) {
+                emergencyAudio.playSiren();
+            } else {
+                emergencyAudio.stopSiren();
+            }
+            
             updateVehicle();
             updateDistrictState();
             updateNpcTraffic();
