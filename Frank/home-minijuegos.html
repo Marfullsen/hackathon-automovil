@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Mobility Hub - Seleccion de Minijuegos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-top: #081b2f;
+            --bg-bottom: #133a31;
+            --surface: rgba(10, 18, 26, 0.78);
+            --line: rgba(255, 255, 255, 0.16);
+            --text: #f3f7fb;
+            --muted: #b7c4d0;
+            --accent-1: #ffb347;
+            --accent-2: #6fe4c8;
+            --accent-3: #ff6f61;
+            --good: #44d17d;
+            --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            color: var(--text);
+            font-family: Sora, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 12% 12%, rgba(255, 179, 71, 0.24) 0%, transparent 36%),
+                radial-gradient(circle at 88% 24%, rgba(111, 228, 200, 0.22) 0%, transparent 42%),
+                radial-gradient(circle at 48% 88%, rgba(255, 111, 97, 0.18) 0%, transparent 40%),
+                linear-gradient(155deg, var(--bg-top), var(--bg-bottom));
+            overflow-x: hidden;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: radial-gradient(circle at center, black 45%, transparent 100%);
+            z-index: 0;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 999px;
+            filter: blur(4px);
+            pointer-events: none;
+            opacity: 0.5;
+            z-index: 0;
+            animation: drift 14s ease-in-out infinite alternate;
+        }
+
+        .orb-a {
+            width: 260px;
+            height: 260px;
+            top: 8%;
+            right: 8%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 186, 107, 0.45), rgba(255, 186, 107, 0));
+        }
+
+        .orb-b {
+            width: 320px;
+            height: 320px;
+            bottom: 6%;
+            left: 4%;
+            animation-duration: 18s;
+            background: radial-gradient(circle at 40% 40%, rgba(88, 200, 255, 0.4), rgba(88, 200, 255, 0));
+        }
+
+        .scan {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.18;
+            background: repeating-linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.12) 0,
+                rgba(255, 255, 255, 0.12) 1px,
+                transparent 1px,
+                transparent 4px
+            );
+            mask-image: linear-gradient(180deg, transparent 0%, black 22%, black 78%, transparent 100%);
+        }
+
+        main {
+            position: relative;
+            z-index: 1;
+            width: min(1120px, 92vw);
+            margin: 32px auto 46px;
+        }
+
+        .hero {
+            background: linear-gradient(145deg, rgba(7, 18, 29, 0.9), rgba(16, 39, 36, 0.8));
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 26px 24px;
+            box-shadow: var(--shadow);
+            animation: rise 700ms ease-out both;
+        }
+
+        .kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        h1 {
+            margin: 14px 0 10px;
+            font-family: Barlow, "Segoe UI", sans-serif;
+            font-size: clamp(30px, 5.4vw, 50px);
+            line-height: 1.03;
+            letter-spacing: 0.02em;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 70ch;
+            color: var(--muted);
+            font-size: clamp(14px, 2.4vw, 17px);
+            line-height: 1.62;
+        }
+
+        .stats {
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pill {
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.06);
+            font-size: 13px;
+            color: #deecf7;
+        }
+
+        .games {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 16px 16px 14px;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            min-height: 300px;
+            overflow: hidden;
+            transform: translateY(8px);
+            opacity: 0;
+            transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+            animation: rise 700ms ease-out forwards;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            inset: auto -40% -65% -40%;
+            height: 200px;
+            opacity: 0.35;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.25), transparent 70%);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 24px 46px rgba(0, 0, 0, 0.45);
+        }
+
+        .card-a {
+            border-color: rgba(255, 193, 102, 0.4);
+            background: linear-gradient(160deg, rgba(30, 20, 14, 0.88), rgba(10, 18, 26, 0.85));
+        }
+
+        .card-b {
+            border-color: rgba(111, 228, 200, 0.4);
+            background: linear-gradient(160deg, rgba(10, 33, 32, 0.88), rgba(10, 18, 26, 0.85));
+        }
+
+        .card-c {
+            border-color: rgba(255, 111, 97, 0.45);
+            background: linear-gradient(160deg, rgba(44, 17, 24, 0.88), rgba(10, 18, 26, 0.85));
+        }
+
+        .card:nth-child(1) { animation-delay: 120ms; }
+        .card:nth-child(2) { animation-delay: 220ms; }
+        .card:nth-child(3) { animation-delay: 320ms; }
+
+        .tag {
+            display: inline-flex;
+            width: fit-content;
+            margin-bottom: 10px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #071724;
+            background: linear-gradient(120deg, var(--accent-1), #ffd48f);
+        }
+
+        .tag.alt { background: linear-gradient(120deg, var(--accent-2), #9bf0de); }
+        .tag.hot { background: linear-gradient(120deg, var(--accent-3), #ffaea5); }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .icon-badge {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.08);
+            flex: 0 0 auto;
+        }
+
+        .icon-badge svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .aura-a { color: #ffc768; }
+        .aura-b { color: #7ff0cf; }
+        .aura-c { color: #ff8c80; }
+
+        .status {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .status-chip {
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            padding: 5px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.07);
+            color: #deebf8;
+        }
+
+        .card h2 {
+            margin: 0 0 8px;
+            font-family: Barlow, "Segoe UI", sans-serif;
+            font-size: 24px;
+            line-height: 1.08;
+        }
+
+        .card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.48;
+        }
+
+        .list {
+            margin: 14px 0 18px;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 8px;
+        }
+
+        .list li {
+            font-size: 13px;
+            color: #d7e7f5;
+            padding-left: 18px;
+            position: relative;
+        }
+
+        .list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 7px;
+            width: 8px;
+            height: 8px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .cta-row {
+            margin-top: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .xp-line {
+            margin: 0 0 12px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .xp-line span {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #cbdaea;
+        }
+
+        .xp-bar {
+            height: 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+
+        .xp-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #ffd079, #ff7f6b);
+        }
+
+        .btn {
+            appearance: none;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 10px 13px;
+            text-decoration: none;
+            color: #071724;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            background: linear-gradient(145deg, #f9c56f, #ffc86f);
+            transition: transform 180ms ease, filter 180ms ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+        .btn.secondary {
+            color: #deebf9;
+            border-color: rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .footer {
+            margin-top: 16px;
+            text-align: center;
+            color: #c7d5e0;
+            font-size: 13px;
+            line-height: 1.6;
+            animation: rise 680ms ease-out 390ms both;
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes drift {
+            from { transform: translateY(-8px) translateX(-10px); }
+            to { transform: translateY(8px) translateX(10px); }
+        }
+
+        @media (max-width: 960px) {
+            .games {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                min-height: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="scan" aria-hidden="true"></div>
+    <div class="bg-orb orb-a" aria-hidden="true"></div>
+    <div class="bg-orb orb-b" aria-hidden="true"></div>
+
+    <main>
+        <section class="hero" aria-labelledby="hub-title">
+            <span class="kicker">Safe Mobility 4 All & 4 Life</span>
+            <h1 id="hub-title">Elige tu reto de conduccion Clase B</h1>
+            <p>
+                Practica seguridad vial en tres formatos: patrullaje con normas urbanas,
+                precision de estacionamiento y supervivencia roguelike con trivia teorica.
+                Cada partida entrega aprendizaje corto, medible y repetible.
+            </p>
+            <div class="stats">
+                <span class="pill">3 minijuegos conectados</span>
+                <span class="pill">Mobile-first</span>
+                <span class="pill">Sin hardware extra</span>
+                <span class="pill">Feedback inmediato</span>
+            </div>
+        </section>
+
+        <section class="games" aria-label="Catalogo de minijuegos">
+            <article class="card card-a">
+                <div class="card-head">
+                    <div class="icon-badge aura-a" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="8" width="18" height="9" rx="2"></rect>
+                            <path d="M7 8V6h10v2"></path>
+                            <path d="M12 5v4"></path>
+                            <path d="M10 7h4"></path>
+                            <circle cx="7.5" cy="17.5" r="1.5"></circle>
+                            <circle cx="16.5" cy="17.5" r="1.5"></circle>
+                        </svg>
+                    </div>
+                    <div class="status">
+                        <span class="status-chip">Mision</span>
+                        <span class="status-chip">Tiempo real</span>
+                    </div>
+                </div>
+                <span class="tag">Modulo A</span>
+                <h2>Patrullaje Seguro</h2>
+                <p>
+                    Conduce ambulancia/patrulla por la ciudad respetando normas viales,
+                    evitando riesgos y cumpliendo checkpoints.
+                </p>
+                <ul class="list">
+                    <li>Objetivo: ruta segura y sin infracciones graves</li>
+                    <li>Aprendizaje: prioridad peatonal y control de velocidad</li>
+                    <li>Perfil: criterio vial bajo presion</li>
+                </ul>
+                <div class="xp-line" aria-hidden="true">
+                    <span>Dominio de normas</span>
+                    <div class="xp-bar"><div class="xp-fill" style="width: 76%;"></div></div>
+                </div>
+                <div class="cta-row">
+                    <a class="btn" href="index2.html">Jugar Modulo A</a>
+                </div>
+            </article>
+
+            <article class="card card-b">
+                <div class="card-head">
+                    <div class="icon-badge aura-b" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+                            <path d="M9 18V6h4.5a3 3 0 0 1 0 6H9"></path>
+                            <path d="M15 15h-4"></path>
+                        </svg>
+                    </div>
+                    <div class="status">
+                        <span class="status-chip">Precision</span>
+                        <span class="status-chip">Nivelado</span>
+                    </div>
+                </div>
+                <span class="tag alt">Modulo B</span>
+                <h2>Parking Lab</h2>
+                <p>
+                    Entrena estacionamiento urbano en niveles progresivos con control fino,
+                    intermitentes y precision de angulo.
+                </p>
+                <ul class="list">
+                    <li>Objetivo: estacionar en cajon valido</li>
+                    <li>Aprendizaje: maniobra, reversa y distancia segura</li>
+                    <li>Perfil: precision tecnica y calma operativa</li>
+                </ul>
+                <div class="xp-line" aria-hidden="true">
+                    <span>Control de maniobra</span>
+                    <div class="xp-bar"><div class="xp-fill" style="width: 68%;"></div></div>
+                </div>
+                <div class="cta-row">
+                    <a class="btn" href="index3.html">Jugar Modulo B</a>
+                </div>
+            </article>
+
+            <article class="card card-c">
+                <div class="card-head">
+                    <div class="icon-badge aura-c" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3l7 4v5c0 4.4-2.7 7.8-7 9-4.3-1.2-7-4.6-7-9V7l7-4z"></path>
+                            <path d="M12 8v5"></path>
+                            <path d="M9.5 12.5h5"></path>
+                        </svg>
+                    </div>
+                    <div class="status">
+                        <span class="status-chip">Roguelike</span>
+                        <span class="status-chip">Trivia</span>
+                    </div>
+                </div>
+                <span class="tag hot">Modulo C</span>
+                <h2>Conductor Cero</h2>
+                <p>
+                    Roguelike vial con oleadas, power-ups y trivia de normas para reforzar
+                    memoria teorica mientras sobrevives en ciudad.
+                </p>
+                <ul class="list">
+                    <li>Objetivo: sobrevivir oleadas y mejorar build</li>
+                    <li>Aprendizaje: retencion activa y decision rapida</li>
+                    <li>Perfil: engagement alto + contenido teorico</li>
+                </ul>
+                <div class="xp-line" aria-hidden="true">
+                    <span>Intensidad del reto</span>
+                    <div class="xp-bar"><div class="xp-fill" style="width: 84%;"></div></div>
+                </div>
+                <div class="cta-row">
+                    <a class="btn" href="ItaloJuego/index.html">Jugar Modulo C</a>
+                </div>
+            </article>
+        </section>
+
+        <p class="footer">
+            Plataforma conceptual para Hackathon de Innovacion Digital en Seguridad Vial.
+            Disenada para demostracion de valor pedagogico + factibilidad tecnica.
+        </p>
+    </main>
+</body>
+</html>
