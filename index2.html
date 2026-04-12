@@ -1410,7 +1410,11 @@
 
         const keys = {};
         let speed = 0;
+<<<<<<< Updated upstream
         let throttleHold = 0;
+=======
+        let forwardPressFrames = 0;
+>>>>>>> Stashed changes
         let score = 0;
         let streak = 0;
         let collected = 0;
@@ -1607,8 +1611,14 @@
         const turnSpeed = 0.028;
         const maxSpeed = 0.34;
         const friction = 0.97;
+<<<<<<< Updated upstream
         const throttleFriction = 0.992;
         const coastFriction = 0.968;
+=======
+        const SPEED_TO_KMH = 220;
+        const AMBULANCE_MAX_KMH = 58;
+        const AMBULANCE_MAX_FORWARD_SPEED = AMBULANCE_MAX_KMH / SPEED_TO_KMH;
+>>>>>>> Stashed changes
         const mapWorld = {
             minX: -18,
             maxX: 18,
@@ -1626,6 +1636,7 @@
             const progress = Math.round((currentScenario / stages.length) * 100);
             progressText.textContent = progress + '%';
             progressBar.style.width = progress + '%';
+<<<<<<< Updated upstream
             speedValue.textContent = String(Math.max(0, Math.round(Math.abs(speed) * 220)));
             infractionValue.textContent = String(infractionSystem.infractions.length);
             
@@ -1636,6 +1647,9 @@
                 lastInfractionValue.textContent = 'Ninguna';
             }
             
+=======
+            speedValue.textContent = String(Math.min(AMBULANCE_MAX_KMH, Math.max(0, Math.round(Math.abs(speed) * SPEED_TO_KMH))));
+>>>>>>> Stashed changes
             updateMission();
         }
 
@@ -1876,7 +1890,11 @@
             vehicle.position.set(0, 0.05, 470);
             vehicle.rotation.set(0, 0, 0);
             speed = 0;
+<<<<<<< Updated upstream
             throttleHold = 0;
+=======
+            forwardPressFrames = 0;
+>>>>>>> Stashed changes
             score = 0;
             streak = 0;
             collected = 0;
@@ -2028,10 +2046,24 @@
             const forwardJoy = joystickY > 0.1;
             const backwardJoy = joystickY < -0.1;
             const pressingForward = forwardKey || forwardJoy;
+<<<<<<< Updated upstream
+=======
+            const pressingBackward = backwardKey || backwardJoy;
+
+            if (pressingForward && !pressingBackward) {
+                forwardPressFrames = Math.min(70, forwardPressFrames + 1);
+            } else {
+                forwardPressFrames = Math.max(0, forwardPressFrames - 3);
+            }
+
+            const accelerationBoost = 1 + (forwardPressFrames / 70) * 1.15;
+            const effectiveForwardAcceleration = acceleration * accelerationBoost;
+>>>>>>> Stashed changes
 
             // Keyboard input
             if (keys['a'] || keys['arrowleft']) vehicle.rotation.y += profile.turnSpeed;
             if (keys['d'] || keys['arrowright']) vehicle.rotation.y -= profile.turnSpeed;
+<<<<<<< Updated upstream
 
             if (pressingForward && !backwardKey && !backwardJoy) {
                 throttleHold = Math.min(90, throttleHold + 1);
@@ -2042,12 +2074,17 @@
 
             if (forwardKey) speed += acceleration * throttleRamp;
             if (backwardKey) speed -= acceleration * 1.2;
+=======
+            if (forwardKey) speed += effectiveForwardAcceleration;
+            if (keys['s'] || keys['arrowdown']) speed -= acceleration;
+>>>>>>> Stashed changes
 
             // Joystick input (analog control with higher precision)
             if (Math.abs(joystickX) > 0.1) {
                 vehicle.rotation.y -= joystickX * profile.turnSpeed * 1.5;
             }
             if (forwardJoy) {
+<<<<<<< Updated upstream
                 speed += joystickY * acceleration * 2.4 * throttleRamp;
             } else if (backwardJoy) {
                 speed += joystickY * acceleration * 1.8;
@@ -2056,6 +2093,16 @@
             speed *= pressingForward ? throttleFriction : coastFriction;
             if (backwardKey && speed > 0.02) speed *= 0.94;
             speed = Math.max(-profile.maxSpeed * 0.45, Math.min(profile.maxSpeed, speed));
+=======
+                speed += joystickY * effectiveForwardAcceleration * 2.0;
+            } else if (backwardJoy) {
+                speed += joystickY * acceleration * 2.0;
+            }
+
+            speed *= friction;
+            const maxForwardSpeed = Math.min(profile.maxSpeed, AMBULANCE_MAX_FORWARD_SPEED);
+            speed = Math.max(-maxForwardSpeed * 0.45, Math.min(maxForwardSpeed, speed));
+>>>>>>> Stashed changes
             vehicle.translateZ(-speed);
 
             // Límites expandidos: zona de juego mucho más amplia para permitir maniobrabilidad
@@ -2132,7 +2179,7 @@
                 }
                 if (dist > 15 && crossingSafety.get(idx)) {
                     crossingSafety.set(idx, false);
-                    if (Math.max(0, Math.round(Math.abs(speed) * 220)) < 24) {
+                    if (Math.max(0, Math.round(Math.abs(speed) * SPEED_TO_KMH)) < 24) {
                         reward('Paso peatonal gestionado de forma segura', 16);
                     }
                 }
@@ -2164,7 +2211,7 @@
         function detectConvivencia() {
             if (missionFinished) return;
 
-            const speedKmh = Math.max(0, Math.round(Math.abs(speed) * 220));
+            const speedKmh = Math.min(AMBULANCE_MAX_KMH, Math.max(0, Math.round(Math.abs(speed) * SPEED_TO_KMH)));
 
             // Detectar proximidad a intersecciones (waypoints)
             const nearWaypoint = routeWaypoints.some((wp) => {
