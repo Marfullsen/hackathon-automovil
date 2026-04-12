@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Drive Learning | Professional Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0c10;
+            --card-dark: #161b22;
+            --accent-yellow: #f4b400;
+            --accent-blue: #00a3ff;
+            --text-main: #e6edf3;
+            --text-dim: #8b949e;
+            --danger: #ff4d4d;
+            --success: #2ea043;
+            --road-grey: #21262d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Animaciones Keyframes */
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(244, 180, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(244, 180, 0, 0.6);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        @keyframes rotate-subtle {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(1deg);
+            }
+        }
+
+        /* Contenedor Principal */
+        .viewport {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #1c2128 0%, #0a0c10 100%);
+        }
+
+        .presentation-frame {
+            width: 100%;
+            max-width: 1400px;
+            height: 100%;
+            max-height: 800px;
+            position: relative;
+            background: var(--bg-dark);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+        }
+
+        /* Slides */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 60px 80px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10,12,16,0.85) 0%, rgba(10,12,16,0.75) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .slide > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+            z-index: 10;
+        }
+
+        /* Estilos de Texto */
+        h1, h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .slide-title {
+            font-size: 3.5rem;
+            margin-bottom: 40px;
+            border-left: 6px solid var(--accent-yellow);
+            padding-left: 25px;
+            line-height: 1;
+            animation: slideInFromLeft 0.8s ease-out 0.2s both;
+        }
+
+        .slide-title span {
+            color: var(--accent-yellow);
+        }
+
+        /* Portada Especial */
+        .slide-hero {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-image: url('https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&q=80&w=2070');
+        }
+
+        .hero-badge {
+            background: var(--accent-yellow);
+            color: black;
+            padding: 8px 20px;
+            font-weight: 800;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: fadeInScale 0.6s ease-out;
+            animation-delay: 0.3s;
+            animation-fill-mode: both;
+        }
+
+        .hero-title {
+            font-size: 5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            animation: slideInFromBottom 0.8s ease-out 0.5s both;
+        }
+
+        /* Slide 2 background */
+        .slide:nth-child(2) {
+            background-image: url('https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&q=80&w=2070');
+        }
+
+
+
+        /* Slide 4 background */
+        .slide:nth-child(4) {
+            background-image: url('https://images.unsplash.com/photo-1636321282292-8235e9098d80?auto=format&fit=crop&q=80&w=2070');
+        }
+
+        /* Slide 5 background */
+        .slide:nth-child(5) {
+            background-image: url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=2070');
+        }
+
+        /* Slide 6 background */
+        .slide:nth-child(6) {
+            background-image: url('https://images.unsplash.com/photo-1552820728-8ac41f1ce891?auto=format&fit=crop&q=80&w=2070');
+        }
+
+        /* Slide 7 background */
+        .slide:nth-child(7) {
+            background-image: url('https://images.unsplash.com/photo-1552820728-8ac41f1ce891?auto=format&fit=crop&q=80&w=2070');
+        }
+
+        /* Slide 8 background */
+        .slide:nth-child(8) {
+            background-image: url('https://images.unsplash.com/photo-1552820728-8ac41f1ce891?auto=format&fit=crop&q=80&w=2070');
+        }
+
+        /* Slide 9 background */
+        .slide:nth-child(9) {
+            background-image: url('https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&q=80&w=2070');
+        }
+
+        /* Slide 10 background */
+        .slide:nth-child(10) {
+            background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=2070');
+        }
+
+        /* Layouts de Contenido */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            height: 100%;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .info-card {
+            background: rgba(22, 27, 34, 0.85);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(10px);
+            animation: slideInFromBottom 0.8s ease-out both;
+        }
+
+        .slide.active .info-card:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .slide.active .info-card:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .slide.active .info-card:nth-child(3) {
+            animation-delay: 0.7s;
+        }
+
+        .info-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 163, 255, 0.2);
+            background: rgba(22, 27, 34, 0.95);
+        }
+
+        .info-card h3 {
+            color: var(--accent-yellow);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card p {
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            animation: slideInFromLeft 0.6s ease-out both;
+        }
+
+        .list-item:nth-child(1) {
+            animation-delay: 0.4s;
+        }
+
+        .list-item:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .list-item:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .list-item::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-blue);
+            border-radius: 2px;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        /* UI de Simulación (Indicadores) */
+        .sim-stats {
+            margin-top: auto;
+            display: flex;
+            gap: 20px;
+            padding: 20px 0;
+            border-top: 1px solid var(--road-grey);
+        }
+
+        .stat-box {
+            background: rgba(33, 38, 45, 0.9);
+            padding: 15px 25px;
+            border-radius: 8px;
+            min-width: 150px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            background: rgba(33, 38, 45, 1);
+            border-color: var(--accent-yellow);
+            transform: scale(1.05);
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent-yellow);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        /* Controles Inferiores */
+        .nav-ui {
+            position: absolute;
+            bottom: 40px;
+            right: 80px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            z-index: 100;
+            animation: slideInFromBottom 0.8s ease-out 1s both;
+        }
+
+        .slide-numbers {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            color: var(--text-dim);
+            background: rgba(33, 38, 45, 0.8);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .slide-numbers span {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .btn-nav {
+            background: rgba(244, 180, 0, 0.1);
+            border: 2px solid var(--text-dim);
+            color: var(--text-main);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .btn-nav:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(244, 180, 0, 0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(244, 180, 0, 0.4);
+        }
+
+        .btn-nav:active {
+            transform: scale(0.95);
+        }
+
+        /* Decoración de Línea Vial */
+        .road-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--accent-yellow) 0,
+                var(--accent-yellow) 40px,
+                transparent 40px,
+                transparent 80px
+            );
+            opacity: 0.3;
+            animation: shimmer 3s infinite;
+        }
+
+        /* Overlay para elementos especiales */
+        .highlight-box {
+            background: rgba(0, 163, 255, 0.1);
+            border: 2px solid var(--accent-blue);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            animation: fadeInScale 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+
+<div class="viewport">
+    <div class="presentation-frame">
+        
+        <!-- SLIDE 1: Portada y Objetivo -->
+        <section class="slide slide-hero active">
+            <div class="hero-badge">PROYECTO DE INNOVACIÓN VIAL</div>
+            <h1 class="hero-title">SAFE DRIVE<br><span style="color:var(--accent-yellow)">LEARNING</span></h1>
+            <div style="max-width: 900px; text-align: center;">
+                <p style="font-size: 1.3rem; color: var(--text-main); margin-bottom: 15px; animation: slideInFromBottom 0.8s ease-out 0.7s both;"><strong>Simulador 3D de Conducción para Licencia Clase B</strong></p>
+                <p style="font-size: 1.1rem; color: var(--text-dim); margin-bottom: 30px; animation: slideInFromBottom 0.8s ease-out 0.9s both;">Transformar la educación vial en Chile mediante un simulador 3D inmersivo que refuerza la "Convivencia Vial" y reduce la brecha entre la teoría y la práctica real.</p>
+                <p style="font-size: 1rem; color: var(--accent-yellow); font-weight: bold; animation: slideInFromBottom 0.8s ease-out 1.1s both;">Gamificar el aprendizaje para nativos digitales, permitiendo el error en un entorno seguro.</p>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: Alcance del Proyecto -->
+        <section class="slide">
+            <h2 class="slide-title">Alcance del <span>Proyecto</span></h2>
+            <div class="grid-2">
+                <div class="info-card">
+                    <h3>🎯 Público Objetivo</h3>
+                    <div class="list-item" style="animation-delay: 0.4s;">Estudiantes de programas OTEC</div>
+                    <div class="list-item" style="animation-delay: 0.5s;">Postulantes a Licencia Clase B</div>
+                    <div class="list-item" style="animation-delay: 0.6s;">Nacionales y extranjeros</div>
+                </div>
+                <div class="info-card">
+                    <h3>🏗️ Entorno de Simulación</h3>
+                    <p style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">Simulación urbana de alta fidelidad cubriendo zonas residenciales, ejes comerciales y centros de salud.</p>
+                </div>
+            </div>
+            <div class="info-card" style="margin-top: 25px; animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                <h3>📍 Propósito Pedagógico</h3>
+                <p>Evaluar la toma de decisiones bajo estrés (misión de urgencia) y el cumplimiento de normativas chilenas específicas de convivencia vial.</p>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: Fortalezas -->
+        <section class="slide">
+            <h2 class="slide-title">Nuestras <span>Fortalezas</span></h2>
+            <div class="grid-3">
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both;">
+                    <h3 style="color: var(--accent-blue)">⚖️ Realismo Normativo</h3>
+                    <p>El sistema no solo detecta choques, sino infracciones de "Convivencia" como exceso de velocidad cerca de peatones o colegios.</p>
+                </div>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                    <h3 style="color: var(--accent-blue)">☁️ Accesibilidad Total</h3>
+                    <p>Basado en WebGL (Three.js), corre en cualquier navegador sin instalaciones, democratizando acceso a simuladores de alta calidad.</p>
+                </div>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                    <h3 style="color: var(--accent-blue)">💎 Diseño UI/UX</h3>
+                    <p>Interfaz "Cyberpunk" diseñada para capturar la atención de las nuevas generaciones.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: Debilidades y Mitigación -->
+        <section class="slide">
+            <h2 class="slide-title">Debilidades y <span>Mitigación</span></h2>
+            <div class="grid-2">
+                <div class="info-card" style="border-left: 4px solid var(--danger); animation: slideInFromBottom 0.8s ease-out 0.3s both;">
+                    <h3>⚠️ Debilidad 1</h3>
+                    <p>Limitación actual en el modelado de físicas de daño vehicular avanzado (foco actual en reglas, no en destrucción).</p>
+                </div>
+                <div class="info-card" style="border-left: 4px solid var(--success); animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                    <h3>✓ Mitigación</h3>
+                    <p>Implementación de sistema de audio envolvente (Howler.js) y joystick virtual de alta precisión para compensar.</p>
+                </div>
+            </div>
+            <div class="grid-2" style="margin-top: 25px;">
+                <div class="info-card" style="border-left: 4px solid var(--danger); animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                    <h3>⚠️ Debilidad 2</h3>
+                    <p>Ausencia de retroalimentación háptica (volantes físicos) en la versión web base.</p>
+                </div>
+                <div class="info-card" style="border-left: 4px solid var(--success); animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                    <h3>✓ Compensación</h3>
+                    <p>UI responsiva y retroalimentación visual e auditiva en tiempo real para máxima inmersión.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: Tecnología e Innovación -->
+        <section class="slide">
+            <h2 class="slide-title">Tecnología e <span>Innovación</span></h2>
+            <div class="info-card" style="margin-bottom: 25px; animation: slideInFromBottom 0.8s ease-out 0.3s both;">
+                <h3>⚡ Stack Tecnológico</h3>
+                <p>JavaScript moderno, Three.js (Motor 3D), CSS3 con efectos de desenfoque de fondo y diseño atómico.</p>
+                <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
+                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.4s both;">WebGL</code>
+                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.5s both;">Three.js</code>
+                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.6s both;">Howler.js</code>
+                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.7s both;">Atomic Design</code>
+                </div>
+            </div>
+            <div class="info-card" style="margin-bottom: 25px; border-left: 4px solid var(--accent-yellow); animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                <h3>🎮 Innovación en Gameplay</h3>
+                <p>El "Game Loop" integra penalizaciones de tiempo real. <strong>Una infracción de tránsito equivale a +30 segundos de retraso</strong> en la misión de urgencia, conectando la seguridad vial con el éxito de la misión.</p>
+            </div>
+            <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                <h3>⚙️ Optimización</h3>
+                <p>Uso de generación procedural de bloques urbanos para mantener el rendimiento en hardware académico.</p>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: El GDD -->
+        <section class="slide">
+            <h2 class="slide-title">El <span>GDD</span></h2>
+            <div class="grid-2">
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both;">
+                    <h3>🔄 Core Loop</h3>
+                    <p><strong>Input</strong> (Conducir) → <strong>Update</strong> (Detección de Riesgos) → <strong>Feedback</strong> (Puntaje y Convivencia)</p>
+                </div>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                    <h3>🎨 Estética</h3>
+                    <p>HUD futurista que integra minimapa circular dinámico y línea de guía visual (Guide Line) inspirada en títulos AAA.</p>
+                </div>
+            </div>
+            <div class="info-card" style="margin-top: 25px; animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                <h3>📖 Narrativa</h3>
+                <p>El usuario no es un conductor cualquiera; es un <strong>paramédico en una misión de transporte crítico</strong>, elevando el valor emocional de cada decisión.</p>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: Resolución y Motivación -->
+        <section class="slide">
+            <h2 class="slide-title">Resolución del <span>Desafío</span></h2>
+            <div class="grid-2">
+                <div class="info-card" style="border-left: 4px solid var(--accent-blue); animation: slideInFromBottom 0.8s ease-out 0.3s both;">
+                    <h3>❓ ¿Cómo resuelve el reto?</h3>
+                    <p>Ataca la principal causa de fallas en exámenes: <strong>la falta de anticipación y el exceso de velocidad</strong>.</p>
+                </div>
+                <div class="info-card" style="border-left: 4px solid var(--accent-yellow); animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                    <h3>🎯 Motivación del Jugador</h3>
+                    <p>Sistema de "Racha de Seguridad" y multiplicadores de puntaje que premian al conductor ejemplar, no al más rápido.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: Factibilidad y Escalabilidad -->
+        <section class="slide">
+            <h2 class="slide-title">Factibilidad y <span>Escalabilidad</span></h2>
+            <div class="grid-3">
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both;">
+                    <h3>🔗 Integración</h3>
+                    <p>Propuesta técnica para ser embebido en plataformas de aprendizaje (Moodle/Canvas).</p>
+                </div>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                    <h3>💰 Factibilidad</h3>
+                    <p><strong>Costo de despliegue cero</strong> (servidor web estándar).</p>
+                </div>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                    <h3>🚀 Futuro</h3>
+                    <p>Potencial de IA para generar escenarios de tráfico basados en errores históricos del usuario.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 9: Demostración Práctica -->
+        <section class="slide">
+            <h2 class="slide-title">Demostración <span>Práctica</span></h2>
+            <div class="info-card" style="margin-bottom: 25px; animation: slideInFromBottom 0.8s ease-out 0.3s both;">
+                <h3>📍 Escenario</h3>
+                <p>Transporte a Clínica desde Zona Residencial Norte</p>
+            </div>
+            <div class="grid-2">
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                    <h3>1️⃣ Respeto de Velocidad</h3>
+                    <p>Zona escolar (40 km/h) - Validación de cumplimiento normativo</p>
+                </div>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.6s both;">
+                    <h3>2️⃣ Cruce de Intersección</h3>
+                    <p>Intersección con tráfico transversal - Toma de decisiones bajo presión</p>
+                </div>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                    <h3>3️⃣ Gestión de Peatones</h3>
+                    <p>Peatones dinámicos en el Centro Urbano - Anticipación y seguridad</p>
+                </div>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.8s both;">
+                    <h3>4️⃣ Estacionamiento Seguro</h3>
+                    <p>Zona de Clínica - Precisión y control del vehículo</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 10: Conclusión y Cierre -->
+        <section class="slide slide-hero">
+            <h2 style="font-size: 3rem; margin-bottom: 20px; animation: slideInFromBottom 0.8s ease-out 0.3s both;">LA SEGURIDAD ES UNA <span style="color: var(--accent-yellow)">CONDUCTA</span></h2>
+            <div style="margin-top: 40px; margin-bottom: 40px;">
+                <p style="color: var(--text-dim); font-size: 1.2rem; margin-bottom: 25px; animation: slideInFromBottom 0.8s ease-out 0.5s both;"><strong>Impacto Social:</strong> Reducir la siniestralidad vial mediante conductores mejor preparados psicológicamente.</p>
+                <p style="color: var(--text-main); font-size: 1.3rem; font-weight: bold; animation: slideInFromBottom 0.8s ease-out 0.7s both;">Safe Drive Learning: La seguridad no es una opción, es una conducta.</p>
+            </div>
+            <div class="road-line" style="bottom: 100px; opacity: 1;"></div>
+            <p style="margin-top: 50px; font-weight: bold; letter-spacing: 2px; animation: slideInFromBottom 0.8s ease-out 0.9s both;">ABIERTO A LA RONDA DE PREGUNTAS</p>
+        </section>
+
+        <div class="nav-ui">
+            <div class="slide-numbers">
+                <span id="current-num">01</span> / <span id="total-num">10</span>
+            </div>
+            <button class="btn-nav" onclick="changeSlide(-1)">❮</button>
+            <button class="btn-nav" onclick="changeSlide(1)">❯</button>
+        </div>
+
+        <div class="road-line"></div>
+    </div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalNum = document.getElementById('total-num');
+    const currentNum = document.getElementById('current-num');
+
+    totalNum.innerText = slides.length.toString().padStart(2, '0');
+
+    function updateSlide() {
+        slides.forEach((s, i) => {
+            s.classList.toggle('active', i === currentSlide);
+        });
+        currentNum.innerText = (currentSlide + 1).toString().padStart(2, '0');
+        
+        // Reset animation of cards on slide change
+        const activeCards = slides[currentSlide].querySelectorAll('.info-card');
+        activeCards.forEach((card, index) => {
+            card.style.animation = 'none';
+            setTimeout(() => {
+                card.style.animation = `slideInFromBottom 0.8s ease-out ${0.3 + (index * 0.2)}s both`;
+            }, 10);
+        });
+    }
+
+    function changeSlide(direction) {
+        currentSlide += direction;
+        if (currentSlide < 0) currentSlide = slides.length - 1;
+        if (currentSlide >= slides.length) currentSlide = 0;
+        updateSlide();
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') changeSlide(1);
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+
+    // Add click event to buttons
+    document.querySelectorAll('.btn-nav').forEach((btn, index) => {
+        if (index === 0) {
+            btn.addEventListener('click', () => changeSlide(-1));
+        } else {
+            btn.addEventListener('click', () => changeSlide(1));
+        }
+    });
+</script>
+
+</body>
+</html>

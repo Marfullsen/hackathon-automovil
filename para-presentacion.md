@@ -1,7 +1,7 @@
 # Presentación Hackathon: Safe Drive Learning 🚑
 
 **Proyecto:** Simulador 3D de Conducción para Licencia Clase B  
-**Equipo:** Patricio Quintanilla Yevilao  
+**Equipo:** ZeroSheet
 **Fecha de Evaluación:** 12 de Abril, 2026 (Presencial UFT)
 
 ---
