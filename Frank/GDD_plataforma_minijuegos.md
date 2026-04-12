@@ -78,7 +78,7 @@ Aprendizajes asociados:
 - Reversa y correccion de trayectoria.
 - Uso de intermitentes y cierre de maniobra.
 
-## 6.3 Modulo C - Conductor Cero Roguelike Trivia (ItaloJuego)
+## 6.3 Modulo C - Patrulla Cero: Caos Vial Roguelike Trivia (ItaloJuego)
 
 Tema:
 - Accion roguelike vehicular con oleadas + preguntas de trivia vial.
