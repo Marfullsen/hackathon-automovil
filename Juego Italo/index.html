@@ -1,10 +1,567 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Patrulla Cero: Caos Vial</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #2c3e50; /* Color asfalto oscuro */
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-color: #34495e; /* Fondo del Ã¡rea de juego, por si acaso falla el canvas */
+    overflow: hidden;
+}
+
+#webgl-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1; /* Debajo de todo */
+}
+
+/* Pantallas superpuestas (UI) */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(44, 62, 80, 0.85); /* Un poco mÃ¡s transparente en 3D */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    text-align: center;
+    transition: opacity 0.3s ease;
+}
+
+.hidden {
+    display: none !important;
+}
+
+h1 {
+    font-size: 3rem;
+    color: #f1c40f; /* Amarillo de advertencia vial */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 2.5rem;
+    color: #e74c3c; /* Rojo pare/siniestro */
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    margin-top: 20px;
+    cursor: pointer;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+.instructions {
+    color: #bdc3c7;
+    font-size: 1.1rem;
+    margin-top: 20px;
+    line-height: 1.5;
+}
+
+/* HUD (Heads Up Display) */
+#hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none; /* Que no intercepte clics del juego */
+}
+
+#health-bar-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 250px;
+    height: 25px;
+    background-color: #7f8c8d;
+    border: 3px solid #2c3e50;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#health-bar {
+    width: 100%;
+    height: 100%;
+    background-color: #2ecc71; /* Verde buena salud */
+    transition: width 0.2s, background-color 0.2s;
+}
+
+#stats {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+#score-display {
+    color: #f1c40f;
+}
+
+#wave-display {
+    color: #e67e22;
+}
+
+#enemies-left {
+    color: #ecf0f1;
+    font-size: 1.1rem;
+    margin-top: 5px;
+}
+
+.bottom-panel {
+    position: absolute;
+    bottom: 20px;
+    background-color: rgba(44, 62, 80, 0.8);
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 2px solid #34495e;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+#bottom-stats {
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+}
+
+#dash-container {
+    left: 20px;
+    width: 200px;
+    text-align: center;
+}
+
+#dash-bar-bg {
+    width: 100%;
+    height: 15px;
+    background-color: #7f8c8d;
+    border-radius: 5px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+#dash-bar-fg {
+    width: 100%;
+    height: 100%;
+    background-color: #f1c40f;
+    transition: width 0.1s;
+}
+
+#options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    width: 60%;
+    max-width: 600px;
+}
+
+.option-btn {
+    padding: 15px;
+    font-size: 1.1rem;
+    background-color: #34495e;
+    color: white;
+    border: 2px solid #7f8c8d;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    margin-top: 0;
+}
+
+.option-btn:hover:not(:disabled) {
+    background-color: #2c3e50;
+    border-color: #bdc3c7;
+}
+
+.option-btn.correct {
+    background-color: #2ecc71;
+    border-color: #27ae60;
+}
+
+.option-btn.incorrect {
+    background-color: #e74c3c;
+    border-color: #c0392b;
+}
+
+.upgrades-flex {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 800px;
+}
+
+.upgrade-btn {
+    background-color: #34495e;
+    border: 2px solid #f1c40f;
+    border-radius: 10px;
+    padding: 15px;
+    width: 200px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-top: 0;
+}
+
+.upgrade-btn:hover {
+    transform: translateY(-5px);
+    background-color: #2c3e50;
+}
+
+.upgrade-btn h3 {
+    color: #f1c40f;
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+}
+
+.upgrade-btn p {
+    color: #ecf0f1;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.floating-text {
+    position: absolute;
+    pointer-events: none;
+    font-family: 'Press Start 2P', cursive;
+    transform: translate(-50%, -50%);
+    animation: floatUp 1s ease-out forwards;
+}
+
+@keyframes floatUp {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -150%) scale(1.5); opacity: 0; }
+}
+
+/* ====== CONTROLES MÃ“VILES Y RESPONSIVE ====== */
+#mobile-controls {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Alineados al centro horizontal */
+    padding: 0 15px;
+    box-sizing: border-box;
+    z-index: 6;
+    pointer-events: none; /* Que el contenedor no bloquee clicks */
+}
+
+#mobile-controls.hidden {
+    display: none !important;
+}
+
+#mobile-controls .dpad, #mobile-controls .action-btns {
+    display: flex;
+    gap: 15px;
+    pointer-events: auto; /* Los botones SI bloquean y reciben clicks */
+}
+
+#mobile-controls button {
+    width: 55px;
+    height: 55px;
+    background-color: rgba(44, 62, 80, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    border-radius: 50%;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: none; /* Previene scroll no deseado */
+    outline: none;
+    cursor: pointer;
+}
+
+#mobile-controls button:active {
+    background-color: rgba(46, 204, 113, 0.9); /* Verde al apretar */
+}
+
+/* Mantendremos el media query al final para que sobreescriba todo correctamente */
+
+/* Contenedor del minimapa (siempre visible) */
+#minimap-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 200px;
+    height: 200px;
+    border: 4px solid #34495e;
+    border-radius: 50%; /* Minimapa circular */
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.5);
+    /* El canvas del minimapa se insertarÃ¡ aquÃ­ via JS */
+}
+
+/* Pantalla de Trivia */
+#trivia-screen {
+    background-color: rgba(44, 62, 80, 0.95);
+}
+
+#question-text {
+    font-size: 1.5rem;
+    margin: 20px;
+    max-width: 80%;
+}
+
+#options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 60%;
+    max-width: 600px;
+    pointer-events: auto; /* IMPORTANTE: Restaurar eventos porque parent no tiene pointer-events none */
+}
+
+.option-btn {
+    background-color: #95a5a6;
+    margin-top: 0;
+    text-align: left;
+    padding: 15px 20px;
+    white-space: normal; /* Permitir texto en varias lÃ­neas */
+}
+
+.option-btn:hover {
+    background-color: #7f8c8d;
+}
+
+.option-btn.correct {
+    background-color: #2ecc71 !important;
+}
+
+.option-btn.incorrect {
+    background-color: #e74c3c !important;
+}
+
+#trivia-feedback {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-top: 20px;
+    min-height: 1.5em; /* Para que no salte el layout */
+}
+
+/* MenÃº de Upgrades */
+.upgrades-flex {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 800px;
+    pointer-events: auto;
+}
+
+.upgrade-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #2c3e50;
+    border: 2px solid #3498db;
+    padding: 20px;
+    width: 180px;
+}
+
+.upgrade-btn h3 {
+    margin: 0 0 10px 0;
+    color: #f1c40f;
+}
+
+.upgrade-btn p {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #ecf0f1;
+}
+
+.upgrade-btn:hover {
+    background-color: #34495e;
+    transform: scale(1.05);
+}
+
+/* Media Query SIEMPRE AL FINAL para que tenga prioridad sobre el resto */
+@media (max-width: 768px) {
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.8rem; }
+    .instructions { font-size: 0.9rem; }
+    #stats { font-size: 0.9rem; top: 10px; right: 10px; }
+    #health-bar-container { width: 130px; height: 18px; top: 10px; left: 10px; }
+    
+    /* Levantar algo las stats inferiores para que no las tapen los botones flotantes */
+    .bottom-panel { font-size: 0.9rem; padding: 5px 10px; }
+    #bottom-stats { justify-content: center; bottom: 85px; width: 90%; gap: 5px; }
+    #dash-container { bottom: 85px; left: 10px; padding: 5px; width: 120px; font-size: 0.8rem; }
+    
+    /* Trivia y Mejoras adaptables */
+    #options-container { width: 95% !important; max-width: 100%; gap: 8px; }
+    .option-btn { font-size: 0.9rem; padding: 10px 15px; width: 100%; box-sizing: border-box; }
+    #question-text { font-size: 1rem; padding: 0 10px; margin: 10px 0; }
+
+    .upgrades-flex { flex-direction: column; overflow-y: auto; max-height: 55vh; align-items: center; gap: 10px; width: 100%; margin-top: 15px;}
+    .upgrade-btn { margin-top: 0; padding: 12px; width: 90%; max-width: 320px; box-sizing: border-box; flex-direction: row; justify-content: space-between; text-align: left; gap: 10px;}
+    .upgrade-btn h3 { font-size: 1rem; margin: 0; }
+    .upgrade-btn p { font-size: 0.8rem; }
+    
+    /* El minimapa estorba mucho en telÃ©fono, lo quitamos por ahora */
+    #minimap-container { display: none !important; } 
+}/* --- ANIMACIÃ“N PANTALLA DERROTA --- */
+.highway-scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #2c3e50; /* Color asfalto oscuro */
+    z-index: 1; /* DetrÃ¡s del texto */
+    overflow: hidden;
+}
+
+.road-markings {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 15px;
+    height: 300%;
+    background-image: linear-gradient(to bottom, #2c3e50 30%, #f1c40f 30%, #f1c40f 70%, #2c3e50 70%);
+    background-size: 15px 120px;
+    animation: moveRoad 0.4s linear infinite;
+}
+
+.patrol-car-anim {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 110px;
+    background: linear-gradient(to bottom, #044b25 40%, #ffffff 40%, #ffffff 65%, #044b25 65%);
+    border: 1px solid #002e15;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 8px rgba(0,0,0,0.3);
+    animation: carSway 2s ease-in-out infinite alternate;
+}
+
+.patrol-car-anim::before { /* Parabrisas */
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 5px;
+    width: 50px;
+    height: 25px;
+    background-color: #1a252f;
+    border-radius: 5px;
+}
+
+.patrol-car-anim::after { /* Luces traseras */
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 10px;
+    width: 40px;
+    height: 8px;
+    background-color: #e74c3c;
+    border-radius: 3px;
+    box-shadow: 0 0 15px #e74c3c;
+}
+
+.siren {
+    position: absolute;
+    top: 50px;
+    width: 25px;
+    height: 12px;
+    border-radius: 2px;
+}
+.siren.red {
+    left: 5px;
+    background-color: #e74c3c;
+    animation: flashRed 0.3s infinite;
+}
+.siren.blue {
+    right: 5px;
+    background-color: #3498db;
+    animation: flashBlue 0.3s infinite;
+    animation-delay: 0.15s;
+}
+
+@keyframes moveRoad {
+    from { background-position: 0 0; }
+    to { background-position: 0 120px; }
+}
+
+@keyframes carSway {
+    0% { transform: translate(calc(-50% - 15px), -50%) rotate(-2deg); }
+    100% { transform: translate(calc(-50% + 15px), -50%) rotate(2deg); }
+}
+
+@keyframes flashRed {
+    0%, 49% { box-shadow: 0 0 25px #e74c3c, 0 0 50px #e74c3c; opacity: 1; }
+    50%, 100% { box-shadow: none; opacity: 0.5; }
+}
+
+@keyframes flashBlue {
+    0%, 49% { box-shadow: 0 0 25px #3498db, 0 0 50px #3498db; opacity: 1; }
+    50%, 100% { box-shadow: none; opacity: 0.5; }
+}
+
+#game-over-screen h2,
+#game-over-screen p {
+    text-shadow: 
+        -2px -2px 0 #000,  
+         2px -2px 0 #000,
+        -2px  2px 0 #000,
+         2px  2px 0 #000,
+         0    0   10px rgba(0,0,0,0.8);
+    font-weight: bold;
+}
+
+    </style>
     
     <!-- Importmap para Three.js como en los ejemplos proporcionados -->
     <script type="importmap">
@@ -19,14 +576,14 @@
 </head>
 <body>
     <div id="game-container">
-        <!-- Contenedor para textos flotantes (daño, mejoras) -->
+        <!-- Contenedor para textos flotantes (daÃ±o, mejoras) -->
         <div id="floating-texts-container" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 8; overflow: hidden;"></div>
         
         <!-- Pantalla de Inicio -->
         <div id="start-screen" class="screen">
             <h1>Patrulla Cero: Caos Vial</h1>
             <p>Sobrevive a las oleadas en la ciudad y demuestra tus conocimientos viales.</p>
-            <p class="instructions">WASD/Flechas: Mover | Clic Izquierdo: Disparar<br>C: Cambiar Cámara | P/Esc: Pausa</p>
+            <p class="instructions">WASD/Flechas: Mover | Clic Izquierdo: Disparar<br>C: Cambiar CÃ¡mara | P/Esc: Pausa</p>
             <button id="start-btn">Comenzar Juego</button>
             <button id="main-menu-start-btn" style="background-color: #e67e22; margin-top: 15px;">Volver a Minijuegos</button>
         </div>
@@ -47,7 +604,7 @@
                 <div>Velocidad: <span id="stat-spd">15</span></div>
                 <div>Cadencia: <span id="stat-fire">300</span>ms</div>
                 <div>Papeles: <span id="stat-multi">1</span></div>
-                <div id="stat-shield" class="hidden" style="color: #3498db;">🛡️ Escudo</div>
+                <div id="stat-shield" class="hidden" style="color: #3498db;">ðŸ›¡ï¸ Escudo</div>
             </div>
             <!-- Cooldown Dash -->
             <div id="dash-container" class="bottom-panel hidden">
@@ -59,24 +616,24 @@
             <!-- Contenedor del minimapa -->
             <div id="minimap-container" class="hidden"></div>
 
-            <!-- Controles Móviles (Ocultos en PC, Mostrados por JS en touch) -->
+            <!-- Controles MÃ³viles (Ocultos en PC, Mostrados por JS en touch) -->
             <div id="mobile-controls" class="hidden">
                 <div class="dpad">
-                    <button id="btn-left">◀</button>
-                    <button id="btn-right">▶</button>
+                    <button id="btn-left">â—€</button>
+                    <button id="btn-right">â–¶</button>
                 </div>
                 <div class="action-btns">
                     <button id="btn-dash" style="font-size: 14px;">Dash</button>
-                    <button id="btn-cam" style="font-size: 18px;">📷</button>
+                    <button id="btn-cam" style="font-size: 18px;">ðŸ“·</button>
                 </div>
                 <div class="dpad">
-                    <button id="btn-up">▲</button>
-                    <button id="btn-down">▼</button>
+                    <button id="btn-up">â–²</button>
+                    <button id="btn-down">â–¼</button>
                 </div>
             </div>
         </div>
 
-        <!-- Menú de Pausa -->
+        <!-- MenÃº de Pausa -->
         <div id="pause-screen" class="screen hidden">
             <h2>Juego Pausado</h2>
             <button id="resume-btn">Reanudar</button>
@@ -85,7 +642,7 @@
 
         <!-- Pantalla de Trivia -->
         <div id="trivia-screen" class="screen hidden">
-            <h2>¡Trivia Vial!</h2>
+            <h2>Â¡Trivia Vial!</h2>
             <p id="question-text">Pregunta...</p>
             <div id="options-container"></div>
             <p id="trivia-feedback" class="hidden"></p>
@@ -93,19 +650,19 @@
 
         <!-- Pantalla de Mejoras (Upgrades) -->
         <div id="upgrade-screen" class="screen hidden">
-            <h2>¡Mejora de Vehículo!</h2>
+            <h2>Â¡Mejora de VehÃ­culo!</h2>
             <p>Has recuperado 25% de vida. Elige una mejora para continuar:</p>
             <div id="upgrades-container" class="upgrades-flex">
                 <button class="upgrade-btn" data-type="damage">
-                    <h3>Más Autoridad</h3>
-                    <p>Tus partes/multas serán más respetados.</p>
+                    <h3>MÃ¡s Autoridad</h3>
+                    <p>Tus partes/multas serÃ¡n mÃ¡s respetados.</p>
                 </button>
                 <button class="upgrade-btn" data-type="speed">
-                    <h3>Más Velocidad</h3>
-                    <p>Tu vehículo se moverá más rápido.</p>
+                    <h3>MÃ¡s Velocidad</h3>
+                    <p>Tu vehÃ­culo se moverÃ¡ mÃ¡s rÃ¡pido.</p>
                 </button>
                 <button class="upgrade-btn" data-type="fireRate">
-                    <h3>Trámite Rápido</h3>
+                    <h3>TrÃ¡mite RÃ¡pido</h3>
                     <p>Reduce el tiempo al entregar partes.</p>
                 </button>
                 <button class="upgrade-btn" data-type="health">
@@ -113,12 +670,12 @@
                     <p>Aumenta tu resistencia vehicular.</p>
                 </button>
                 <button class="upgrade-btn special-upgrade hidden" data-type="multiShot">
-                    <h3>Multa Múltiple</h3>
+                    <h3>Multa MÃºltiple</h3>
                     <p>Entrega +1 papel a la vez.</p>
                 </button>
                 <button class="upgrade-btn special-upgrade hidden" data-type="dash">
                     <h3>Impulso (Dash)</h3>
-                    <p>Usa la barra espaciadora para un salto rápido.</p>
+                    <p>Usa la barra espaciadora para un salto rÃ¡pido.</p>
                 </button>
                 <button class="upgrade-btn special-upgrade hidden" data-type="shield">
                     <h3>Buen Seguro</h3>
@@ -129,7 +686,7 @@
 
         <!-- Pantalla de Game Over -->
         <div id="game-over-screen" class="screen hidden" style="position: relative; overflow: hidden;">
-            <!-- Animación de carretera para pantalla de derrota -->
+            <!-- AnimaciÃ³n de carretera para pantalla de derrota -->
             <div class="highway-scene">
                 <div class="road-markings"></div>
                 <div class="patrol-car-anim">
@@ -139,9 +696,9 @@
             </div>
             
             <div style="position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center;">
-                <h2>¡Fin del Juego!</h2>
-                <p>Prepárate para la próxima.</p>
-                <p id="final-score">Puntuación Final: 0</p>
+                <h2>Â¡Fin del Juego!</h2>
+                <p>PrepÃ¡rate para la prÃ³xima.</p>
+                <p id="final-score">PuntuaciÃ³n Final: 0</p>
                 <p id="final-wave">Oleadas Superadas: 0</p>
                 <button id="restart-btn">Volver a Intentarlo</button>
                 <button id="main-menu-btn" style="background-color: #e67e22; margin-top: 15px;">Volver a Pantalla Principal</button>
@@ -153,18 +710,18 @@
             <h2 style="color: #3498db; margin-bottom: 20px;">[ Panel de Administrador ]</h2>
             <p style="color: #bdc3c7;">Modo desarrollador activado</p>
             <div style="display: flex; flex-direction: column; gap: 15px; width: 60%; max-width: 400px; margin-top: 20px;">
-                <button id="admin-heal-btn" style="background-color: #2ecc71;">Restaurar Vehículo (Salud MÁX)</button>
+                <button id="admin-heal-btn" style="background-color: #2ecc71;">Restaurar VehÃ­culo (Salud MÃX)</button>
                 <button id="admin-kill-btn" style="background-color: #e74c3c;">Limpiar Calle (Matar Enemigos)</button>
                 <button id="admin-wave-btn" style="background-color: #f1c40f; color: #2c3e50;">Saltar a Siguiente Oleada</button>
                 
-                <!-- Inputs para modificar estadísticas -->
+                <!-- Inputs para modificar estadÃ­sticas -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #fff; margin-top: 10px; text-align: left; font-size: 0.9rem;">
                     <label>Autoridad: <input type="number" id="admin-dmg" style="width: 100%; box-sizing: border-box;"></label>
                     <label>Velocidad: <input type="number" id="admin-spd" style="width: 100%; box-sizing: border-box;"></label>
                     <label>Cadencia: <input type="number" id="admin-fire" style="width: 100%; box-sizing: border-box;"></label>
                     <label>Papeles: <input type="number" id="admin-multi" style="width: 100%; box-sizing: border-box;"></label>
                 </div>
-                <button id="admin-apply-stats-btn" style="background-color: #9b59b6;">Aplicar Estadísticas</button>
+                <button id="admin-apply-stats-btn" style="background-color: #9b59b6;">Aplicar EstadÃ­sticas</button>
                 <button id="admin-defeat-btn" style="background-color: #c0392b;">Forzar Derrota</button>
                 
                 <button id="admin-close-btn" style="background-color: #7f8c8d; margin-top: 10px;">Cerrar Panel</button>
@@ -175,7 +732,7 @@
         <canvas id="webgl-canvas"></canvas>
     </div>
     
-    <!-- Script principal como módulo -->
+    <!-- Script principal como mÃ³dulo -->
     <script type="module">
         import * as THREE from 'three';
 import Stats from 'three/addons/libs/stats.module.js';
@@ -236,7 +793,7 @@ const canvas = document.getElementById('webgl-canvas');
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
-// Habilitar sombras y Tone Mapping cinemático
+// Habilitar sombras y Tone Mapping cinemÃ¡tico
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -251,7 +808,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xFF7E47); // Atardecer (Sunset)
 scene.fog = new THREE.FogExp2(0xFF7E47, 0.005); // Reducida la densidad de la niebla
 
-// Iluminación
+// IluminaciÃ³n
 // Luz de hemisferio (Cielo naranja, Suelo oscuro)
 const hemiLight = new THREE.HemisphereLight(0xffb84d, 0x2c3e50, 0.6);
 scene.add(hemiLight);
@@ -260,7 +817,7 @@ scene.add(hemiLight);
 const dirLight = new THREE.DirectionalLight(0xffe6cc, 1.5);
 dirLight.position.set(100, 100, -50);
 dirLight.castShadow = true;
-// Configuración de la cámara de sombra del sol para cubrir todo el mapa
+// ConfiguraciÃ³n de la cÃ¡mara de sombra del sol para cubrir todo el mapa
 const d = 150;
 dirLight.shadow.camera.left = -d;
 dirLight.shadow.camera.right = d;
@@ -273,7 +830,7 @@ dirLight.shadow.mapSize.width = 2048;
 dirLight.shadow.mapSize.height = 2048;
 scene.add(dirLight);
 
-// Cámaras
+// CÃ¡maras
 const cameras = {
     topdown: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000),
     follow: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000)
@@ -290,7 +847,7 @@ const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, activeCamera);
 composer.addPass(renderPass);
 
-// Parámetros de Bloom (Resolución, Intensidad, Radio, Umbral)
+// ParÃ¡metros de Bloom (ResoluciÃ³n, Intensidad, Radio, Umbral)
 const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.8, 0.5, 0.85);
 composer.addPass(bloomPass);
 
@@ -314,7 +871,7 @@ const keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowLeft
 let isMouseDown = false;
 let mouse3DPos = new THREE.Vector3();
 
-// --- GENERACIÓN DEL MAPA ---
+// --- GENERACIÃ“N DEL MAPA ---
 
 let fenceTemplate = null;
 function getFenceTemplate() {
@@ -323,7 +880,7 @@ function getFenceTemplate() {
     
     // Materiales para la cerca
     const pillarMat = new THREE.MeshStandardMaterial({ color: 0x88949b, roughness: 0.9 }); // Cemento gris
-    const railMat = new THREE.MeshStandardMaterial({ color: 0xd0d3d4, metalness: 0.5, roughness: 0.5 }); // Detalles metálicos
+    const railMat = new THREE.MeshStandardMaterial({ color: 0xd0d3d4, metalness: 0.5, roughness: 0.5 }); // Detalles metÃ¡licos
     const barMat = new THREE.MeshStandardMaterial({ color: 0x7f8c8d, metalness: 0.8, roughness: 0.3 }); // Barrotes
     
     const fHeight = 2.5;
@@ -429,7 +986,7 @@ function createMap() {
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // Calles (Asfalto húmedo)
+    // Calles (Asfalto hÃºmedo)
     const streetMat = new THREE.MeshStandardMaterial({ color: 0x1c2833, roughness: 0.4, metalness: 0.1 });
     
     // Calles horizontales y verticales
@@ -485,8 +1042,8 @@ function createMap() {
 
     for (let x = -60; x <= 60; x += 40) {
         for (let z = -60; z <= 60; z += 40) {
-            // Generar el bloque de colisión escalonado (esquinas redondeadas lógicas)
-            const blockMat = new THREE.MeshStandardMaterial({ visible: false }); // Invisible, solo para colisión
+            // Generar el bloque de colisiÃ³n escalonado (esquinas redondeadas lÃ³gicas)
+            const blockMat = new THREE.MeshStandardMaterial({ visible: false }); // Invisible, solo para colisiÃ³n
             
             const coll1 = new THREE.Mesh(new THREE.BoxGeometry(20, 4, 25), blockMat);
             coll1.position.set(x, 2, z); scene.add(coll1); buildings.push(coll1);
@@ -504,7 +1061,7 @@ function createMap() {
 
             // Generar 1 a 3 casas por bloque
             const numHouses = Math.floor(Math.random() * 3) + 1;
-            const windowMat = new THREE.MeshStandardMaterial({ color: 0xffffcc, emissive: 0x4d3319 }); // Luz cálida de ventana
+            const windowMat = new THREE.MeshStandardMaterial({ color: 0xffffcc, emissive: 0x4d3319 }); // Luz cÃ¡lida de ventana
             const doorMat = new THREE.MeshStandardMaterial({ color: 0x4e342e }); // Puerta de madera
             
             for(let i=0; i<numHouses; i++) {
@@ -535,7 +1092,7 @@ function createMap() {
                 door.position.set(0, 1.5, d/2 + 0.05); // Puerta al frente
                 houseGroup.add(door);
 
-                // Ventanas (2 o 4 según la altura)
+                // Ventanas (2 o 4 segÃºn la altura)
                 const floors = Math.floor((h - 3) / 3);
                 for(let fl = 1; fl <= floors; fl++) {
                     const win1 = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 0.2), windowMat);
@@ -560,7 +1117,7 @@ class Player {
         this.group = new THREE.Group();
         this.group.castShadow = true;
         
-        // Cuerpo del vehículo (Carabineros de Chile)
+        // Cuerpo del vehÃ­culo (Carabineros de Chile)
         const bodyGeo = new THREE.BoxGeometry(2, 1, 4);
         const bodyMat = new THREE.MeshStandardMaterial({ color: 0x00592b, roughness: 0.2, metalness: 0.8 }); // Brillante
         const body = new THREE.Mesh(bodyGeo, bodyMat);
@@ -613,16 +1170,16 @@ class Player {
         this.group.add(createWheel(-1.1, 0.4, -1.2));
 
         // Luces frontales (modo faros de auto)
-        // Aumentada la intensidad (de 2.5 a 10.0), la distancia (de 40 a 80) y el ángulo
+        // Aumentada la intensidad (de 2.5 a 10.0), la distancia (de 40 a 80) y el Ã¡ngulo
         const headLight = new THREE.SpotLight(0xffffff, 10.0, 80, Math.PI / 4, 0.5, 0.5);
         headLight.position.set(0, 1.0, 2.2);
         headLight.target.position.set(0, 0.0, 40);
-        // Desactivamos la proyección de sombras de faros para recuperar FPS
+        // Desactivamos la proyecciÃ³n de sombras de faros para recuperar FPS
         headLight.castShadow = false;
         this.group.add(headLight);
         this.group.add(headLight.target);
         
-        // Focos brillantes físicos
+        // Focos brillantes fÃ­sicos
         const headlampMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.5, 2.5, 2.5) });
         const focusR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.1), headlampMat);
         focusR.position.set(0.6, 0.5, 2.05);
@@ -663,7 +1220,7 @@ class Player {
         if (keys.w || keys.ArrowUp) engineForce = 1;
         if (keys.s || keys.ArrowDown) engineForce = -1;
 
-        // Lógica de Dash
+        // LÃ³gica de Dash
         if (this.dashCooldown > 0) this.dashCooldown -= dt;
         if (this.dashDuration > 0) this.dashDuration -= dt;
         
@@ -691,7 +1248,7 @@ class Player {
         if (engineForce !== 0) {
             this.currentSpeed += engineForce * acceleration * dt;
         } else {
-            // Fricción natural al soltar gas
+            // FricciÃ³n natural al soltar gas
             if (this.currentSpeed > 0) {
                 this.currentSpeed = Math.max(0, this.currentSpeed - friction * dt);
             } else if (this.currentSpeed < 0) {
@@ -699,7 +1256,7 @@ class Player {
             }
         }
 
-        // Limitar velocidad máxima 
+        // Limitar velocidad mÃ¡xima 
         if (this.currentSpeed > maxS) this.currentSpeed = maxS;
         if (this.currentSpeed < -maxS * 0.5) this.currentSpeed = -maxS * 0.5;
 
@@ -709,19 +1266,19 @@ class Player {
             if (keys.a || keys.ArrowLeft) turnDir = 1; 
             if (keys.d || keys.ArrowRight) turnDir = -1; 
             
-            // Invertir dirección de la rotación al ir en reversa
+            // Invertir direcciÃ³n de la rotaciÃ³n al ir en reversa
             const driveDir = this.currentSpeed > 0 ? 1 : -1;
             this.group.rotation.y += turnDir * 3.0 * driveDir * dt;
         }
 
-        // Obtener el vector hacia el que apunta la patrulla físicamente (+Z local)
+        // Obtener el vector hacia el que apunta la patrulla fÃ­sicamente (+Z local)
         const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(this.group.quaternion).normalize();
 
         // Movimiento tentativo
         let nextX = this.group.position.x + fwd.x * this.currentSpeed * dt;
         let nextZ = this.group.position.z + fwd.z * this.currentSpeed * dt;
 
-        // Colisiones con edificios (con reducción de velocidad al impactar)
+        // Colisiones con edificios (con reducciÃ³n de velocidad al impactar)
         if (checkBuildingCollision(nextX, this.group.position.z, this.radius)) {
             nextX = this.group.position.x;
             this.currentSpeed *= 0.5; 
@@ -774,10 +1331,10 @@ class Player {
         const baseAngle = Math.atan2(-dir.z, dir.x); // Inverted Z because Three.js Z axis goes forward differently
         
         for (let i = 0; i < this.multiShot; i++) {
-            // Calcular offset de ángulo basado en la cantidad de proyectiles
+            // Calcular offset de Ã¡ngulo basado en la cantidad de proyectiles
             let angleOffset = 0;
             if (this.multiShot > 1) {
-                // Rango de dispersión: 0.2 radianes * (multiShot - 1)
+                // Rango de dispersiÃ³n: 0.2 radianes * (multiShot - 1)
                 const spread = 0.15;
                 angleOffset = - (spread * (this.multiShot - 1) / 2) + (i * spread);
             }
@@ -794,19 +1351,19 @@ class Player {
 
     takeDamage(amount) {
         if (this.hasShield) {
-            amount = amount * 0.5; // Escudo reduce daño 50%
+            amount = amount * 0.5; // Escudo reduce daÃ±o 50%
         }
         this.health -= amount;
         updateHUD();
         
-        // Animación de Shake en UI y Cámara usando GSAP
+        // AnimaciÃ³n de Shake en UI y CÃ¡mara usando GSAP
         if (window.gsap && this.health > 0) {
             gsap.fromTo(healthBar.parentElement, 
                 { x: -5 }, 
                 { x: 5, duration: 0.05, yoyo: true, repeatControl: 5, repeat: 5, ease: "none", clearProps: "x" }
             );
             
-            // Vibrar cámara un poco
+            // Vibrar cÃ¡mara un poco
             const origY = activeCamera.position.y;
             gsap.fromTo(activeCamera.position,
                 { y: origY - 0.5 }, 
@@ -817,7 +1374,7 @@ class Player {
         if (this.health <= 0 && this.group.visible) {
             // El auto solo desaparece
             this.group.visible = false;
-            createFloatingText(this.group.position, "¡Desaparecido!", "#ffffff", true);
+            createFloatingText(this.group.position, "Â¡Desaparecido!", "#ffffff", true);
             endGame();
         }
     }
@@ -826,7 +1383,7 @@ class Player {
 class Projectile {
     constructor(pos, dir, speed, damage, color, isPlayer) {
         // En vez de balas, usamos papeles (forma plana)
-        // Quitamos MeshBasicMaterial (que emite luz con bloom) y usamos Standard (que reacciona a la luz ambiente nada más)
+        // Quitamos MeshBasicMaterial (que emite luz con bloom) y usamos Standard (que reacciona a la luz ambiente nada mÃ¡s)
         this.mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(0.8, 1.2),
             new THREE.MeshStandardMaterial({ color: color, roughness: 0.8, side: THREE.DoubleSide }) 
@@ -893,15 +1450,15 @@ class Enemy {
         cabin.position.set(0, h + (h*0.8)/2, -d*0.1);
         this.group.add(cabin);
 
-        // Detalles decorativos adicionales según tipo
+        // Detalles decorativos adicionales segÃºn tipo
         if (type === 3) {
-            // Spoiler alerón deportivo (Veloz)
+            // Spoiler alerÃ³n deportivo (Veloz)
             const spoiler = new THREE.Mesh(new THREE.BoxGeometry(w, 0.1, 0.5), new THREE.MeshStandardMaterial({ color: 0x000000 }));
             spoiler.position.set(0, h + 0.5, -d/2 + 0.5);
             this.group.add(spoiler);
         }
         else if (type === 4) {
-            // "Cañon de papeles" en el techo (Disparador)
+            // "CaÃ±on de papeles" en el techo (Disparador)
             const cannon = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.5, 8), new THREE.MeshStandardMaterial({ color: 0x7f8c8d }));
             cannon.rotation.x = Math.PI / 2;
             cannon.position.set(0, h + h*0.8 + 0.3, 0);
@@ -917,7 +1474,7 @@ class Enemy {
             this.group.add(spikes);
         }
         if (type === 6) {
-            // Domo blindado de Jefe Máximo
+            // Domo blindado de Jefe MÃ¡ximo
             const turret = new THREE.Mesh(
                 new THREE.CylinderGeometry(w/2, w/2, h, 8),
                 new THREE.MeshStandardMaterial({ color: 0x7f8c8d })
@@ -941,7 +1498,7 @@ class Enemy {
         this.group.add(createWh(w/2 + w*0.05, wheelR, -d*0.3));
         this.group.add(createWh(-w/2 - w*0.05, wheelR, -d*0.3));
 
-        // Focos brillantes físicos (Enemigos)
+        // Focos brillantes fÃ­sicos (Enemigos)
         const focusMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(1.5, 1.5, 1.0) });
         const focusR = new THREE.Mesh(new THREE.BoxGeometry(w*0.2, h*0.2, 0.1), focusMat);
         focusR.position.set(w*0.3, h*0.5, d/2 + 0.05);
@@ -950,7 +1507,7 @@ class Enemy {
         this.group.add(focusR, focusL);
 
         // Se elimina el SpotLight sombra a los enemigos para recuperar los FPS
-        // y prevenir la recompilación extrema de shaders de WebGL.
+        // y prevenir la recompilaciÃ³n extrema de shaders de WebGL.
 
         // Barra de Vida
         const hpBg = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.5, 0.4), new THREE.MeshBasicMaterial({color: 0xff0000}));
@@ -994,12 +1551,12 @@ class Enemy {
 
         if (colX) {
             nextX = this.group.position.x;
-            // Si está bloqueado en X, intentar rodear sumando en Z
+            // Si estÃ¡ bloqueado en X, intentar rodear sumando en Z
             nextZ += Math.sign(dir.z || 1) * this.speed * dt * 0.5; 
         }
         if (colZ) {
             nextZ = this.group.position.z;
-            // Si está bloqueado en Z, intentar rodear sumando en X
+            // Si estÃ¡ bloqueado en Z, intentar rodear sumando en X
             nextX += Math.sign(dir.x || 1) * this.speed * dt * 0.5;
         }
 
@@ -1015,7 +1572,7 @@ class Enemy {
             this.hpContainer.quaternion.copy(activeCamera.quaternion);
         }
 
-        // Disparo de Vehículo Tipo 4 (Shooter/Gris oscuro)
+        // Disparo de VehÃ­culo Tipo 4 (Shooter/Gris oscuro)
         if (this.type === 4 && distToPlayer < 50 && distToPlayer > 10) {
             if (performance.now() - this.lastShotTime > 1500) { // Dispara un "papel" cada 1.5s
                 this.lastShotTime = performance.now();
@@ -1025,7 +1582,7 @@ class Enemy {
             }
         }
 
-        // Colisión con jugador
+        // ColisiÃ³n con jugador
         if (distToPlayer < this.radius + player.radius) {
             player.takeDamage(this.damage);
             this.destroy();
@@ -1043,7 +1600,7 @@ class Enemy {
         this.hpBarFg.scale.x = hpRatio;
         this.hpBarFg.position.x = -(this.hpBarWidth / 2) * (1 - hpRatio);
         
-        // Efecto visual de daño (parpadeo blanco)
+        // Efecto visual de daÃ±o (parpadeo blanco)
         this.group.children[0].material.emissive.setHex(0xffffff);
         setTimeout(() => {
             if(this.group && this.group.children[0]) {
@@ -1104,7 +1661,7 @@ class Particle {
     }
 }
 
-// --- LÓGICAS GENERALES ---
+// --- LÃ“GICAS GENERALES ---
 
 function checkBuildingCollision(x, z, radius) {
     for (let i = 0; i < buildings.length; i++) {
@@ -1145,7 +1702,7 @@ function createFloatingText(pos3D, text, color, isBig = false) {
     el.textContent = text;
     
     floatingContainer.appendChild(el);
-    // Animación JUICY usando GSAP
+    // AnimaciÃ³n JUICY usando GSAP
     if (window.gsap) {
         gsap.fromTo(el,
             { y: `+=${10}`, x: `+=${x/100}`, scale: 0.5, opacity: 1 },
@@ -1191,14 +1748,14 @@ function spawnEnemy() {
     } else if (isFast) {
         type = 3; // Veloz (Azul claro deportivo)
         hp = 40 + (wave * 10); 
-        speed = 14 + (wave * 0.6); // Muy rápido
+        speed = 14 + (wave * 0.6); // Muy rÃ¡pido
     } else if (isHeavy) {
         type = 2; // Pesado (Naranja)
         hp = 100 + (wave * 30); 
-        speed = 6 + (wave * 0.3); // Robusto pero aún ágil
+        speed = 6 + (wave * 0.3); // Robusto pero aÃºn Ã¡gil
     }
 
-    // Lógica de Jefe / Minijefe (1 por oleada respectiva)
+    // LÃ³gica de Jefe / Minijefe (1 por oleada respectiva)
     if (wave % 10 === 0 && enemiesSpawned === 0) {
         // Jefe Final
         type = 6;
@@ -1224,15 +1781,15 @@ class RescueVehicle {
         this.markedForDeletion = false;
         this.lifeTime = 0;
 
-        // Dirección aleatoria de salida (Norte, Sur, Este, Oeste)
+        // DirecciÃ³n aleatoria de salida (Norte, Sur, Este, Oeste)
         const angles = [0, Math.PI/2, Math.PI, -Math.PI/2];
         const exitAngle = angles[Math.floor(Math.random() * angles.length)];
         this.dir = new THREE.Vector3(Math.cos(exitAngle), 0, -Math.sin(exitAngle));
         
-        // Orientar el grupo para que mire hacia su dirección de movimiento
+        // Orientar el grupo para que mire hacia su direcciÃ³n de movimiento
         this.group.lookAt(this.group.position.x + this.dir.x, this.group.position.y, this.group.position.z + this.dir.z);
 
-        // Material común para ruedas
+        // Material comÃºn para ruedas
         const wheelGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.4, 8);
         const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
         const createWheel = (x, y, z) => {
@@ -1256,7 +1813,7 @@ class RescueVehicle {
             const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.5, 3.6), new THREE.MeshStandardMaterial({ color: 0x2ecc71 }));
             stripe.position.set(0, 1.5, -1.75);
             
-            // Lámparas Gemelas en Cabina
+            // LÃ¡mparas Gemelas en Cabina
             const sirenB = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.4), new THREE.MeshBasicMaterial({ color: 0x0000ff }));
             sirenB.position.set(0.6, 2.1, 1.5);
             const sirenR = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.4), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
@@ -1273,12 +1830,12 @@ class RescueVehicle {
             this.group.add(createWheel(-1.4, 0.5, -2));
 
         } else {
-            // Remolque Grúa Detallada
+            // Remolque GrÃºa Detallada
             // Cabina Amarilla
             const cab = new THREE.Mesh(new THREE.BoxGeometry(2.5, 2, 2.5), new THREE.MeshStandardMaterial({ color: 0xf1c40f })); // Amarillo de rescate
             cab.position.set(0, 1.5, 2);
             
-            // Cama/Chasis de la grúa
+            // Cama/Chasis de la grÃºa
             const bed = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.5, 5), new THREE.MeshStandardMaterial({ color: 0x333333 }));
             bed.position.set(0, 0.75, -1.75);
 
@@ -1307,7 +1864,7 @@ class RescueVehicle {
             this.group.add(createWheel(-1.2, 0.5, -6.5));
         }
 
-        // Focos para los Vehículos de Rescate (Miran hacia +Z local)
+        // Focos para los VehÃ­culos de Rescate (Miran hacia +Z local)
         const headlampMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.5, 2.5, 2.0) });
         const focusR = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.4, 0.1), headlampMat);
         focusR.position.set(0.8, 0.6, 2.55);
@@ -1315,7 +1872,7 @@ class RescueVehicle {
         focusL.position.set(-0.8, 0.6, 2.55);
         this.group.add(focusR, focusL);
 
-        // Sin luces volumétricas con castShadow = true aquí para evitar el lag de clonado
+        // Sin luces volumÃ©tricas con castShadow = true aquÃ­ para evitar el lag de clonado
         // Clonar materiales para la ambulancia cuesta un poco en WebGL al principio (Shader recompilation)
         // pero evitamos lag masivo al haber quitado el SpotLight sombra.
         this.group.traverse(child => {
@@ -1329,7 +1886,7 @@ class RescueVehicle {
     update(dt) {
         this.lifeTime += dt;
         
-        // Destruir después de difuminarse por 2 segundos completos
+        // Destruir despuÃ©s de difuminarse por 2 segundos completos
         if (this.lifeTime > 2.0) {
             this.destroy();
             return;
@@ -1439,7 +1996,7 @@ function updateHUD() {
     else dashContainer.classList.add('hidden');
 }
 
-// --- CÁMARAS ---
+// --- CÃMARAS ---
 function updateCameras() {
     if (!player) return;
     const pPos = player.group.position;
@@ -1448,15 +2005,15 @@ function updateCameras() {
     cameras.topdown.position.set(pPos.x, 60, pPos.z + 20);
     cameras.topdown.lookAt(pPos.x, 0, pPos.z);
 
-    // Follow (Third Person - Clásica de persecución)
-    // El fwd apunta a la dirección de movimiento del auto
+    // Follow (Third Person - ClÃ¡sica de persecuciÃ³n)
+    // El fwd apunta a la direcciÃ³n de movimiento del auto
     const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(player.group.quaternion).normalize();
     
-    // Posición de la cámara: Detrás del coche (restamos el vector fwd) y alineada un poco más arriba
-    cameras.follow.position.copy(pPos).addScaledVector(fwd, -15); // La cámara va atrás del auto
+    // PosiciÃ³n de la cÃ¡mara: DetrÃ¡s del coche (restamos el vector fwd) y alineada un poco mÃ¡s arriba
+    cameras.follow.position.copy(pPos).addScaledVector(fwd, -15); // La cÃ¡mara va atrÃ¡s del auto
     cameras.follow.position.y += 7; // Altura de seguimiento ligeramente elevada
     
-    // Mirando hacia el frente, a través de la perspectiva del coche (hacia la calle)
+    // Mirando hacia el frente, a travÃ©s de la perspectiva del coche (hacia la calle)
     cameras.follow.lookAt(pPos.x + fwd.x * 15, pPos.y + 2, pPos.z + fwd.z * 15);
 
     // Update active camera
@@ -1479,11 +2036,11 @@ function toggleCamera() {
 // --- TRIVIAS Y MEJORAS ---
 
 const triviaBank = [
-    { q: "¿Qué significa la luz amarilla continua en un semáforo?", options: ["Acelerar para cruzar", "Prevención, detenerse si es seguro", "Paso libre", "Peligro inminente"], correct: 1 },
-    { q: "¿Cuál es el límite de velocidad en zona urbana para vehículos livianos?", options: ["60 km/h", "40 km/h", "50 km/h", "70 km/h"], correct: 2 },
-    { q: "¿Qué distancia lateral mínima se debe dejar al sobrepasar a un ciclista?", options: ["1,0 metro", "0,5 metros", "2,0 metros", "1,5 metros"], correct: 3 },
-    { q: "Si se revienta el neumático trasero, ¿hacia dónde debe girar el volante?", options: ["Hacia el lado contrario", "Hacia el centro", "Hacia el lado en que se desvía la cola", "Mantener firme"], correct: 2 },
-    { q: "¿Cuál es la tasa de alcohol segura para conducir?", options: ["0.3 g/l", "0.5 g/l", "0", "0.8 g/l"], correct: 2 }
+    { q: "Â¿QuÃ© significa la luz amarilla continua en un semÃ¡foro?", options: ["Acelerar para cruzar", "PrevenciÃ³n, detenerse si es seguro", "Paso libre", "Peligro inminente"], correct: 1 },
+    { q: "Â¿CuÃ¡l es el lÃ­mite de velocidad en zona urbana para vehÃ­culos livianos?", options: ["60 km/h", "40 km/h", "50 km/h", "70 km/h"], correct: 2 },
+    { q: "Â¿QuÃ© distancia lateral mÃ­nima se debe dejar al sobrepasar a un ciclista?", options: ["1,0 metro", "0,5 metros", "2,0 metros", "1,5 metros"], correct: 3 },
+    { q: "Si se revienta el neumÃ¡tico trasero, Â¿hacia dÃ³nde debe girar el volante?", options: ["Hacia el lado contrario", "Hacia el centro", "Hacia el lado en que se desvÃ­a la cola", "Mantener firme"], correct: 2 },
+    { q: "Â¿CuÃ¡l es la tasa de alcohol segura para conducir?", options: ["0.3 g/l", "0.5 g/l", "0", "0.8 g/l"], correct: 2 }
 ];
 
 function startTrivia() {
@@ -1515,7 +2072,7 @@ function handleTriviaAnswer(isCorrect, btnClicked, correctIndex) {
     triviaFeedback.classList.remove('hidden');
     
     if (isCorrect) {
-        triviaFeedback.textContent = "¡Correcto! Te preparas para la mejora...";
+        triviaFeedback.textContent = "Â¡Correcto! Te preparas para la mejora...";
         triviaFeedback.style.color = '#2ecc71';
         setTimeout(() => {
             triviaScreen.classList.add('hidden');
@@ -1560,14 +2117,14 @@ function applyUpgrade(type) {
     let text = "";
     if (type === 'damage') { player.damage += 15; text = "+AUTORIDAD"; }
     else if (type === 'speed') { player.speed += 2; text = "+VELOCIDAD"; }
-    else if (type === 'fireRate') { player.fireRate = Math.max(100, player.fireRate - 40); text = "+TRÁMITE RÁPIDO"; }
+    else if (type === 'fireRate') { player.fireRate = Math.max(100, player.fireRate - 40); text = "+TRÃMITE RÃPIDO"; }
     else if (type === 'health') {
         player.maxHealth += 50;
         player.health += 50;
         updateHUD();
         text = "+CHASIS MEJORADO";
     }
-    else if (type === 'multiShot') { player.multiShot += 1; text = "+MULTA MÚLTIPLE"; }
+    else if (type === 'multiShot') { player.multiShot += 1; text = "+MULTA MÃšLTIPLE"; }
     else if (type === 'dash') { player.isDashing = true; text = "IMPULSO DESBLOQUEADO"; }
     else if (type === 'shield') { player.hasShield = true; text = "SEGURO ACTIVO"; }
     
@@ -1617,7 +2174,7 @@ function endGame() {
     isPlaying = false;
     hud.classList.add('hidden');
     gameOverScreen.classList.remove('hidden');
-    finalScoreDisplay.textContent = `Puntuación Final: ${score}`;
+    finalScoreDisplay.textContent = `PuntuaciÃ³n Final: ${score}`;
     finalWaveDisplay.textContent = `Oleadas Superadas: ${wave - 1}`;
 }
 
@@ -1687,7 +2244,7 @@ function loop(currentTime) {
     particles = particles.filter(p => !p.markedForDeletion);
     rescueVehicles = rescueVehicles.filter(rv => !rv.markedForDeletion);
 
-    // Detección de colisiones Proyectil -> Personajes
+    // DetecciÃ³n de colisiones Proyectil -> Personajes
     projectiles.forEach(p => {
         if (p.isPlayer) {
             enemies.forEach(e => {
@@ -1712,7 +2269,7 @@ function loop(currentTime) {
     // Actualizar Camaras
     updateCameras();
 
-    // Reevaluar raycast para que el mouse3DPos esté correcto si la cámara se mueve
+    // Reevaluar raycast para que el mouse3DPos estÃ© correcto si la cÃ¡mara se mueve
     raycaster.setFromCamera(mouseVec, activeCamera);
     raycaster.ray.intersectPlane(groundPlane, mouse3DPos);
 
@@ -1745,7 +2302,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key.toLowerCase() === 'c') toggleCamera();
     if (e.key.toLowerCase() === 'p' || e.key === 'Escape') togglePause();
     
-    // Lógica del código secreto (admin)
+    // LÃ³gica del cÃ³digo secreto (admin)
     if (e.key.length === 1) { // Solo caracteres visibles
         keyBuffer += e.key.toLowerCase();
         if (keyBuffer.length > secretCode.length) {
@@ -1774,7 +2331,7 @@ document.getElementById('admin-heal-btn').addEventListener('click', () => {
 document.getElementById('admin-kill-btn').addEventListener('click', () => {
     // Matar todos los enemigos actuales
     for (let i = enemies.length - 1; i >= 0; i--) {
-        enemies[i].health = 0; // Se borrarán en el próximo update
+        enemies[i].health = 0; // Se borrarÃ¡n en el prÃ³ximo update
     }
 });
 
@@ -1809,7 +2366,7 @@ document.getElementById('admin-defeat-btn').addEventListener('click', () => {
     if (player) {
         player.health = 0;
         document.getElementById('admin-panel').classList.add('hidden');
-        // El bucle principal detectará que health <= 0 y ejecutará el Game Over automáticamente
+        // El bucle principal detectarÃ¡ que health <= 0 y ejecutarÃ¡ el Game Over automÃ¡ticamente
         gameState = 'playing'; 
     }
 });
@@ -1818,7 +2375,7 @@ function openAdminPanel() {
     gameState = 'admin'; // Simplemente un estado especial para evitar loops o pausar
     document.getElementById('admin-panel').classList.remove('hidden');
     
-    // Cargar estadísticas actuales en los inputs
+    // Cargar estadÃ­sticas actuales en los inputs
     if (player) {
         document.getElementById('admin-dmg').value = player.damage;
         document.getElementById('admin-spd').value = player.speed;
@@ -1839,7 +2396,7 @@ window.addEventListener('mousemove', (e) => updatePointer(e.clientX, e.clientY))
 window.addEventListener('mousedown', () => isMouseDown = true);
 window.addEventListener('mouseup', () => isMouseDown = false);
 
-// Eventos táctiles para apuntar/disparar tocando la zona del canvas/juego
+// Eventos tÃ¡ctiles para apuntar/disparar tocando la zona del canvas/juego
 canvas.addEventListener('touchstart', (e) => {
     e.preventDefault(); // Evita el scroll o zoom indeseado
     if (e.touches.length > 0) {
@@ -1860,10 +2417,10 @@ canvas.addEventListener('touchend', (e) => {
     if (e.touches.length === 0) isMouseDown = false;
 }, {passive: false});
 
-// Lógica de botones Móviles Virtuales
+// LÃ³gica de botones MÃ³viles Virtuales
 const mobileControls = document.getElementById('mobile-controls');
 if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-    mobileControls.classList.remove('hidden'); // Mostrar en dispositivos táctiles
+    mobileControls.classList.remove('hidden'); // Mostrar en dispositivos tÃ¡ctiles
 }
 
 const setupTouchBtn = (id, keyName) => {
@@ -1872,7 +2429,7 @@ const setupTouchBtn = (id, keyName) => {
     btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
     btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
     
-    // Por si quieren cliquearlos con ratón para probar en PC
+    // Por si quieren cliquearlos con ratÃ³n para probar en PC
     btn.addEventListener('mousedown', (e) => { keys[keyName] = true; });
     btn.addEventListener('mouseup', (e) => { keys[keyName] = false; });
     btn.addEventListener('mouseleave', (e) => { keys[keyName] = false; });
