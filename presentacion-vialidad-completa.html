@@ -497,6 +497,36 @@
             margin: 20px 0;
             animation: fadeInScale 0.8s ease-out;
         }
+
+        /* Footer */
+        .presentation-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: rgba(10, 12, 16, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-dim);
+            z-index: 50;
+            padding: 0 40px;
+            text-align: center;
+        }
+
+        .presentation-footer a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .presentation-footer a:hover {
+            color: var(--accent-blue);
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -521,7 +551,7 @@
                     El Manual es <span style="color: var(--accent-yellow);">Aburrido</span>
                 </h1>
                 <div style="background: rgba(255, 77, 77, 0.15); border-left: 4px solid var(--danger); padding: 25px; border-radius: 8px; margin: 30px 0; animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;"><strong>200+ páginas</strong> de PDF estático</p>
+                    <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;"><strong>+160 páginas</strong> de PDF estático</p>
                     <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;">Tests de opción múltiple sin contexto visual</p>
                     <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;">Los aspirantes memorizan, pero <strong>no internalizan</strong> el riesgo</p>
                 </div>
@@ -959,6 +989,10 @@
         </div>
 
         <div class="road-line"></div>
+
+        <div class="presentation-footer">
+            📋 Información basada en normativas de <strong style="color: var(--accent-yellow);">CONASET</strong> y estándares de seguridad vial internacional
+        </div>
     </div>
 </div>
 
