@@ -1458,11 +1458,27 @@ function setLearnerMode(mode) {
 
 function showMissionModal() {
     missionModal.classList.remove('hidden');
-    modalMissionTitle.textContent = 'Patrullaje Urbano';
-    getObjectivesList().style.display = 'block';
-    getMissionRules().style.display = 'block';
-    getMissionIntro().textContent = '¡Bienvenido Agente! Tu misión es completar un patrullaje de seguridad vial en la ciudad.';
-    startMissionBtn.textContent = 'Comenzar Misión 🚓';
+    
+    // Si hay una narrativa seleccionada, usar su configuración
+    if (narrativeMode) {
+        const config = narrativeConfigurations[narrativeMode];
+        modalMissionTitle.textContent = config.missionTitle;
+        const missionIntro = document.getElementById('missionIntro');
+        if (missionIntro) missionIntro.textContent = config.missionIntro;
+        const objectivesTitle = document.querySelector('.mission-objectives h3');
+        if (objectivesTitle) objectivesTitle.textContent = config.objectivesTitle;
+        const objectivesList = document.getElementById('objectivesList');
+        if (objectivesList) objectivesList.innerHTML = config.objectives.map(obj => `<li>${obj}</li>`).join('');
+        startMissionBtn.textContent = config.buttonText;
+    } else {
+        // Fallback por defecto
+        modalMissionTitle.textContent = 'Patrullaje Urbano';
+        getObjectivesList().style.display = 'block';
+        getMissionRules().style.display = 'block';
+        const missionIntro = document.getElementById('missionIntro');
+        if (missionIntro) missionIntro.textContent = '¡Bienvenido Agente! Tu misión es completar un patrullaje de seguridad vial en la ciudad.';
+        startMissionBtn.textContent = 'Comenzar Misión 🚓';
+    }
 }
 
 function showMissionCompletedModal() {
@@ -1937,6 +1953,114 @@ window.addEventListener('resize', () => {
     applyVehicleScale();
 });
 
-resetGame();
-setLearnerMode('student');
+// ============================================================
+// SISTEMA DE NARRATIVA FUNCIONAL
+// ============================================================
+
+let narrativeMode = null; // 'student' o 'ambulance'
+
+// Configuraciones de narrativa
+const narrativeConfigurations = {
+    student: {
+        name: 'Estudiante Practicante',
+        icon: '📚',
+        missionTitle: 'Patrullaje Urbano - Práctica Segura',
+        missionIntro: '¡Bienvenido estudiante! Tu misión es completar un patrullaje de seguridad vial en la ciudad. Aprende conducción segura con retroalimentación inmediata.',
+        objectivesTitle: 'Puntos de Patrullaje:',
+        objectives: [
+            '<strong>Punto 1 - Zona Residencial Norte:</strong> Verifica seguridad en sector residencial',
+            '<strong>Punto 2 - Eje Este:</strong> Supervisa avenida principal de tráfico',
+            '<strong>Punto 3 - Centro Urbano:</strong> Inspecciona cruce central',
+            '<strong>Punto 4 - Sector Oeste:</strong> Verifica zona oeste de la ciudad',
+            '<strong>Punto 5 - Retorno a Base:</strong> Completa el patrullaje urbano'
+        ],
+        missionKicker: '📚 Misión de Aprendizaje',
+        difficulty: 'Guiado',
+        buttonText: 'Comenzar Práctica 🚔'
+    },
+    ambulance: {
+        name: 'Paramédico - Ambulancia 911',
+        icon: '🚑',
+        missionTitle: 'Transporte Crítico - Emergencia Médica',
+        missionIntro: '¡Paramédico en servicio! Tu paciente es crítico. Completa el transporte a la clínica en el menor tiempo posible, sin comprometer la seguridad vial.',
+        objectivesTitle: 'Ruta de Transporte:',
+        objectives: [
+            '<strong>Etapa 1 - Zona Residencial:</strong> Salida rápida de zona residencial norte',
+            '<strong>Etapa 2 - Eje Este:</strong> Navega avenida principal con tráfico',
+            '<strong>Etapa 3 - Centro Urbano:</strong> Cruza el corazón de la ciudad',
+            '<strong>Etapa 4 - Sector Sur:</strong> Aproximación a clínica de urgencia',
+            '<strong>Etapa 5 - Llegada a Clínica:</strong> Estacionamiento seguro de ambulancia'
+        ],
+        missionKicker: '🚑 Misión de Urgencia',
+        difficulty: 'Exigente',
+        buttonText: 'Iniciar Transporte 🚑'
+    }
+};
+
+function showNarrativeSelector() {
+    const narrativeModal = document.getElementById('narrativeModal');
+    if (narrativeModal) {
+        narrativeModal.style.display = 'flex';
+    }
+}
+
+function hideNarrativeSelector() {
+    const narrativeModal = document.getElementById('narrativeModal');
+    if (narrativeModal) {
+        narrativeModal.style.display = 'none';
+    }
+}
+
+function selectNarrative(mode) {
+    narrativeMode = mode;
+    hideNarrativeSelector();
+    updateMissionContent(mode);
+    resetGame();
+}
+
+function updateMissionContent(mode) {
+    const config = narrativeConfigurations[mode];
+    
+    // Actualizar modal de misión
+    const modalMissionTitle = document.getElementById('modalMissionTitle');
+    const missionIntro = document.getElementById('missionIntro');
+    const objectivesTitle = document.querySelector('.mission-objectives h3');
+    const objectivesList = document.getElementById('objectivesList');
+    const startMissionBtn = document.getElementById('startMissionBtn');
+    
+    if (modalMissionTitle) modalMissionTitle.textContent = config.missionTitle;
+    if (missionIntro) missionIntro.textContent = config.missionIntro;
+    if (objectivesTitle) objectivesTitle.textContent = config.objectivesTitle;
+    if (startMissionBtn) startMissionBtn.textContent = config.buttonText;
+    
+    // Actualizar lista de objetivos
+    if (objectivesList) {
+        objectivesList.innerHTML = config.objectives
+            .map(obj => `<li>${obj}</li>`)
+            .join('');
+    }
+    
+    // Actualizar panel de misión (HUD)
+    const missionKicker = document.querySelector('.mission-kicker');
+    missionDifficulty.textContent = config.difficulty;
+    if (missionKicker) missionKicker.textContent = config.missionKicker;
+    
+    // Mostrar indicador en consola
+    console.log(`🎮 Narrativa seleccionada: ${config.name}`);
+}
+
+// Manejadores de botones del modal narrativo
+const narrativeStudentBtn = document.getElementById('narrativeStudent');
+const narrativeAmbulanceBtn = document.getElementById('narrativeAmbulance');
+
+if (narrativeStudentBtn) {
+    narrativeStudentBtn.addEventListener('click', () => selectNarrative('student'));
+}
+
+if (narrativeAmbulanceBtn) {
+    narrativeAmbulanceBtn.addEventListener('click', () => selectNarrative('ambulance'));
+}
+
+// Mostrar selector narrativo al inicio
+showNarrativeSelector();
 animate();

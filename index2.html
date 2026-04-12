@@ -125,6 +125,38 @@
         <div class="map-label">Minimapa</div>
     </div>
 
+    <!-- Modal de selección narrativa inicial (PRIMER PASO) -->
+    <div class="narrative-modal" id="narrativeModal">
+        <div class="narrative-modal-content">
+            <div class="narrative-modal-header">
+                <h1>Safe Drive Learning</h1>
+                <p>Elige tu narrativa de aprendizaje</p>
+            </div>
+            <div class="narrative-options">
+                <button class="narrative-card" id="narrativeStudent" type="button">
+                    <div class="narrative-icon">📚</div>
+                    <h2>Estudiante Practicante</h2>
+                    <p>Aprende conducción segura de forma guiada. Patrullaje urbano con retroalimentación inmediata.</p>
+                    <div class="narrative-features">
+                        <span class="feature-tag">Guiado</span>
+                        <span class="feature-tag">Aprendizaje</span>
+                        <span class="feature-tag">Pausas permitidas</span>
+                    </div>
+                </button>
+                <button class="narrative-card" id="narrativeAmbulance" type="button">
+                    <div class="narrative-icon">🚑</div>
+                    <h2>Paramédico - Ambulancia 911</h2>
+                    <p>Transporta un paciente crítico a tiempo. Misión de urgencia con presión y cronómetro.</p>
+                    <div class="narrative-features">
+                        <span class="feature-tag">Urgencia</span>
+                        <span class="feature-tag">Desafío</span>
+                        <span class="feature-tag">Contra reloj</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de bienvenida y misión -->
     <div class="mission-modal hidden" id="missionModal">
         <div class="mission-modal-content">
@@ -133,9 +165,9 @@
                 <button class="modal-close" id="closeModalBtn" type="button">×</button>
             </div>
             <div class="mission-modal-body">
-                <p class="mission-intro">¡Bienvenido Agente! Tu misión es completar un patrullaje de seguridad vial en la ciudad.</p>
+                <p class="mission-intro" id="missionIntro">¡Bienvenido Agente! Tu misión es completar un patrullaje de seguridad vial en la ciudad.</p>
                 <div class="mission-objectives">
-                    <h3>Puntos de Patrullaje:</h3>
+                    <h3 id="objectivesTitle">Puntos de Patrullaje:</h3>
                     <ol id="objectivesList">
                         <li><strong>Punto 1 - Zona Residencial Norte:</strong> Verifica seguridad en sector residencial</li>
                         <li><strong>Punto 2 - Eje Este:</strong> Supervisa avenida principal de tráfico</li>
