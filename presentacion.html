@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Safety Simulator - Presentación</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #000000;
+            --bg-elev: #0f0f0f;
+            --panel: #1a1a1a;
+            --ink: #ffffff;
+            --accent: #f2e205;
+            --muted: #a9a9a9;
+            --success: #6eff7a;
+            --danger: #ff4444;
+            --shadow: #1a1a1a;
+            --border: 3px;
+            --radius: 10px;
+            --font-body: 'Courier New', monospace;
+            --font-display: 'Press Start 2P', cursive;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-body);
+            overflow: hidden;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
+            color: var(--ink);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .presentation {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.95) 100%);
+            border: 1px solid rgba(242, 226, 5, 0.1);
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .slide-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .slide-number {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: var(--muted);
+        }
+
+        .slide-content {
+            flex: 1;
+            overflow-y: auto;
+            display: grid;
+            gap: 20px;
+            align-content: start;
+        }
+
+        .slide-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .slide-content::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+
+        .slide-content::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .slide-footer {
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+        }
+
+        .content-box {
+            border: 2px solid rgba(242, 226, 5, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            background: rgba(26, 26, 26, 0.6);
+            margin-bottom: 10px;
+        }
+
+        .content-box h3 {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            font-family: var(--font-display);
+        }
+
+        .content-box p, .content-box li {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .bullet-list li {
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .bullet-list li::before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .feature-card {
+            border: 1px solid rgba(242, 226, 5, 0.2);
+            border-radius: 6px;
+            padding: 12px;
+            background: rgba(15, 15, 15, 0.8);
+            display: grid;
+            gap: 8px;
+        }
+
+        .feature-card .icon {
+            font-size: 1.8rem;
+        }
+
+        .feature-card .title {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        .feature-card .description {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        table thead {
+            background: rgba(242, 226, 5, 0.1);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        table th {
+            padding: 10px;
+            text-align: left;
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 0.85rem;
+        }
+
+        table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        table tbody tr:hover {
+            background: rgba(242, 226, 5, 0.05);
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 3px solid var(--success);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--success);
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+
+        .roadmap-item {
+            padding: 10px;
+            margin: 8px 0;
+            border-left: 3px solid var(--accent);
+            background: rgba(26, 26, 26, 0.5);
+            color: var(--muted);
+        }
+
+        .roadmap-item .level {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        button {
+            padding: 10px 20px;
+            background: rgba(242, 226, 5, 0.2);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            cursor: pointer;
+            font-family: var(--font-display);
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: var(--accent);
+            color: black;
+            transform: scale(1.05);
+        }
+
+        .dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: var(--accent);
+        }
+
+        .progress-info {
+            text-align: center;
+            flex: 1;
+            font-family: var(--font-display);
+            color: var(--accent);
+        }
+
+        .code-inline {
+            background: rgba(100, 100, 100, 0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--success);
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="presentation">
+            <!-- Slide 1: Portada -->
+            <section class="slide active">
+                <div class="slide-header">
+                    <div class="slide-title">Road Safety Simulator</div>
+                    <div class="slide-number">1/9</div>
+                </div>
+                <div class="slide-content">
+                    <div style="display: grid; align-content: center; justify-items: center; gap: 30px; height: 100%;">
+                        <div style="font-size: 4rem; text-align: center;">🚦</div>
+                        <h1 style="font-family: var(--font-display); font-size: 2.2rem; color: var(--accent); text-align: center;">Road Safety Simulator</h1>
+                        <p style="font-size: 1.2rem; color: var(--muted); text-align: center;">Simulador de Conducción Interactivo en 3D</p>
+                        <p style="color: var(--success); text-align: center; font-size: 1rem;">Educación Vial Innovadora</p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>Proyecto Hackathon Automóvil</span>
+                    <span>2026</span>
+                </div>
+            </section>
+
+            <!-- Slide 2: Descripción General -->
+            <section class="slide">
+                <div class="slide-header">
+                    <div class="slide-title">Descripción del Proyecto</div>
+                    <div class="slide-number">2/9</div>
+                </div>
+                <div class="slide-content">
+                    <div class="content-box">
+                        <h3>Objetivo</h3>
+                        <p>
+                            Simulador de conducción interactivo en 3D diseñado para la educación vial. Permite a los usuarios practicar maniobras, reconocer señales de tránsito y entender las reglas de prioridad en un entorno seguro y virtual.
+                        </p>
+                    </div>
+                    <div class="content-box">
+                        <h3>Visión</h3>
+                        <p>
+                            Proporcionar una plataforma educativa accesible que transforme la forma en que se enseña y aprende la seguridad vial a través de la tecnología 3D inmersiva.
+                        </p>
+                    </div>
+                    <div class="content-box">
+                        <h3>Público Objetivo</h3>
+                        <ul class="bullet-list">
+                            <li>Estudiantes de programas OTEC</li>
+                            <li>Postulantes a Licencia Clase B</li>
+                            <li>Usuarios de todas las edades interesados en mejorar sus habilidades de conducción</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>Basado en Three.js y JavaScript moderno</span>
+                </div>
+            </section>
+
+            <!-- Slide 3: Características Principales -->
+            <section class="slide">
+                <div class="slide-header">
+                    <div class="slide-title">Características Principales</div>
+                    <div class="slide-number">3/9</div>
+                </div>
+                <div class="slide-content">
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="icon">🌐</div>
+                            <div class="title">Entorno 3D Inmersivo</div>
+                            <div class="description">Basado en el motor de renderizado de Bruno Simon, optimizado para web con máximo rendimiento.</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">⚙️</div>
+                            <div class="title">Sistema de Físicas Realista</div>
+                            <div class="description">Manejo de colisiones, fricción de neumáticos y gravedad para simulación auténtica.</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">🏆</div>
+                            <div class="title">Módulo de Logros</div>
+                            <div class="description">Sistema integrado para trackear progreso (respeto de semáforos, velocidad permitida, etc.).</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">📱</div>
+                            <div class="title">Soporte Multidispositivo</div>
+                            <div class="description">Controles adaptados para teclado y dispositivos móviles con botones táctiles.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>Tecnología WebGL optimizada para académicos</span>
+                </div>
+            </section>
+
+            <!-- Slide 4: Instalación y Configuración -->
+            <section class="slide">
+                <div class="slide-header">
+                    <div class="slide-title">Instalación y Configuración</div>
+                    <div class="slide-number">4/9</div>
+                </div>
+                <div class="slide-content">
+                    <div class="content-box">
+                        <h3>1. Clonar el Repositorio</h3>
+                        <div class="code-block">git clone https://github.com/tu-usuario/vial-sim-game.git<br>cd vial-sim-game</div>
+                    </div>
+                    <div class="content-box">
+                        <h3>2. Instalar Dependencias</h3>
+                        <div class="code-block">npm install</div>
+                    </div>
+                    <div class="content-box">
+                        <h3>3. Ejecutar en Modo Desarrollo</h3>
+                        <div class="code-block">npm run dev</div>
+                    </div>
+                    <div class="content-box">
+                        <h3>4. Construir para Producción</h3>
+                        <div class="code-block">npm run build</div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>Requiere Node.js y npm instalados</span>
+                </div>
+            </section>
+
+            <!-- Slide 5: Controles -->
+            <section class="slide">
+                <div class="slide-header">
+                    <div class="slide-title">Sistema de Controles</div>
+                    <div class="slide-number">5/9</div>
+                </div>
+                <div class="slide-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Acción</th>
+                                <th>Teclado</th>
+                                <th>Táctil</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Acelerar</td>
+                                <td><span class="code-inline">W / ↑</span></td>
+                                <td>Botón Forward</td>
+                                <td>Aumenta velocidad hacia adelante</td>
+                            </tr>
+                            <tr>
+                                <td>Frenar / Reversa</td>
+                                <td><span class="code-inline">S / ↓</span></td>
+                                <td>Botón Backward</td>
+                                <td>Reduce velocidad o activa reversa</td>
+                            </tr>
+                            <tr>
+                                <td>Girar</td>
+                                <td><span class="code-inline">A / D</span></td>
+                                <td>Joystick / Botones</td>
+                                <td>Controla dirección del vehículo</td>
+                            </tr>
+                            <tr>
+                                <td>Interactuar</td>
+                                <td><span class="code-inline">E / Enter</span></td>
+                                <td>Botón "Interact"</td>
+                                <td>Interactúa con objetos del mundo</td>
+                            </tr>
+                            <tr>
+                                <td>Reiniciar Posición</td>
+                                <td><span class="code-inline">R</span></td>
+                                <td>Botón "Unstuck"</td>
+                                <td>Recupera posición si queda atrapado</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="slide-footer">
+                    <span>Controles totalmente personalizables</span>
+                </div>
+            </section>
+
+            <!-- Slide 6: Estructura del Proyecto -->
+            <section class="slide">
+                <div class="slide-header">
+                    <div class="slide-title">Estructura del Proyecto</div>
+                    <div class="slide-number">6/9</div>
+                </div>
+                <div class="slide-content">
+                    <div class="content-box">
+                        <h3>Componentes Principales</h3>
+                        <ul class="bullet-list">
+                            <li><span class="code-inline">index.html</span> - Punto de entrada con contenedor canvas y UI</li>
+                            <li><span class="code-inline">/assets</span> - Scripts de lógica principal</li>
+                            <li><span class="code-inline">/respawns</span> - Modelos .glb comprimidos para objetos y vehículos</li>
+                            <li><span class="code-inline">/ui</span> - Iconos SVG y previsualizaciones para navegación</li>
+                        </ul>
+                    </div>
+                    <div class="content-box">
+                        <h3>Características de Arquitectura</h3>
+                        <ul class="bullet-list">
+                            <li>Basada en HTML5 para máxima compatibilidad</li>
+                            <li>Motor 3D: Three.js</li>
+                            <li>Optimización procedural de bloques urbanos</li>
+                            <li>Soporte WebGL para renderizado acelerado</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>Arquitectura modular y escalable</span>
+                </div>
+            </section>
+
+            <!-- Slide 7: Roadmap de Aprendizaje -->
+            <section class="slide">
+                <div class="slide-header">
+                    <div class="slide-title">Roadmap de Aprendizaje</div>
+                    <div class="slide-number">7/9</div>
+                </div>
+                <div class="slide-content">
+                    <div class="roadmap-item">
+                        <div class="level">📍 NIVEL 1: Fundamentos</div>
+                        <p>Reconocimiento de señales de pare y ceda el paso. Aprendizaje de reglas básicas de tránsito urbano.</p>
+                    </div>
+                    <div class="roadmap-item">
+                        <div class="level">📍 NIVEL 2: Intermedio</div>
+                        <p>Circulación en rotondas y prioridades complejas. Manejo de intersecciones con múltiples direcciones.</p>
+                    </div>
+                    <div class="roadmap-item">
+                        <div class="level">📍 NIVEL 3: Avanzado</div>
+                        <p>Conducción nocturna y condiciones climáticas adversas. Implementación de texturas .ktx y iluminación dinámica.</p>
+                    </div>
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(242, 226, 5, 0.1); border-left: 3px solid var(--success); border-radius: 4px;">
+                        <p style="color: var(--success);">✓ Escalabilidad futura: IA para generar escenarios basados en errores históricos del usuario</p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>Aprendizaje progresivo y adaptativo</span>
+                </div>
+            </section>
+
+            <!-- Slide 8: Innovación y Ventajas -->
+            <section class="slide">
+                <div class="slide-header">
+                    <div class="slide-title">Innovación y Ventajas</div>
+                    <div class="slide-number">8/9</div>
+                </div>
+                <div class="slide-content">
+                    <div class="content-box" style="border-color: rgba(110, 255, 122, 0.5);">
+                        <h3>✓ Fortalezas</h3>
+                        <ul class="bullet-list">
+                            <li>Accesibilidad total: WebGL, sin instalaciones requeridas</li>
+                            <li>Costo de despliegue cero en servidor estándar</li>
+                            <li>Compatible con plataformas de aprendizaje (Moodle/Canvas)</li>
+                            <li>Diseño UI/UX atractivo para nuevas generaciones</li>
+                        </ul>
+                    </div>
+                    <div class="content-box" style="border-color: rgba(255, 68, 68, 0.5);">
+                        <h3>⚠ Mitigación de Limitaciones</h3>
+                        <ul class="bullet-list">
+                            <li>Audio envolvente (Howler.js) compensa falta de háptica</li>
+                            <li>Joystick virtual de alta precisión</li>
+                            <li>Sistema de penalizaciones en tiempo real para reforzar comportamiento seguro</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>Enfoque educativo sobre diversión</span>
+                </div>
+            </section>
+
+            <!-- Slide 9: Conclusión -->
+            <section class="slide">
+                <div class="slide-header">
+                    <div class="slide-title">Conclusión</div>
+                    <div class="slide-number">9/9</div>
+                </div>
+                <div class="slide-content">
+                    <div style="display: grid; align-content: center; justify-items: center; gap: 25px; height: 100%;">
+                        <div class="content-box" style="max-width: 600px; text-align: center;">
+                            <h3>Impacto Social</h3>
+                            <p style="font-size: 1.1rem;">
+                                Road Safety Simulator transforma la educación vial mediante tecnología inmersiva, preparando conductores más seguros y conscientes del tránsito.
+                            </p>
+                        </div>
+                        <div style="font-size: 3rem;">🚗 ✓ 🚦</div>
+                        <div style="font-family: var(--font-display); font-size: 1.3rem; color: var(--success); text-align: center;">
+                            La Seguridad No Es Una Opción<br>Es Una Conducta
+                        </div>
+                        <div style="border-top: 2px solid var(--accent); padding-top: 20px; color: var(--muted); text-align: center;">
+                            <p style="margin: 10px 0; font-size: 0.9rem;">Proyecto desarrollado con fines educativos</p>
+                            <p style="margin: 10px 0; font-size: 0.85rem;">2026 - Hackathon Automóvil</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>Gracias por su atención</span>
+                </div>
+            </section>
+        </div>
+
+        <!-- Controles de navegación -->
+        <div class="controls">
+            <button onclick="previousSlide()">← ANTERIOR</button>
+            <div class="dots" id="dots"></div>
+            <button onclick="nextSlide()">SIGUIENTE →</button>
+        </div>
+        <div style="text-align: center; padding: 10px; background: rgba(0, 0, 0, 0.3);">
+            <span class="progress-info"><span id="current-slide">1</span> / 9</span>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function createDots() {
+            const dotsContainer = document.getElementById('dots');
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('button');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[n].classList.add('active');
+            
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[n].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = n + 1;
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        function previousSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        function goToSlide(n) {
+            currentSlide = n;
+            showSlide(currentSlide);
+        }
+
+        // Controles de teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        // Inicializar
+        createDots();
+        showSlide(0);
+    </script>
+</body>
+</html>
