@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Conductor Cero: Roguelike Vial 3D</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Importmap para Three.js como en los ejemplos proporcionados -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Contenedor para textos flotantes (daño, mejoras) -->
+        <div id="floating-texts-container" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 8; overflow: hidden;"></div>
+        
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="screen">
+            <h1>Patrulla Cero: Caos Vial</h1>
+            <p>Sobrevive a las oleadas en la ciudad y demuestra tus conocimientos viales.</p>
+            <p class="instructions">WASD/Flechas: Mover | Clic Izquierdo: Disparar<br>C: Cambiar Cámara | P/Esc: Pausa</p>
+            <button id="start-btn">Comenzar Juego</button>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div id="health-bar-container">
+                <div id="health-bar"></div>
+            </div>
+            <div id="stats">
+                <span id="score-display">Puntos: 0</span>
+                <span id="wave-display">Oleada: 1</span>
+                <span id="enemies-left">Enemigos Faltantes: 0</span>
+            </div>
+            <!-- Estadisticas del Vehiculo -->
+            <div id="bottom-stats" class="bottom-panel">
+                <div>Autoridad: <span id="stat-dmg">25</span></div>
+                <div>Velocidad: <span id="stat-spd">15</span></div>
+                <div>Cadencia: <span id="stat-fire">300</span>ms</div>
+                <div>Papeles: <span id="stat-multi">1</span></div>
+                <div id="stat-shield" class="hidden" style="color: #3498db;">🛡️ Escudo</div>
+            </div>
+            <!-- Cooldown Dash -->
+            <div id="dash-container" class="bottom-panel hidden">
+                <div>Dash (Espacio)</div>
+                <div id="dash-bar-bg">
+                    <div id="dash-bar-fg"></div>
+                </div>
+            </div>
+            <!-- Contenedor del minimapa -->
+            <div id="minimap-container" class="hidden"></div>
+
+            <!-- Controles Móviles (Ocultos en PC, Mostrados por JS en touch) -->
+            <div id="mobile-controls" class="hidden">
+                <div class="dpad">
+                    <button id="btn-left">◀</button>
+                    <button id="btn-right">▶</button>
+                </div>
+                <div class="action-btns">
+                    <button id="btn-dash" style="font-size: 14px;">Dash</button>
+                    <button id="btn-cam" style="font-size: 18px;">📷</button>
+                </div>
+                <div class="dpad">
+                    <button id="btn-up">▲</button>
+                    <button id="btn-down">▼</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú de Pausa -->
+        <div id="pause-screen" class="screen hidden">
+            <h2>Juego Pausado</h2>
+            <button id="resume-btn">Reanudar</button>
+        </div>
+
+        <!-- Pantalla de Trivia -->
+        <div id="trivia-screen" class="screen hidden">
+            <h2>¡Trivia Vial!</h2>
+            <p id="question-text">Pregunta...</p>
+            <div id="options-container"></div>
+            <p id="trivia-feedback" class="hidden"></p>
+        </div>
+
+        <!-- Pantalla de Mejoras (Upgrades) -->
+        <div id="upgrade-screen" class="screen hidden">
+            <h2>¡Mejora de Vehículo!</h2>
+            <p>Has recuperado 25% de vida. Elige una mejora para continuar:</p>
+            <div id="upgrades-container" class="upgrades-flex">
+                <button class="upgrade-btn" data-type="damage">
+                    <h3>Más Autoridad</h3>
+                    <p>Tus partes/multas serán más respetados.</p>
+                </button>
+                <button class="upgrade-btn" data-type="speed">
+                    <h3>Más Velocidad</h3>
+                    <p>Tu vehículo se moverá más rápido.</p>
+                </button>
+                <button class="upgrade-btn" data-type="fireRate">
+                    <h3>Trámite Rápido</h3>
+                    <p>Reduce el tiempo al entregar partes.</p>
+                </button>
+                <button class="upgrade-btn" data-type="health">
+                    <h3>Mejor Chasis</h3>
+                    <p>Aumenta tu resistencia vehicular.</p>
+                </button>
+                <button class="upgrade-btn special-upgrade hidden" data-type="multiShot">
+                    <h3>Multa Múltiple</h3>
+                    <p>Entrega +1 papel a la vez.</p>
+                </button>
+                <button class="upgrade-btn special-upgrade hidden" data-type="dash">
+                    <h3>Impulso (Dash)</h3>
+                    <p>Usa la barra espaciadora para un salto rápido.</p>
+                </button>
+                <button class="upgrade-btn special-upgrade hidden" data-type="shield">
+                    <h3>Buen Seguro</h3>
+                    <p>Reduce todo el choque recibido en un 50%.</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Game Over -->
+        <div id="game-over-screen" class="screen hidden" style="position: relative; overflow: hidden;">
+            <!-- Animación de carretera para pantalla de derrota -->
+            <div class="highway-scene">
+                <div class="road-markings"></div>
+                <div class="patrol-car-anim">
+                    <div class="siren red"></div>
+                    <div class="siren blue"></div>
+                </div>
+            </div>
+            
+            <div style="position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center;">
+                <h2>¡Fin del Juego!</h2>
+                <p>Prepárate para la próxima.</p>
+                <p id="final-score">Puntuación Final: 0</p>
+                <p id="final-wave">Oleadas Superadas: 0</p>
+                <button id="restart-btn">Volver a Intentarlo</button>
+                <button id="main-menu-btn" style="background-color: #e67e22; margin-top: 15px;">Volver a Pantalla Principal</button>
+            </div>
+        </div>
+
+        <!-- Panel de Administrador -->
+        <div id="admin-panel" class="screen hidden" style="background-color: rgba(10, 10, 30, 0.95); z-index: 100;">
+            <h2 style="color: #3498db; margin-bottom: 20px;">[ Panel de Administrador ]</h2>
+            <p style="color: #bdc3c7;">Modo desarrollador activado</p>
+            <div style="display: flex; flex-direction: column; gap: 15px; width: 60%; max-width: 400px; margin-top: 20px;">
+                <button id="admin-heal-btn" style="background-color: #2ecc71;">Restaurar Vehículo (Salud MÁX)</button>
+                <button id="admin-kill-btn" style="background-color: #e74c3c;">Limpiar Calle (Matar Enemigos)</button>
+                <button id="admin-wave-btn" style="background-color: #f1c40f; color: #2c3e50;">Saltar a Siguiente Oleada</button>
+                
+                <!-- Inputs para modificar estadísticas -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #fff; margin-top: 10px; text-align: left; font-size: 0.9rem;">
+                    <label>Autoridad: <input type="number" id="admin-dmg" style="width: 100%; box-sizing: border-box;"></label>
+                    <label>Velocidad: <input type="number" id="admin-spd" style="width: 100%; box-sizing: border-box;"></label>
+                    <label>Cadencia: <input type="number" id="admin-fire" style="width: 100%; box-sizing: border-box;"></label>
+                    <label>Papeles: <input type="number" id="admin-multi" style="width: 100%; box-sizing: border-box;"></label>
+                </div>
+                <button id="admin-apply-stats-btn" style="background-color: #9b59b6;">Aplicar Estadísticas</button>
+                <button id="admin-defeat-btn" style="background-color: #c0392b;">Forzar Derrota</button>
+                
+                <button id="admin-close-btn" style="background-color: #7f8c8d; margin-top: 10px;">Cerrar Panel</button>
+            </div>
+        </div>
+
+        <!-- Canvas principal de WebGL -->
+        <canvas id="webgl-canvas"></canvas>
+    </div>
+    
+    <!-- Script principal como módulo -->
+    <script type="module" src="game.js"></script>
+</body>
+</html> 
