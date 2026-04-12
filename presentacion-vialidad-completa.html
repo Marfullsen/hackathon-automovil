@@ -287,7 +287,7 @@
 
         /* Slide 14 background */
         .slide:nth-child(14) {
-            background-image: url('https://images.unsplash.com/photo-1517142089942-ba376ce32a2e?auto=format&fit=crop&q=80&w=2070');
+            background-image: url('https://images.unsplash.com/photo-1489824904134-891ab64532f1?auto=format&fit=crop&q=80&w=2070');
         }
 
         /* Layouts de Contenido */
@@ -455,6 +455,7 @@
             align-items: center;
             justify-content: center;
             font-size: 20px;
+            display: none;
         }
 
         .btn-nav:hover {
@@ -513,278 +514,432 @@
             </div>
         </section>
 
-        <!-- SLIDE 2: Alcance de la Plataforma -->
-        <section class="slide">
-            <h2 class="slide-title">Alcance de la <span>Plataforma</span></h2>
-            <div class="grid-2">
-                <div class="info-card">
-                    <h3>🎯 Público Objetivo</h3>
-                    <div class="list-item" style="animation-delay: 0.4s;">Estudiantes de programas OTEC</div>
-                    <div class="list-item" style="animation-delay: 0.5s;">Postulantes a Licencia Clase B</div>
-                    <div class="list-item" style="animation-delay: 0.6s;">Nacionales y extranjeros</div>
+        <!-- SLIDE 2: EL PROBLEMA - Lo Aburrido del Manual -->
+        <section class="slide slide-hero">
+            <div style="max-width: 1000px; text-align: center;">
+                <h1 class="hero-title" style="font-size: 3.5rem; line-height: 1.1; color: var(--danger); margin-bottom: 30px; animation: slideInFromBottom 0.8s ease-out 0.3s both;">
+                    El Manual es <span style="color: var(--accent-yellow);">Aburrido</span>
+                </h1>
+                <div style="background: rgba(255, 77, 77, 0.15); border-left: 4px solid var(--danger); padding: 25px; border-radius: 8px; margin: 30px 0; animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                    <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;"><strong>200+ páginas</strong> de PDF estático</p>
+                    <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;">Tests de opción múltiple sin contexto visual</p>
+                    <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;">Los aspirantes memorizan, pero <strong>no internalizan</strong> el riesgo</p>
                 </div>
-                <div class="info-card">
-                    <h3>🧩 Arquitectura por Minijuegos</h3>
-                    <p style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">Cada minijuego practica una competencia distinta: convivencia vial, maniobras técnicas y decisiones bajo presión.</p>
+                <div style="background: rgba(255, 77, 77, 0.25); padding: 20px; border-radius: 8px; margin-top: 30px; animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                    <p style="font-size: 1.2rem; color: var(--text-dim);">Resultado: <strong style="color: var(--danger); font-size: 1.4rem;">45% de reprobación</strong> en primer intento</p>
+                    <p style="font-size: 1rem; color: var(--text-dim); margin-top: 10px;">La culpa no es la falta de estudio.<br/>Es la <strong>brecha cognitiva</strong> entre teoría 2D y realidad 3D.</p>
                 </div>
-            </div>
-            <div class="info-card" style="margin-top: 25px; animation: slideInFromBottom 0.8s ease-out 0.7s both;">
-                <h3>📍 Propósito Pedagógico</h3>
-                <p>Evaluar la toma de decisiones bajo estrés y el cumplimiento de normativas chilenas mediante una progresión didáctica por minijuegos.</p>
             </div>
         </section>
 
-        <!-- SLIDE 3: Fortalezas -->
+        <!-- SLIDE 3: LA SOLUCIÓN - Safe Drive Learning -->
+        <section class="slide slide-hero">
+            <div style="max-width: 1000px; text-align: center;">
+                <h1 class="hero-title" style="font-size: 3.5rem; line-height: 1.1; color: var(--success); margin-bottom: 30px; animation: slideInFromBottom 0.8s ease-out 0.3s both;">
+                    La Solución: <span style="color: var(--accent-yellow);">Safe Drive Learning</span>
+                </h1>
+                <div style="background: rgba(46, 160, 67, 0.15); border-left: 4px solid var(--success); padding: 25px; border-radius: 8px; margin: 30px 0; animation: slideInFromBottom 0.8s ease-out 0.5s both;">
+                    <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;">Simulador 3D interactivo en navegador</p>
+                    <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;">Experiencia sensorial de conducción real</p>
+                    <p style="font-size: 1.3rem; color: var(--text-main); margin: 15px 0;">Aprendizaje por <strong>inmersión</strong>, no memorización</p>
+                </div>
+                <div style="background: rgba(46, 160, 67, 0.25); padding: 20px; border-radius: 8px; margin-top: 30px; animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                    <p style="font-size: 1.2rem; color: var(--text-main);">No es un juego. Es un <strong style="color: var(--accent-yellow);">simulador pedagógico</strong> que</p>
+                    <p style="font-size: 1.3rem; color: var(--text-main); margin-top: 15px;"><strong>Transforma la teoría CONASET en experiencia práctica</strong></p>
+                    <p style="font-size: 1rem; color: var(--text-dim); margin-top: 10px;">desde la palma de tu mano, sin instalación, en cualquier navegador.</p>
+                </div>
+            </div>
+        </section>
+
+
+
+
+        <!-- SLIDE 5: Fortalezas -->
         <section class="slide">
             <h2 class="slide-title">Nuestras <span>Fortalezas</span></h2>
             <div class="grid-3">
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                    <h3 style="color: var(--accent-blue)">⚖️ Realismo Normativo</h3>
+                    <h3 style="color: var(--accent-blue)">Realismo Normativo</h3>
                     <p>El sistema no solo detecta choques, sino infracciones de "Convivencia" como exceso de velocidad cerca de peatones o colegios.</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3 style="color: var(--accent-blue)">☁️ Accesibilidad Total</h3>
-                    <p>Basado en WebGL (Three.js), corre en cualquier navegador sin instalaciones, democratizando acceso a simuladores de alta calidad.</p>
+                    <h3 style="color: var(--accent-blue)">Accesibilidad Total</h3>
+                    <p>Plataforma 100% web que corre en cualquier navegador moderno sin instalación. Democratiza acceso a simuladores 3D de calidad profesional mediante HTML5 y JavaScript.</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both;">
-                    <h3 style="color: var(--accent-blue)">💎 Diseño UI/UX</h3>
+                    <h3 style="color: var(--accent-blue)">Diseño UI/UX</h3>
                     <p>Interfaz "Cyberpunk" diseñada para capturar la atención de las nuevas generaciones.</p>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 4: Debilidades y Mitigación -->
-        <section class="slide">
-            <h2 class="slide-title">Debilidades y <span>Mitigación</span></h2>
-            <div class="grid-2">
-                <div class="info-card" style="border-left: 4px solid var(--danger); animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                    <h3>⚠️ Debilidad 1</h3>
-                    <p>Limitación actual en el modelado de físicas de daño vehicular avanzado (foco actual en reglas, no en destrucción).</p>
-                </div>
-                <div class="info-card" style="border-left: 4px solid var(--success); animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>✓ Mitigación</h3>
-                    <p>Implementación de sistema de audio envolvente (Howler.js) y joystick virtual de alta precisión para compensar.</p>
-                </div>
-            </div>
-            <div class="grid-2" style="margin-top: 25px;">
-                <div class="info-card" style="border-left: 4px solid var(--danger); animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>⚠️ Debilidad 2</h3>
-                    <p>Ausencia de retroalimentación háptica (volantes físicos) en la versión web base.</p>
-                </div>
-                <div class="info-card" style="border-left: 4px solid var(--success); animation: slideInFromBottom 0.8s ease-out 0.7s both;">
-                    <h3>✓ Compensación</h3>
-                    <p>UI responsiva y retroalimentación visual e auditiva en tiempo real para máxima inmersión.</p>
-                </div>
-            </div>
-        </section>
+        <!-- SLIDE 6: Debilidades y Mitigación -->
 
-        <!-- SLIDE 5: Tecnología e Innovación -->
+
+        <!-- SLIDE 7: Tecnología e Innovación -->
         <section class="slide">
             <h2 class="slide-title">Tecnología e <span>Innovación</span></h2>
             <div class="info-card" style="margin-bottom: 25px; animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                <h3>⚡ Stack Tecnológico</h3>
-                <p>JavaScript moderno, Three.js (Motor 3D), CSS3 con efectos de desenfoque de fondo y diseño atómico.</p>
+                <h3>Stack Tecnológico (100% Web)</h3>
+                <p>JavaScript moderno con Three.js para gráficos 3D de alto rendimiento. Audio inmersivo con Howler.js. Disponible en cualquier navegador, sin instalación ni dependencias.</p>
                 <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
-                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.4s both;">WebGL</code>
-                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.5s both;">Three.js</code>
-                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.6s both;">Howler.js</code>
-                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.7s both;">Atomic Design</code>
+                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.4s both;">HTML5</code>
+                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.5s both;">JavaScript</code>
+                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.6s both;">Three.js</code>
+                    <code style="background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 6px; color: var(--accent-blue); border: 1px solid var(--accent-blue); animation: fadeInScale 0.8s ease-out 0.7s both;">CSS3</code>
                 </div>
             </div>
             <div class="info-card" style="margin-bottom: 25px; border-left: 4px solid var(--accent-yellow); animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                <h3>🎮 Innovación en Gameplay</h3>
-                <p>El "Game Loop" integra penalizaciones de tiempo real. <strong>Una infracción de tránsito equivale a +30 segundos de retraso</strong> en la misión de urgencia, conectando la seguridad vial con el éxito de la misión.</p>
+                <h3>Mecánica de Gameplay</h3>
+                <p>El "Game Loop" integra penalizaciones de tiempo real. Una infracción de tránsito equivale a +30 segundos de retraso en la misión de urgencia, conectando la seguridad vial con el éxito de la misión.</p>
             </div>
             <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both;">
-                <h3>⚙️ Optimización</h3>
-                <p>Uso de generación procedural de bloques urbanos para mantener el rendimiento en hardware académico.</p>
+                <h3>Rendimiento y Optimización</h3>
+                <p>Arquitectura modular por minijuegos. Generación procedural de escenarios urbanos para mantener fluidez en dispositivos académicos estándar.</p>
             </div>
         </section>
 
-        <!-- SLIDE 6: El GDD -->
+        <!-- SLIDE 8: El GDD -->
         <section class="slide">
             <h2 class="slide-title">El <span>GDD</span></h2>
             <div class="grid-2">
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                    <h3>🔄 Core Loop</h3>
+                    <h3>Core Loop</h3>
                     <p><strong>Input</strong> (Conducir) → <strong>Update</strong> (Detección de Riesgos) → <strong>Feedback</strong> (Puntaje y Convivencia)</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>🎨 Estética</h3>
-                    <p>HUD futurista que integra minimapa circular dinámico y línea de guía visual (Guide Line) inspirada en títulos AAA.</p>
+                    <h3>Estética</h3>
+                    <p>HUD futurista que integra minimapa circular dinámico y línea de guía visual (Guide Line) inspirada en videojuegos estilo 3D.</p>
                 </div>
             </div>
             <div class="info-card" style="margin-top: 25px; animation: slideInFromBottom 0.8s ease-out 0.7s both;">
-                <h3>📖 Narrativa</h3>
-                <p>El usuario no es un conductor cualquiera; es un <strong>paramédico en una misión de transporte crítico</strong>, elevando el valor emocional de cada decisión.</p>
+                <h3>Narrativa</h3>
+                <p>El usuario no es un conductor cualquiera; es un paramédico en una misión de transporte crítico, elevando el valor emocional de cada decisión.</p>
             </div>
         </section>
 
-        <!-- SLIDE 7: Resolución y Motivación -->
+        <!-- SLIDE 9: Resolución y Motivación -->
         <section class="slide">
             <h2 class="slide-title">Resolución del <span>Desafío</span></h2>
             <div class="grid-2">
-                <div class="info-card" style="border-left: 4px solid var(--accent-blue); animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                    <h3>❓ ¿Cómo resuelve el reto?</h3>
-                    <p>Ataca la principal causa de fallas en exámenes: <strong>la falta de anticipación y el exceso de velocidad</strong>.</p>
+                <div class="info-card" style="border-left: 4px solid var(--accent-blue); animation: slideInFromBottom 0.8s ease-out 0.3s both; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.1; animation: rotate-subtle 8s infinite;">⚡</div>
+                    <h3 style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.8rem;">🎯</span>
+                        <span>¿Cómo resuelve el reto?</span>
+                    </h3>
+                    <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%; opacity: 0.6;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%; opacity: 0.8;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%;"></span>
+                    </div>
+                    <p style="margin-bottom: 15px;">Ataca la principal causa de fallas en exámenes: <strong style="color: var(--accent-blue);">la falta de anticipación y el exceso de velocidad</strong>.</p>
+                    <div style="background: rgba(0, 163, 255, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent-blue); font-size: 0.95rem; color: var(--text-main);">
+                        <strong>→ Pedagogía inmersiva</strong> sustituye memorización reactiva
+                    </div>
                 </div>
-                <div class="info-card" style="border-left: 4px solid var(--accent-yellow); animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>🎯 Motivación del Jugador</h3>
-                    <p>Sistema de "Racha de Seguridad" y multiplicadores de puntaje que premian al conductor ejemplar, no al más rápido.</p>
+                <div class="info-card" style="border-left: 4px solid var(--accent-yellow); animation: slideInFromBottom 0.8s ease-out 0.5s both; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.1; animation: rotate-subtle 8s infinite reverse;">🏆</div>
+                    <h3 style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.8rem;">🎮</span>
+                        <span>Motivación del Jugador</span>
+                    </h3>
+                    <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-yellow); border-radius: 50%; opacity: 0.6;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-yellow); border-radius: 50%; opacity: 0.8;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-yellow); border-radius: 50%;"></span>
+                    </div>
+                    <p style="margin-bottom: 15px;">Sistema de <strong style="color: var(--accent-yellow);">"Racha de Seguridad"</strong> y multiplicadores de puntaje que premian al conductor ejemplar, no al más rápido.</p>
+                    <div style="background: rgba(244, 180, 0, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent-yellow); font-size: 0.95rem; color: var(--text-main);">
+                        <strong>→ Gamificación responsable</strong> para nativos digitales
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 25px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; animation: slideInFromBottom 0.8s ease-out 0.7s both;">
+                <div style="background: rgba(0, 163, 255, 0.1); border: 1px solid rgba(0, 163, 255, 0.3); padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">💭</div>
+                    <p style="font-size: 0.95rem; color: var(--text-dim);"><strong>Cognición</strong><br/>Anticipación y lectura del riesgo</p>
+                </div>
+                <div style="background: rgba(46, 160, 67, 0.1); border: 1px solid rgba(46, 160, 67, 0.3); padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">⏱️</div>
+                    <p style="font-size: 0.95rem; color: var(--text-dim);"><strong>Tiempo Real</strong><br/>Presión y reacción del jugador</p>
+                </div>
+                <div style="background: rgba(255, 77, 77, 0.1); border: 1px solid rgba(255, 77, 77, 0.3); padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">📊</div>
+                    <p style="font-size: 0.95rem; color: var(--text-dim);"><strong>Métricas</strong><br/>Feedback inmediato y progreso</p>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 8: Factibilidad y Escalabilidad -->
+        <!-- SLIDE 10: Factibilidad y Escalabilidad -->
         <section class="slide">
             <h2 class="slide-title">Factibilidad y <span>Escalabilidad</span></h2>
             <div class="grid-3">
-                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                    <h3>🔗 Integración</h3>
-                    <p>Propuesta técnica para ser embebido en plataformas de aprendizaje (Moodle/Canvas).</p>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.1; animation: rotate-subtle 8s infinite;">🔗</div>
+                    <h3 style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.6rem;">🌐</span>
+                        <span>Integración</span>
+                    </h3>
+                    <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%; opacity: 0.6;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%; opacity: 0.8;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%;"></span>
+                    </div>
+                    <p style="margin-bottom: 15px;">Propuesta técnica para ser embebido en <span style="color: var(--accent-blue);">plataformas de aprendizaje</span> (Moodle/Canvas).</p>
+                    <div style="background: rgba(0, 163, 255, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent-blue); font-size: 0.95rem; color: var(--text-main);">
+                        <strong>✓ API REST</strong> lista para integración
+                    </div>
                 </div>
-                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>💰 Factibilidad</h3>
-                    <p><strong>Costo de despliegue cero</strong> (servidor web estándar).</p>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.1; animation: rotate-subtle 8s infinite reverse;">💰</div>
+                    <h3 style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.6rem;">✅</span>
+                        <span>Factibilidad</span>
+                    </h3>
+                    <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-yellow); border-radius: 50%; opacity: 0.6;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-yellow); border-radius: 50%; opacity: 0.8;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-yellow); border-radius: 50%;"></span>
+                    </div>
+                    <p style="margin-bottom: 15px;"><strong style="color: var(--accent-yellow);">Costo de despliegue cero</strong> (servidor web estándar).</p>
+                    <div style="background: rgba(244, 180, 0, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent-yellow); font-size: 0.95rem; color: var(--text-main);">
+                        <strong>⚡ Zero-cost</strong> architecture
+                    </div>
                 </div>
-                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both;">
-                    <h3>🚀 Futuro</h3>
-                    <p>Potencial de IA para generar escenarios de tráfico basados en errores históricos del usuario.</p>
+                <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.1; animation: rotate-subtle 8s infinite;">🚀</div>
+                    <h3 style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.6rem;">🤖</span>
+                        <span>Futuro</span>
+                    </h3>
+                    <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--success); border-radius: 50%; opacity: 0.6;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--success); border-radius: 50%; opacity: 0.8;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--success); border-radius: 50%;"></span>
+                    </div>
+                    <p style="margin-bottom: 15px;">Potencial de <span style="color: var(--success);">IA generativa</span> para crear escenarios de tráfico basados en errores históricos.</p>
+                    <div style="background: rgba(46, 160, 67, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--success); font-size: 0.95rem; color: var(--text-main);">
+                        <strong>🧠 Análisis</strong> adaptativo por usuario
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; animation: slideInFromBottom 0.8s ease-out 0.8s both;">
+                <div style="background: rgba(0, 163, 255, 0.08); border: 1px solid rgba(0, 163, 255, 0.3); padding: 16px; border-radius: 8px; text-align: center; border-top: 3px solid var(--accent-blue);">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">📱</div>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.4;"><strong>Portabilidad</strong><br/>100% web, sin instalación</p>
+                </div>
+                <div style="background: rgba(244, 180, 0, 0.08); border: 1px solid rgba(244, 180, 0, 0.3); padding: 16px; border-radius: 8px; text-align: center; border-top: 3px solid var(--accent-yellow);">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">⚙️</div>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.4;"><strong>Modularidad</strong><br/>Escalable por minijuegos</p>
+                </div>
+                <div style="background: rgba(46, 160, 67, 0.08); border: 1px solid rgba(46, 160, 67, 0.3); padding: 16px; border-radius: 8px; text-align: center; border-top: 3px solid var(--success);">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">📈</div>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.4;"><strong>Escalabilidad</strong><br/>Crece con la demanda</p>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 25px; background: linear-gradient(135deg, rgba(0, 163, 255, 0.1) 0%, rgba(46, 160, 67, 0.05) 100%); border: 2px solid rgba(0, 163, 255, 0.3); animation: slideInFromBottom 0.8s ease-out 0.9s both;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 2.5rem;">💡</div>
+                    <div>
+                        <p style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 8px;"><strong>Ventaja Competitiva:</strong></p>
+                        <p style="font-size: 0.95rem; color: var(--text-dim);">Solución viable, escalable y sustentable que requiere cero inversión en infraestructura, permitiendo reinversión completa en innovación pedagógica y contenido.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 9: Demostración Práctica -->
+        <!-- SLIDE 11: Demostración Práctica -->
         <section class="slide">
             <h2 class="slide-title">Demostración <span>Práctica</span></h2>
             <div class="info-card" style="margin-bottom: 25px; animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                <h3>📍 Escenario</h3>
+                <h3>Escenario</h3>
                 <p>Transporte a Clínica desde Zona Residencial Norte</p>
             </div>
             <div class="grid-2">
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>1️⃣ Respeto de Velocidad</h3>
+                    <h3>Respeto de Velocidad</h3>
                     <p>Zona escolar (40 km/h) - Validación de cumplimiento normativo</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.6s both;">
-                    <h3>2️⃣ Cruce de Intersección</h3>
+                    <h3>Cruce de Intersección</h3>
                     <p>Intersección con tráfico transversal - Toma de decisiones bajo presión</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both;">
-                    <h3>3️⃣ Gestión de Peatones</h3>
+                    <h3>Gestión de Peatones</h3>
                     <p>Peatones dinámicos en el Centro Urbano - Anticipación y seguridad</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.8s both;">
-                    <h3>4️⃣ Estacionamiento Seguro</h3>
+                    <h3>Estacionamiento Seguro</h3>
                     <p>Zona de Clínica - Precisión y control del vehículo</p>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 10: Minijuego Pato -->
+        <!-- SLIDE 12: Minijuego Pato -->
         <section class="slide">
             <h2 class="slide-title">Minijuego <span>Safe Drive learning</span></h2>
             <div class="grid-2">
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                    <h3>🚑 Doble Narrativa</h3>
+                    <h3>Doble Narrativa</h3>
                     <p>Incluye modo <strong>Estudiante Practicante</strong> y modo <strong>Paramédico 911</strong>, permitiendo entrenamiento guiado o misión de urgencia con presión de tiempo.</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>🧭 ¿Qué práctica?</h3>
+                    <h3>¿Qué práctica?</h3>
                     <p><strong>Convivencia vial y anticipación de riesgo</strong>: lectura del entorno, control de velocidad, respeto de zonas sensibles y respuesta ante peatones.</p>
                 </div>
             </div>
             <div class="grid-2" style="margin-top: 25px;">
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.6s both;">
-                    <h3>📊 Instrumentación Completa</h3>
+                    <h3>Instrumentación Completa</h3>
                     <p>HUD con puntaje, velocidad, progreso, convivencia, infracciones y minimapa circular para reforzar toma de decisiones en tiempo real.</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.8s both;">
-                    <h3>🔁 Game Loop</h3>
+                    <h3>Game Loop</h3>
                     <p><strong>Input:</strong> conducir con teclado/touch/joystick → <strong>Update:</strong> detección de infracciones y riesgos → <strong>Feedback:</strong> puntaje, convivencia y progreso de misión.</p>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 11: Minijuego Frank -->
+        <!-- SLIDE 13: Minijuego Frank -->
         <section class="slide">
             <h2 class="slide-title">Minijuego <span>Estacionamiento</span></h2>
             <div class="grid-3">
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                    <h3>🅿️ Parking School 3D</h3>
+                    <h3>Parking School 3D</h3>
                     <p>Entrenamiento orientado a maniobras de precisión, control fino del vehículo y cumplimiento de rutinas de estacionamiento seguro.</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>🛠️ ¿Qué práctica?</h3>
-                    <p><strong>Habilidades operativas de examen práctico</strong>: marchas, señalización, referencia espacial y precisión de maniobras en baja velocidad.</p>
+                    <h3>¿Qué práctica?</h3>
+                    <p>Habilidades operativas de examen práctico: marchas, señalización, referencia espacial y precisión de maniobras en baja velocidad.</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.7s both;">
-                    <h3>📱 UX Adaptativa</h3>
+                    <h3>UX Adaptativa</h3>
                     <p>Incluye interfaz táctil avanzada con joystick, panel móvil y overlays de pausa/intro para academias con dispositivos mixtos.</p>
                 </div>
             </div>
             <div class="grid-2" style="margin-top: 25px;">
                 <div class="info-card" style="border-left: 4px solid var(--accent-yellow); animation: slideInFromBottom 0.8s ease-out 0.8s both;">
-                <h3>✅ Simulación Técnica</h3>
+                <h3>Simulación Técnica</h3>
                 <p>Integra selector de marcha, intermitentes, guía de distancia, estados del vehículo y progresión por niveles.</p>
                 </div>
                 <div class="info-card" style="border-left: 4px solid var(--accent-blue); animation: slideInFromBottom 0.8s ease-out 0.9s both;">
-                    <h3>🔁 Game Loop</h3>
+                    <h3>Game Loop</h3>
                     <p><strong>Input:</strong> maniobras, marchas y señalización → <strong>Update:</strong> validación de posición/distancia/estado del vehículo → <strong>Feedback:</strong> avance por nivel y corrección de técnica.</p>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 12: Minijuego Italo -->
+        <!-- SLIDE 14: Minijuego Italo -->
         <section class="slide">
             <h2 class="slide-title">Minijuego <span>
                 patrulla cero: caos vial 
             </span></h2>
             <div class="grid-2">
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                    <h3>🚓 Patrulla Cero: Caos Vial</h3>
+                    <h3>Patrulla Cero: Caos Vial</h3>
                     <p>Experiencia 3D tipo acción por oleadas donde el jugador gestiona presión, movilidad y estrategia en entorno urbano hostil.</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>🧠 ¿Qué práctica?</h3>
+                    <h3>¿Qué práctica?</h3>
                     <p><strong>Decisión rápida y memoria normativa</strong>: resolución de trivia vial, priorización de riesgos y manejo del estrés situacional.</p>
                 </div>
             </div>
             <div class="grid-2" style="margin-top: 25px;">
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.6s both;">
-                    <h3>⚙️ Sistema de Mejoras</h3>
+                    <h3>Sistema de Mejoras</h3>
                     <p>Ofrece upgrades de velocidad, resistencia, cadencia y dash, además de progresión por oleadas para aumentar engagement.</p>
                 </div>
                 <div class="info-card" style="animation: slideInFromBottom 0.8s ease-out 0.8s both;">
-                    <h3>🔁 Game Loop</h3>
+                    <h3>Game Loop</h3>
                     <p><strong>Input:</strong> movimiento, acción y elección de respuestas → <strong>Update:</strong> estado de oleada y eventos de riesgo → <strong>Feedback:</strong> vida, puntos, upgrades y refuerzo de normativa.</p>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 13: Ecosistema de Minijuegos -->
+        <!-- SLIDE 15: Ecosistema de Minijuegos -->
         <section class="slide">
             <h2 class="slide-title">Plataforma de <span>Minijuegos</span></h2>
             <div class="grid-3">
-                <div class="info-card" style="border-left: 4px solid var(--accent-yellow); animation: slideInFromBottom 0.8s ease-out 0.3s both;">
-                    <h3>1) Safe Drive learning</h3>
-                    <p><strong>Practica:</strong> convivencia vial, anticipación y conducción defensiva en ruta narrativa.</p>
+                <div class="info-card" style="border-left: 4px solid var(--accent-yellow); animation: slideInFromBottom 0.8s ease-out 0.3s both; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.1; animation: rotate-subtle 8s infinite;">🚗</div>
+                    <h3 style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.6rem;">🛣️</span>
+                        <span>Safe Drive Learning</span>
+                    </h3>
+                    <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-yellow); border-radius: 50%; opacity: 0.6;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-yellow); border-radius: 50%; opacity: 0.8;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-yellow); border-radius: 50%;"></span>
+                    </div>
+                    <p style="margin-bottom: 15px;"><strong>Practica:</strong> <span style="color: var(--accent-yellow);">convivencia vial</span>, anticipación y conducción defensiva en ruta narrativa.</p>
+                    <div style="background: rgba(244, 180, 0, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent-yellow); font-size: 0.95rem; color: var(--text-main);">
+                        <strong>📊 Modo:</strong> Estudiante + Paramédico
+                    </div>
                 </div>
-                <div class="info-card" style="border-left: 4px solid var(--accent-blue); animation: slideInFromBottom 0.8s ease-out 0.5s both;">
-                    <h3>2) Estacionamiento</h3>
-                    <p><strong>Practica:</strong> maniobras técnicas, control de vehículo y precisión de estacionamiento.</p>
+                <div class="info-card" style="border-left: 4px solid var(--accent-blue); animation: slideInFromBottom 0.8s ease-out 0.5s both; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.1; animation: rotate-subtle 8s infinite reverse;">🎯</div>
+                    <h3 style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.6rem;">🅿️</span>
+                        <span>Estacionamiento</span>
+                    </h3>
+                    <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%; opacity: 0.6;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%; opacity: 0.8;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%;"></span>
+                    </div>
+                    <p style="margin-bottom: 15px;"><strong>Practica:</strong> <span style="color: var(--accent-blue);">maniobras técnicas</span>, control de vehículo y precisión de estacionamiento.</p>
+                    <div style="background: rgba(0, 163, 255, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent-blue); font-size: 0.95rem; color: var(--text-main);">
+                        <strong>🔧 Modo:</strong> Parking School 3D
+                    </div>
                 </div>
-                <div class="info-card" style="border-left: 4px solid var(--success); animation: slideInFromBottom 0.8s ease-out 0.7s both;">
-                    <h3>3) patrulla cero: caos vial</h3>
-                    <p><strong>Practica:</strong> reacción bajo presión, trivia normativa y toma de decisiones rápidas.</p>
+                <div class="info-card" style="border-left: 4px solid var(--success); animation: slideInFromBottom 0.8s ease-out 0.7s both; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.1; animation: rotate-subtle 8s infinite;">⚡</div>
+                    <h3 style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.6rem;">🚓</span>
+                        <span>Patrulla Cero</span>
+                    </h3>
+                    <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--success); border-radius: 50%; opacity: 0.6;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--success); border-radius: 50%; opacity: 0.8;"></span>
+                        <span style="display: inline-block; width: 6px; height: 6px; background: var(--success); border-radius: 50%;"></span>
+                    </div>
+                    <p style="margin-bottom: 15px;"><strong>Practica:</strong> <span style="color: var(--success);">reacción bajo presión</span>, trivia normativa y toma de decisiones rápidas.</p>
+                    <div style="background: rgba(46, 160, 67, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--success); font-size: 0.95rem; color: var(--text-main);">
+                        <strong>🎮 Modo:</strong> Caos Vial por Oleadas
+                    </div>
                 </div>
             </div>
-            <div class="highlight-box" style="margin-top: 25px;">
-                <p style="font-size: 1.1rem; color: var(--text-main);"><strong>Resultado:</strong> una sola plataforma donde cada minijuego entrena una competencia distinta y, en conjunto, forma conductores más completos.</p>
+            
+            <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; animation: slideInFromBottom 0.8s ease-out 0.8s both;">
+                <div style="background: rgba(244, 180, 0, 0.08); border: 1px solid rgba(244, 180, 0, 0.3); padding: 16px; border-radius: 8px; text-align: center; border-top: 3px solid var(--accent-yellow);">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">🧠</div>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.4;"><strong>Pedagogía</strong><br/>Basada en competencias</p>
+                </div>
+                <div style="background: rgba(0, 163, 255, 0.08); border: 1px solid rgba(0, 163, 255, 0.3); padding: 16px; border-radius: 8px; text-align: center; border-top: 3px solid var(--accent-blue);">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">📈</div>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.4;"><strong>Progresión</strong><br/>Dificultad adaptativa</p>
+                </div>
+                <div style="background: rgba(46, 160, 67, 0.08); border: 1px solid rgba(46, 160, 67, 0.3); padding: 16px; border-radius: 8px; text-align: center; border-top: 3px solid var(--success);">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">🏆</div>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.4;"><strong>Gamificación</strong><br/>Sistema de recompensas</p>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 25px; background: linear-gradient(135deg, rgba(0, 163, 255, 0.1) 0%, rgba(244, 180, 0, 0.05) 100%); border: 2px solid rgba(244, 180, 0, 0.3); animation: slideInFromBottom 0.8s ease-out 0.9s both;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 2.5rem;">🎯</div>
+                    <div>
+                        <p style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 8px;"><strong>Resultado Integral:</strong></p>
+                        <p style="font-size: 0.95rem; color: var(--text-dim);">Una sola plataforma donde cada minijuego entrena una competencia distinta y, en conjunto, forma conductores más completos, más seguros y mejor preparados para la carretera real.</p>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- SLIDE 14: Conclusión y Cierre -->
+        <!-- SLIDE 16: Conclusión y Cierre -->
         <section class="slide slide-hero">
             <h2 style="font-size: 3rem; margin-bottom: 20px; animation: slideInFromBottom 0.8s ease-out 0.3s both;">LA SEGURIDAD ES UNA <span style="color: var(--accent-yellow)">CONDUCTA</span></h2>
             <div style="margin-top: 40px; margin-bottom: 40px;">

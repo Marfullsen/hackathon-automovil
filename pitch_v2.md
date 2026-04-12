@@ -5,15 +5,29 @@
 
 ---
 
-## MINUTO 0: El Gancho (Problema + Solución)
-**(Visual: Pantalla dividida. A la izquierda, un estudiante frustrado con un PDF de 200 páginas; a la derecha, un usuario usando el simulador en su móvil con fluidez).**
+## MINUTO 0: El Problema (Lo Aburrido del Manual)
+**(Visual: Pantalla dividida. A la izquierda, montaña de 200+ páginas de PDF; a la derecha, estudiante durmiendo en la biblioteca).**
 
 **Locución:**
-"¿Sabían que en Chile, el 45% de los aspirantes reprueba el examen teórico Clase B en su primer intento? Pero el dato más revelador no es la falta de estudio, sino la brecha cognitiva. 
+"¿Sabían que en Chile, el 45% de los aspirantes reprueba el examen teórico Clase B en su primer intento?
 
-En 2026, seguimos intentando enseñar una actividad tridimensional y de alta velocidad, como es conducir, mediante textos estáticos y tests de opción múltiple. El estudiante estudia un PDF, memoriza señales, y luego salta a un vehículo real bajo una situación de estrés máximo.
+El problema no es la falta de estudio. El problema es **que seguimos enseñando conducción mediante PDFs estáticos**. 200 páginas de texto. Tests de opción múltiple sin contexto visual.
 
-Presentamos **Safe Drive Learning**: la evolución de la educación vial. No es una app de lectura; es un simulador 3D *mobile-first* de alto rendimiento que transforma la normativa vigente de la CONASET en una experiencia sensorial y práctica desde la palma de tu mano."
+En 2026, seguimos intentando enseñar una actividad **tridimensional y de alta velocidad** mediante textos 2D. El estudiante memoriza señales, responde tests, y luego salta a un auto real bajo estrés máximo. La brecha cognitiva es abismal.
+
+Resultado: **Reprobación. Frustración. Inseguridad al volante.**"
+
+---
+
+## MINUTO 0.5: La Solución (Safe Drive Learning)
+**(Visual: Transición. El mismo estudiante ahora en celular, manejando en simulador 3D, sonriendo).**
+
+**Locución:**
+"Presentamos **Safe Drive Learning**: la evolución de la educación vial. No es una app de lectura; es un simulador 3D *mobile-first* que transforma la normativa vigente de la CONASET en una **experiencia sensorial y práctica** desde la palma de tu mano.
+
+No memorizar. **Experimentar.** No estudiar un PDF. **Simular 20 minuetos de conducción real bajo presión.**
+
+Safe Drive Learning reduce la brecha entre la teoría y la realidad, permitiendo que los aspirantes entrenen en un entorno seguro antes de tocar un volante de verdad."
 
 ---
 
@@ -45,14 +59,14 @@ Si tu métrica de **Convivencia Vial** baja del 60%, la misión falla. Esta capa
 **(Visual: Esquema técnico mostrando la optimización de polígonos y el diseño de la interfaz táctil).**
 
 **Locución:**
-"El desafío técnico en 2026 es la accesibilidad. Safe Drive Learning corre sobre **WebGPU**, permitiendo gráficos de alta fidelidad directamente en el navegador, pero optimizados para dispositivos de gama media-baja. 
+"El desafío técnico en 2026 es la accesibilidad. Safe Drive Learning está construido con **JavaScript y Three.js**, permitiendo gráficos 3D de alta fidelidad directamente en el navegador sin instalación ni descargas pesadas. Totalmente optimizado para dispositivos de gama media-baja. 
 
 Hemos aplicado:
-1.  **Geometrías Low-Poly con Texturizado Inteligente:** Estética limpia y funcional.
+1.  **Geometrías Low-Poly con Texturizado Inteligente:** Estética limpia, fluida y funcional.
 2.  **Sistema de LOD (Level of Detail):** El entorno carga dinámicamente para ahorrar datos y batería.
-3.  **Diseño Atómico de Interfaz:** Un joystick virtual optimizado para el pulgar y componentes táctiles de alta respuesta (Haptic Feedback).
+3.  **Interfaz Táctil Optimizada:** Joystick virtual para pulgar y controles táctiles altamente responsivos.
 
-Es una experiencia de consola, sin descargas pesadas, funcionando como una **PWA (Progressive Web App)**."
+Es una experiencia de simulador profesional, 100% web, sin instalación, sin dependencias externas. Corre en navegadores modernos de escritorio y móvil."
 
 ---
 
