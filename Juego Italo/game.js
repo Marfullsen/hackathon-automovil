@@ -25,6 +25,8 @@ const finalScoreDisplay = document.getElementById('final-score');
 const finalWaveDisplay = document.getElementById('final-wave');
 const restartBtn = document.getElementById('restart-btn');
 const mainMenuBtn = document.getElementById('main-menu-btn');
+const mainMenuStartBtn = document.getElementById('main-menu-start-btn');
+const mainMenuPauseBtn = document.getElementById('main-menu-pause-btn');
 const minimapContainer = document.getElementById('minimap-container');
 const statDmg = document.getElementById('stat-dmg');
 const statSpd = document.getElementById('stat-spd');
@@ -1720,6 +1722,16 @@ restartBtn.addEventListener('click', () => {
 
 if (mainMenuBtn) {
     mainMenuBtn.addEventListener('click', () => {
-        window.location.href = '../index.html'; // Cambiar a la ruta de tu seleccionador de juegos más adelante
+        window.location.href = '../home-minijuegos.html';
+    });
+}
+if (mainMenuStartBtn) {
+    mainMenuStartBtn.addEventListener('click', () => {
+        window.location.href = '../home-minijuegos.html';
+    });
+}
+if (mainMenuPauseBtn) {
+    mainMenuPauseBtn.addEventListener('click', () => {
+        window.location.href = '../home-minijuegos.html';
     });
 }
